@@ -1,0 +1,22 @@
+{
+"com.badlogic.gdx.graphics.g2d.BitmapFont": {
+    "thin": { "file": "fonts/test.fnt" },
+  },
+  "com.badlogic.gdx.graphics.Color": {
+    "green": { "a": 1, "b": 0, "g": 1, "r": 0 },
+    "white": { "a": 1, "b": 1, "g": 1, "r": 1 },
+    "red": { "a": 1, "b": 0, "g": 0, "r": 1 },
+    "grey": { "a": 0.5, "b": 1, "g": 1, "r": 1 },
+    "black": { "a": 1, "b": 0, "g": 0, "r": 0 },
+    "title": { "a": 1, "b": 0.21, "g": 0.19, "r": 0.09 },
+    "tb_bg-up": { "a": 1, "b": 0.61, "g": 0.57, "r": 0.50 },
+    "tb_bg-down": { "a": 1, "b": 0.42, "g": 0.60, "r": 0.83 }
+  },
+  "com.badlogic.gdx.scenes.scene2d.ui.Skin$TintedDrawable": {
+    "button": { "name": "button", "color": white },
+
+  },
+  "com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle": {
+    "default": { "up": "button" , "down": "button", "font": thin, "pressedOffsetY": -4, "fontColor": title },
+  },
+}
