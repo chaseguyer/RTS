@@ -13,11 +13,11 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 
 public class RTS extends Game {
-
-	@Override
-	public void create ()  {
-                Gdx.graphics.setDisplayMode(Gdx.graphics.getDesktopDisplayMode().width, Gdx.graphics.getDesktopDisplayMode().height, true);
-		setScreen(new MainMenu());
-	}
-
+    
+    @Override
+    public void create() {
+        Gdx.graphics.setDisplayMode(Gdx.graphics.getDesktopDisplayMode().width, Gdx.graphics.getDesktopDisplayMode().height, true);
+	setScreen(new MainMenu());
+    }
+    
 }
