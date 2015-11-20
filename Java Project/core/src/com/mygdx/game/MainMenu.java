@@ -52,6 +52,9 @@ public class MainMenu implements Screen {
     private TextButton exit = new TextButton("Exit", skin);
     
     // Main menu
+    private Table mainMenuTitleTable = new Table();
+    private Label mainMenuTitle = new Label("Welcome back, therapist", skin);
+    
     private Table mainMenuTable = new Table();
     private TextButton button1 = new TextButton("Create Routine", skin);
     private TextButton button2 = new TextButton("Edit Routine", skin);
@@ -60,6 +63,9 @@ public class MainMenu implements Screen {
     private TextButton button5 = new TextButton("Logout Therapist", skin);
     
     // Create Routine
+    private Table createRoutineTitleTable = new Table();
+    private Label createRoutineTitle = new Label("Pick a game to play", skin);
+    
     private Table createRoutineTable = new Table();
     private TextButton buttonA = new TextButton("I Spy", skin);
     private TextButton buttonB = new TextButton("Memory", skin);
@@ -97,6 +103,8 @@ public class MainMenu implements Screen {
         next.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {
+                loginTitle.clear();
+                loginTitle.remove();          
                 loginTable.clear();
                 loginTable.remove();
                 stage.clear();
@@ -114,19 +122,35 @@ public class MainMenu implements Screen {
     }
     
     public void createMainMenu() {
-        stage.addActor(mainMenuTable);
-        mainMenuTable.setFillParent(true);
-        mainMenuTable.add(button1).left().padBottom(10);
-        mainMenuTable.add().size(700, 100).row();
-        mainMenuTable.add(button2).left().padBottom(10).row();
-        mainMenuTable.add(button3).left().padBottom(10).row();
-        mainMenuTable.add(button5).left().padBottom(10).row();
-        mainMenuTable.add(button4).left().padBottom(10);
+        stage.addActor(mainMenuTitleTable);
+        mainMenuTitleTable.setFillParent(true);
+        mainMenuTitleTable.add(mainMenuTitle).align(Align.center).row();
+        mainMenuTitle.setFontScale(0.9f);
+        mainMenuTitleTable.add(mainMenuTable);
+        
+        mainMenuTable.add(button1).size(600, 80).left().padTop(50);
+        mainMenuTable.add().size(600, 100).row();
+        mainMenuTable.add(button2).size(600, 80).left().padTop(10).row();
+        mainMenuTable.add(button3).size(600, 80).left().padTop(10).row();
+        mainMenuTable.add(button5).size(600, 80).left().padTop(10).row();
+        mainMenuTable.add(button4).size(600, 80).left().padTop(10);
 
+        button1.getLabel().setFontScale(0.6f);
+        button1.getLabel().setAlignment(Align.left);
+        button2.getLabel().setFontScale(0.6f);
+        button2.getLabel().setAlignment(Align.left);
+        button3.getLabel().setFontScale(0.6f);
+        button3.getLabel().setAlignment(Align.left);
+        button4.getLabel().setFontScale(0.6f);
+        button4.getLabel().setAlignment(Align.left);
+        button5.getLabel().setFontScale(0.6f);
+        button5.getLabel().setAlignment(Align.left);
         
         button1.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {
+                mainMenuTitleTable.clear();
+                mainMenuTitleTable.remove();
                 mainMenuTable.clear();
                 mainMenuTable.remove();
                 stage.clear();
@@ -139,6 +163,8 @@ public class MainMenu implements Screen {
             public void changed (ChangeEvent event, Actor actor) {
                 //mainMenuTable.clear();
                 //mainMenuTable.remove();
+                //mainMenuTitleTable.clear();
+                //mainMenuTitleTable.remove();
                 //stage.clear();
 
                 //createLogin();            
@@ -154,15 +180,26 @@ public class MainMenu implements Screen {
     }
     
     public void createRoutine() {
-        stage.addActor(createRoutineTable);
-        createRoutineTable.setFillParent(true);
-        createRoutineTable.add(buttonA).left().padBottom(10);
-        createRoutineTable.row();
-        createRoutineTable.add(buttonB).left().padBottom(10);
-        createRoutineTable.row();
-        createRoutineTable.add(buttonC).left().padBottom(10);
-        createRoutineTable.row();
-        createRoutineTable.add(buttonD).left().padBottom(10);
+        stage.addActor(createRoutineTitleTable);
+        createRoutineTitleTable.setFillParent(true);
+        createRoutineTitleTable.add(createRoutineTitle).align(Align.center).row();
+        createRoutineTitle.setFontScale(0.9f);
+        createRoutineTitleTable.add(createRoutineTable);
+        
+        createRoutineTable.add(buttonA).size(600, 80).left().padTop(50);
+        createRoutineTable.add().size(600, 100).row();
+        createRoutineTable.add(buttonB).size(600, 80).left().padTop(10).row();
+        createRoutineTable.add(buttonC).size(600, 80).left().padTop(10).row();
+        createRoutineTable.add(buttonD).size(600, 80).left().padTop(10);
+        
+        buttonA.getLabel().setFontScale(0.6f);
+        buttonA.getLabel().setAlignment(Align.left);
+        buttonB.getLabel().setFontScale(0.6f);
+        buttonB.getLabel().setAlignment(Align.left);
+        buttonC.getLabel().setFontScale(0.6f);
+        buttonC.getLabel().setAlignment(Align.left);
+        buttonD.getLabel().setFontScale(0.6f);
+        buttonD.getLabel().setAlignment(Align.left);
     
         buttonA.addListener(new ChangeListener() {
             @Override
