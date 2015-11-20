@@ -139,18 +139,17 @@ public class MainMenu implements Screen {
         createRoutineTable.row();
         createRoutineTable.add(buttonD).left().padBottom(10);
     
-        /*
-        buttonA.addListener(new ClickListener() {
-            public void clicked (InputEvent event, Actor actor) {
-                ((Game) Gdx.app.getApplicationListener()).setScreen(new MemoryGame());
-            }
-        });    
-        */
-        
         buttonA.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {
                 ((Game) Gdx.app.getApplicationListener()).setScreen(new I_Spy());
+            }
+        });    
+        
+        buttonB.addListener(new ChangeListener() {
+            @Override
+            public void changed (ChangeEvent event, Actor actor) {
+                ((Game) Gdx.app.getApplicationListener()).setScreen(new MemoryGame());
             }
         });    
         
