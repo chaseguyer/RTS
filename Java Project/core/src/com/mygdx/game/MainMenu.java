@@ -40,12 +40,16 @@ public class MainMenu implements Screen {
     // Login
     private Table loginTitle = new Table();
     private Label login = new Label("Therapist Login", skin);
+    
     private Table loginTable = new Table();
     private Label unLabel = new Label("Username:", skin);
     private TextField unText = new TextField("", skin);
-    private Label pwLabel = new Label("Address:", skin);
+    private Label pwLabel = new Label("Password:", skin);
     private TextField pwText = new TextField("", skin);
-    private TextButton nextButton = new TextButton("Next", skin);
+    
+    private Table loginButtons = new Table();
+    private TextButton next = new TextButton("Next", skin);
+    private TextButton exit = new TextButton("Exit", skin);
     
     // Main menu
     private Table mainMenuTable = new Table();
@@ -53,6 +57,7 @@ public class MainMenu implements Screen {
     private TextButton button2 = new TextButton("Edit Routine", skin);
     private TextButton button3 = new TextButton("Load Routine", skin);
     private TextButton button4 = new TextButton("Exit", skin);
+    private TextButton button5 = new TextButton("Logout Therapist", skin);
     
     // Create Routine
     private Table createRoutineTable = new Table();
@@ -73,20 +78,23 @@ public class MainMenu implements Screen {
         
         loginTitle.setFillParent(true);               
         loginTitle.add(login).padBottom(100).align(Align.center).row();
-        loginTitle.add(loginTable);
+        loginTitle.add(loginTable).row();
+        loginTitle.add(loginButtons);
         
         loginTable.row();
         loginTable.add(unLabel).left();
-        loginTable.add(unText).width(400);
-        loginTable.row();
+        unLabel.setFontScale(0.6f);
+        loginTable.add(unText).width(400).row();
         loginTable.add(pwLabel).left();
-        loginTable.add(pwText).width(400);
-        loginTable.row();
-        nextButton.getLabel().setFontScale((float)0.5);
+        pwLabel.setFontScale(0.6f);
+        loginTable.add(pwText).width(400).row();
         
-        loginTable.add(nextButton).size(100,100).left().padTop(50);
+        loginButtons.add(next).size(300,80).left().padTop(50).align(Align.center).row();
+        next.getLabel().setFontScale(0.5f);
+        loginButtons.add(exit).size(300,80).left().padTop(10).align(Align.center).row();
+        exit.getLabel().setFontScale(0.5f);
                 
-        nextButton.addListener(new ChangeListener() {
+        next.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {
                 loginTable.clear();
@@ -96,19 +104,25 @@ public class MainMenu implements Screen {
                 createMainMenu();
             }
         }); 
+        
+        exit.addListener(new ChangeListener() {
+            @Override
+            public void changed (ChangeEvent event, Actor actor) {
+                Gdx.app.exit();
+            }
+        }); 
     }
     
     public void createMainMenu() {
         stage.addActor(mainMenuTable);
         mainMenuTable.setFillParent(true);
         mainMenuTable.add(button1).left().padBottom(10);
-        mainMenuTable.add().size(700, 100);
-        mainMenuTable.row();
-        mainMenuTable.add(button2).left().padBottom(10);
-        mainMenuTable.row();
-        mainMenuTable.add(button3).left().padBottom(10);
-        mainMenuTable.row();
+        mainMenuTable.add().size(700, 100).row();
+        mainMenuTable.add(button2).left().padBottom(10).row();
+        mainMenuTable.add(button3).left().padBottom(10).row();
+        mainMenuTable.add(button5).left().padBottom(10).row();
         mainMenuTable.add(button4).left().padBottom(10);
+
         
         button1.addListener(new ChangeListener() {
             @Override
@@ -120,6 +134,17 @@ public class MainMenu implements Screen {
            } 
         });
            
+        button5.addListener(new ChangeListener() {
+            @Override
+            public void changed (ChangeEvent event, Actor actor) {
+                //mainMenuTable.clear();
+                //mainMenuTable.remove();
+                //stage.clear();
+
+                //createLogin();            
+            }
+        });    
+        
         button4.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {
