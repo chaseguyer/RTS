@@ -11,7 +11,12 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import static com.mygdx.game.MainMenu.stage;
 
+/**
+ *
+ * @author chaseguyer
+ */
 public class RTS extends Game {
     
     @Override

@@ -2,22 +2,27 @@
 "com.badlogic.gdx.graphics.g2d.BitmapFont": {
     "thin": { "file": "fonts/test.fnt" }
   },
+  
   "com.badlogic.gdx.graphics.Color": {
-    "green": { "a": 1, "b": 0, "g": 1, "r": 0 },
-    "white": { "a": 1, "b": 1, "g": 1, "r": 1 },
-    "red": { "a": 1, "b": 0, "g": 0, "r": 1 },
-    "grey": { "a": 0.5, "b": 1, "g": 1, "r": 1 },
-    "black": { "a": 1, "b": 0, "g": 0, "r": 0 },
-    "title": { "a": 1, "b": 0.21, "g": 0.19, "r": 0.09 },
-    "tb_bg-up": { "a": 1, "b": 0.61, "g": 0.57, "r": 0.50 },
-    "tb_bg-down": { "a": 1, "b": 0.42, "g": 0.60, "r": 0.83 },
-    "down_button": { "a": 1, "r": 0.2039, "g": 0.3059, "b": 0.4500 }
+    "title": { "a": 1, "r": 0.1529, "g": 0.2314, "b": 0.4157 },
+    "tb_font_color": { "a": 1, "r": 0.2471, "g": 0.5255, "b": 0.5961 },
+    "tb_down_color": { "a": 1, "r": 0.2039, "g": 0.3059, "b": 0.4500 },    
+    "tf_color": { "a": 1, "r": 0.2039, "g": 0.3059, "b": 0.4500 }
   },
+  
   "com.badlogic.gdx.scenes.scene2d.ui.Skin$TintedDrawable": {
-    "button_down": { "name": "button", "color": down_button },
-
+    "button_down": { "name": "button", "color": tb_down_color },
   },
+  
   "com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle": {
-    "default": { "up": "button" , "down": "button_down", "font": thin, "pressedOffsetY": -4, "fontColor": title },
+    "default": { "up": "button" , "down": "button_down", "font": thin, "pressedOffsetY": -4, "fontColor": tb_font_color },
+  },
+  
+    "com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle": {
+    "default": { "font": thin, "fontColor": title },
+  },
+  
+    "com.badlogic.gdx.scenes.scene2d.ui.TextField$TextFieldStyle": {
+    "default": { "font": thin, "fontColor": title, "background": "button" },
   },
 }
