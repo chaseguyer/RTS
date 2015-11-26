@@ -31,7 +31,7 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
     //Vector2 two=new Vector2(-2,-2);
     
     @Override
-    public void show ()  // asdf
+    public void show ()
     {
         Gdx.graphics.setDisplayMode(Gdx.graphics.getDesktopDisplayMode().width, Gdx.graphics.getDesktopDisplayMode().height, true);
         Gdx.input.setInputProcessor(this);
