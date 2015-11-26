@@ -1,0 +1,31 @@
+{
+"com.badlogic.gdx.graphics.g2d.BitmapFont": {
+    "thin": { "file": "fonts/test.fnt" },
+    "cgoth-reg": { "file": "fonts/century_gothic-regular.fnt" },
+    "cgoth-bold": { "file": "fonts/century_gothic-bold.fnt" },
+    "cgoth-italic": { "file": "fonts/century_gothic-italic.fnt" }
+  },
+  
+  "com.badlogic.gdx.graphics.Color": {
+    "title": { "a": 1, "r": 0.1529, "g": 0.2314, "b": 0.4157 },
+    "tb_font_color": { "a": 1, "r": 0.2471, "g": 0.5255, "b": 0.5961 },
+    "tb_down_color": { "a": 1, "r": 0.2039, "g": 0.3059, "b": 0.4500 },    
+    "tf_color": { "a": 1, "r": 0.2039, "g": 0.3059, "b": 0.4500 }
+  },
+  
+  "com.badlogic.gdx.scenes.scene2d.ui.Skin$TintedDrawable": {
+    "button_down": { "name": "button", "color": tb_down_color },
+  },
+  
+  "com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle": {
+    "default": { "up": "button" , "down": "button_down", "font": cgoth-bold, "pressedOffsetY": -4, "fontColor": tb_font_color },
+  },
+  
+    "com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle": {
+    "default": { "font": cgoth-bold, "fontColor": title },
+  },
+  
+    "com.badlogic.gdx.scenes.scene2d.ui.TextField$TextFieldStyle": {
+    "default": { "font": cgoth-reg, "fontColor": title, "background": "button" },
+  },
+}
