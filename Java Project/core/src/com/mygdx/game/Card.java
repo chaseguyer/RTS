@@ -18,8 +18,8 @@ public class Card
     boolean clicked=false;
     public Card(int xt, int yt, Sprite img, int markT)
     {
-        x=xt*250;
-        y=yt*250;
+        x=(int) (xt*250*(Gdx.graphics.getWidth()/1920.0f));
+        y=(int) (yt*250*(Gdx.graphics.getHeight()/1080.0f));
         mark=markT;
         hidden=new Sprite(new Texture(Gdx.files.internal("Items/dirt.png")));
         image=new Sprite(img);
