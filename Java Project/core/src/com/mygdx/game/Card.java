@@ -15,12 +15,13 @@ public class Card
     int width=100;
     int mark;
     Sprite image, hidden;//=null;
-    boolean clicked=false;
-    public Card(int xt, int yt, Sprite img, int markT)
+    boolean clicked;
+    public Card(int xt, int yt, Sprite img, int markT, float xSpace, float ySpace)
     {
-        x=(int) (xt*250*(Gdx.graphics.getWidth()/1920.0f));
-        y=(int) (yt*250*(Gdx.graphics.getHeight()/1080.0f));
+        x=(int) (xt*xSpace*(Gdx.graphics.getWidth()/1920.0f));
+        y=(int) (yt*ySpace*(Gdx.graphics.getHeight()/1080.0f));
         mark=markT;
+        clicked=false;
         hidden=new Sprite(new Texture(Gdx.files.internal("Items/dirt.png")));
         image=new Sprite(img);
         image.setPosition(x, y);
@@ -41,12 +42,17 @@ public class Card
         if(xt>=x && xt<=x+width && yt>=y && yt<=y+width)
         {
             //System.out.println("TEST");
-            clicked=true;
+            //clicked=true;
             return true;
         }
-        clicked=false;
+        //clicked=false;
         return false;
     }
+    
+    public void setClicked(boolean cl)
+    {
+        clicked=cl;
+    }    
     
     public int getMark()
     {

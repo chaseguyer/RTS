@@ -16,6 +16,9 @@ import java.util.Random;
 /**
  *
  * @author muel2767
+ * leave cards flipped for 1-5 seconds
+ * vertical/horizontal/diagonal 
+ * background solid or designed 
  */
 public class MemoryGame extends ApplicationAdapter implements Screen, InputProcessor
 {
@@ -27,6 +30,10 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
     double numRow=3.5;
     int mark=-1;
     Vector2 one=new Vector2(-1,-1);
+    Vector2 two=new Vector2(-1,-1);
+    int hitMark=0;
+    long counter=0;
+    int time=3;
     //Vector2 two=new Vector2(-2,-2);
     
     @Override
@@ -94,7 +101,6 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
                                 count++;
                     if(count<2)
                         taken=false;
-                    //System.out.println("count"+count);
                 }
                 switch(num)
                 {
@@ -120,36 +126,45 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
                         temp=seven;
                         break;
                 }
-                deck[x][y]=new Card(x,y,temp, num);
+                deck[x][y]=new Card(x,y,temp, num, 250, 250);
                 deckFill[x][y]=num;
             }
-        //System.out.println("I AM FREE");
-        
-            
-            //updateCount(deck);
-        
-        //memoryGameLogic();
     }
     
     public void memoryGameLogic(int cardPairs)
     {
-        int count=cardPairs;
-        boolean test=true;
         Gdx.gl.glClearColor(0,0,0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         batch.begin();
-        boolean draw=true;
         for(int x=0; x<cardPairs; ++x)
             for(int y=0; y<cardPairs/numRow; ++y)
                 if(deck[x][y]!=null)
+                {   
                     deck[x][y].draw(batch);
-
+                }
+        if(two.x!=-1 && System.currentTimeMillis()-counter>time*1000)
+        {
+            deck[(int)one.x][(int)one.y].setClicked(false);
+            deck[(int)two.x][(int)two.y].setClicked(false);
+            if(mark==deck[(int)two.x][(int)two.y].getMark())
+            {
+                deck[(int)one.x][(int)one.y]=null;
+                deck[(int)two.x][(int)two.y]=null;
+                System.out.println("purge");
+            }
+            one.x=-1;
+            one.y=-1;
+            two.x=-1;
+            two.y=-1;
+            mark=-1;
+            System.out.println("clean");
+        }
+//          
+        batch.end();
         if(Gdx.input.isKeyJustPressed(Keys.Q))
             Gdx.app.exit();
-            //((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenu());
-
         
-        if(Gdx.input.isButtonPressed(Input.Buttons.LEFT) && Gdx.input.justTouched() )//if(Gdx.input.isKeyJustPressed(Keys.F))
+        if(Gdx.input.isButtonPressed(Input.Buttons.LEFT) && Gdx.input.justTouched() && two.x==-1)//if(Gdx.input.isKeyJustPressed(Keys.F))
         {
             //System.out.println("click at x: "+Gdx.input.getX() +" and y: "+(Gdx.graphics.getHeight()-Gdx.input.getY()));
             for(int x=0; x<cardPairs; ++x)
@@ -158,24 +173,30 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
                     if(deck[x][y].click(Gdx.input.getX(), Gdx.graphics.getHeight()-Gdx.input.getY()))
                     {
                         //System.out.println("mark= "+mark+" vs "+deck[x][y].getMark()+ "x: "+x+" y: "+y+" one.x: "+one.x+" one.y: "+one.y);
-                        if( same(x,y)==false && mark==deck[x][y].getMark() /*&& one.x!=-1 && mark!=-1*/)
+                        if( same(x,y)==false && one.x!=-1)//&& mark==deck[x][y].getMark() /*&& one.x!=-1 && mark!=-1*/)
                         {
-                            deck[(int)one.x][(int)one.y]=null;
-                            deck[x][y]=null;
-                            one.x=-1;
-                            one.y=-1;
-                            mark=-1;
-                            //System.out.println("done");
+                            //hit and matched
+                            System.out.println("1");
+                            two.x=x;
+                            two.y=y;
+                            deck[x][y].setClicked(true);
+                            counter=System.currentTimeMillis();
                         }
-                        else 
+                        else //if(mark==-1) 
                         {
+                            //set mark
+                            System.out.println("2");
                             one.x=x;
                             one.y=y;
-                            mark=deck[x][y].getMark(); 
+                            deck[x][y].setClicked(true);
+                            mark=deck[x][y].getMark();
                         }
+//                        else
+//                        {
+//                            //missed on both
+//                        }
                     }
         }
-        batch.end();
     }
     boolean same(int x, int y)
     {
