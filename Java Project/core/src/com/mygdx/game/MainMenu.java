@@ -15,6 +15,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -36,6 +37,9 @@ public class MainMenu implements Screen {
     
     public static Stage stage = new Stage();
     public static Skin skin = new Skin(Gdx.files.internal("skins/skins.json"), new TextureAtlas(Gdx.files.internal("skins/test.pack")));
+
+    // Misc
+    private TextButton exit = new TextButton("Exit", skin);
     
     // Login
     private Table loginTitle = new Table();
@@ -49,39 +53,72 @@ public class MainMenu implements Screen {
     
     private Table loginButtons = new Table();
     private TextButton next = new TextButton("Next", skin);
-    private TextButton exit = new TextButton("Exit", skin);
     
-    // Main menu
-    private Table mainMenuTitleTable = new Table();
-    private Label mainMenuTitle = new Label("Welcome back, therapist", skin);
+    // Therapist menu
+    private Table therapistMenuTitleTable = new Table();
+    private Label therapistMenuTitle = new Label("Welcome back, therapist", skin);
     
-    private Table mainMenuTable = new Table();
-    private TextButton button1 = new TextButton("Create Routine", skin);
-    private TextButton button2 = new TextButton("Edit Routine", skin);
-    private TextButton button3 = new TextButton("Load Routine", skin);
-    private TextButton button4 = new TextButton("Exit", skin);
-    private TextButton button5 = new TextButton("Logout Therapist", skin);
+    private Table therapistMenuTable = new Table();
+    private TextButton createP = new TextButton("Create Patient", skin);
+    private TextButton loadP = new TextButton("Load Patient", skin); 
+    private TextButton logT = new TextButton("Logout Therapist", skin);
+    
+    // Patient menu
+    private Table patientMenuTitleTable = new Table();
+    private Label patientMenuTitle = new Label("What to do with the patient?", skin);
+    
+    private Table patientMenuTable = new Table();
+    private TextButton createR = new TextButton("Create Routine", skin);
+    private TextButton editR = new TextButton("Edit Routine", skin);
+    private TextButton loadR = new TextButton("Load Routine", skin);
+    private TextButton editP = new TextButton("Edit Patient Information", skin);
+    private TextButton logP = new TextButton("Logout Patient", skin);
+    
+    // Edit/Create Patient - make use of SelectBox (drop down menus)
+    private Table patientInfoTitleTable = new Table();
+    private Label patientInfoTitle = new Label("Patient Information", skin);
+    
+    private Table patientInfoTable = new Table();
+    
+    // Most involved arm
+    //private CheckBox box = new CheckBox("Most involved arm", skin);
+    
+    // Fugel-Meyer score (can add dates with updated scores)
+    private Table fmScores = new Table();
+    private TextButton newScore = new TextButton("New Score?", skin);
+    
+    // Grip Strength (lbs) (which hand)
+    private Table gsScores = new Table();
+    
+    // Pinch Strength (lbs) (which hand)
+    private Table psScores = new Table();
+    
+    // 9 hole peg test (seconds)
+    private Table hpScores = new Table();
+    
+    // text boxes to add additional info (keep to minimum)?
     
     // Create Routine
     private Table createRoutineTitleTable = new Table();
     private Label createRoutineTitle = new Label("Pick a game to play", skin);
     
     private Table createRoutineTable = new Table();
-    private TextButton buttonA = new TextButton("I Spy", skin);
-    private TextButton buttonB = new TextButton("Memory", skin);
-    private TextButton buttonC = new TextButton("Maze", skin);
-    private TextButton buttonD = new TextButton("Back", skin); // make me a BACK
+    private TextButton btA = new TextButton("I Spy", skin);
+    private TextButton btB = new TextButton("Memory", skin);
+    private TextButton btC = new TextButton("Maze", skin);
+    private TextButton btD = new TextButton("Back", skin);
+    
     
     @Override
     public void show() {
         Gdx.input.setInputProcessor(stage);   
         resize(Gdx.graphics.getDesktopDisplayMode().width, Gdx.graphics.getDesktopDisplayMode().height);
-        createLogin();
+        createTherapistLogin();
     }
-    
-    public void createLogin() {        
+           
+    public void createTherapistLogin() {                
+        stage.clear();
         stage.addActor(loginTitle);
-        
         loginTitle.setFillParent(true);               
         loginTitle.add(login).padBottom(100).align(Align.center).row();
         loginTitle.add(loginTable).row();
@@ -109,7 +146,7 @@ public class MainMenu implements Screen {
                 loginTable.remove();
                 stage.clear();
 
-                createMainMenu();
+                createTherapistMenu();
             }
         }); 
         
@@ -121,57 +158,58 @@ public class MainMenu implements Screen {
         }); 
     }
     
-    public void createMainMenu() {
-        stage.addActor(mainMenuTitleTable);
-        mainMenuTitleTable.setFillParent(true);
-        mainMenuTitleTable.add(mainMenuTitle).align(Align.center).row();
-        mainMenuTitle.setFontScale(0.9f);
-        mainMenuTitleTable.add(mainMenuTable);
+    public void createTherapistMenu() {
+        stage.clear();        
+        stage.addActor(therapistMenuTitleTable);
+        therapistMenuTitleTable.setFillParent(true);
+        therapistMenuTitleTable.add(therapistMenuTitle).align(Align.center).row();
+        therapistMenuTitle.setFontScale(0.9f);
+        therapistMenuTitleTable.add(therapistMenuTable);
         
-        mainMenuTable.add(button1).size(600, 80).left().padTop(50);
-        mainMenuTable.add().size(600, 100).row();
-        mainMenuTable.add(button2).size(600, 80).left().padTop(10).row();
-        mainMenuTable.add(button3).size(600, 80).left().padTop(10).row();
-        mainMenuTable.add(button5).size(600, 80).left().padTop(10).row();
-        mainMenuTable.add(button4).size(600, 80).left().padTop(10);
+        therapistMenuTable.add(createP).size(600, 80).left().padTop(50);
+        therapistMenuTable.add().size(600, 100).row();
+        therapistMenuTable.add(loadP).size(600, 80).left().padTop(10).row();
+        therapistMenuTable.add(logT).size(600, 80).left().padTop(10).row();
+        therapistMenuTable.add(exit).size(600, 80).left().padTop(10).row();
 
-        button1.getLabel().setFontScale(0.6f);
-        button1.getLabel().setAlignment(Align.left);
-        button2.getLabel().setFontScale(0.6f);
-        button2.getLabel().setAlignment(Align.left);
-        button3.getLabel().setFontScale(0.6f);
-        button3.getLabel().setAlignment(Align.left);
-        button4.getLabel().setFontScale(0.6f);
-        button4.getLabel().setAlignment(Align.left);
-        button5.getLabel().setFontScale(0.6f);
-        button5.getLabel().setAlignment(Align.left);
+        createP.getLabel().setFontScale(0.6f);
+        createP.getLabel().setAlignment(Align.left);
+        loadP.getLabel().setFontScale(0.6f);
+        loadP.getLabel().setAlignment(Align.left);
+        logT.getLabel().setFontScale(0.6f);
+        logT.getLabel().setAlignment(Align.left);
+        exit.getLabel().setFontScale(0.6f);
+        exit.getLabel().setAlignment(Align.left);
         
-        button1.addListener(new ChangeListener() {
+        // Create Patient
+        createP.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {
-                mainMenuTitleTable.clear();
-                mainMenuTitleTable.remove();
-                mainMenuTable.clear();
-                mainMenuTable.remove();
+                therapistMenuTitleTable.clear();
+                therapistMenuTitleTable.remove();
+                therapistMenuTable.clear();
+                therapistMenuTable.remove();
                 stage.clear();
-                createRoutine();
+                createPatientMenu();
            } 
         });
            
-        button5.addListener(new ChangeListener() {
+        // Logout Therapist
+        logT.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {
-                //mainMenuTable.clear();
-                //mainMenuTable.remove();
-                //mainMenuTitleTable.clear();
-                //mainMenuTitleTable.remove();
-                //stage.clear();
+                therapistMenuTable.clear();
+                therapistMenuTable.remove();
+                therapistMenuTitleTable.clear();
+                therapistMenuTitleTable.remove();
+                stage.clear();
 
-                //createLogin();            
+                createTherapistLogin();            
             }
         });    
         
-        button4.addListener(new ChangeListener() {
+        // Exit
+        exit.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {
                 Gdx.app.exit();
@@ -179,49 +217,116 @@ public class MainMenu implements Screen {
         });    
     }
     
+    public void createPatientMenu() {
+        stage.clear();
+        stage.addActor(patientMenuTitleTable);
+        patientMenuTitleTable.setFillParent(true);
+        patientMenuTitleTable.add(patientMenuTitle).align(Align.center).row();
+        patientMenuTitle.setFontScale(0.9f);
+        patientMenuTitleTable.add(patientMenuTable);
+        
+        patientMenuTable.add(editP).size(600, 80).left().padTop(50);
+        patientMenuTable.add().size(600, 100).row();
+        patientMenuTable.add(createR).size(600, 80).left().padTop(10).row();
+        patientMenuTable.add(editR).size(600, 80).left().padTop(10).row();
+        patientMenuTable.add(loadR).size(600, 80).left().padTop(10).row();
+        patientMenuTable.add(logP).size(600, 80).left().padTop(10);
+
+        editP.getLabel().setFontScale(0.6f);
+        editP.getLabel().setAlignment(Align.left);
+        createR.getLabel().setFontScale(0.6f);
+        createR.getLabel().setAlignment(Align.left);
+        editR.getLabel().setFontScale(0.6f);
+        editR.getLabel().setAlignment(Align.left);
+        loadR.getLabel().setFontScale(0.6f);
+        loadR.getLabel().setAlignment(Align.left);
+        logP.getLabel().setFontScale(0.6f);
+        logP.getLabel().setAlignment(Align.left);
+        
+        // Create Routine
+        createR.addListener(new ChangeListener() {
+            @Override
+            public void changed (ChangeEvent event, Actor actor) {
+                patientMenuTitleTable.clear();
+                patientMenuTitleTable.remove();
+                patientMenuTable.clear();
+                patientMenuTable.remove();
+                stage.clear();
+                createRoutine();
+           } 
+        });
+           
+        // Back (Logout Patient)
+        logP.addListener(new ChangeListener() {
+            @Override
+            public void changed (ChangeEvent event, Actor actor) {
+                patientMenuTable.clear();
+                patientMenuTable.remove();
+                patientMenuTitleTable.clear();
+                patientMenuTitleTable.remove();
+                stage.clear();
+
+                createTherapistMenu();            
+            }
+        });    
+        
+        // Exit
+        exit.addListener(new ChangeListener() {
+            @Override
+            public void changed (ChangeEvent event, Actor actor) {
+                Gdx.app.exit();
+            }
+        });    
+    
+    }
+    
     public void createRoutine() {
+        stage.clear();
         stage.addActor(createRoutineTitleTable);
         createRoutineTitleTable.setFillParent(true);
         createRoutineTitleTable.add(createRoutineTitle).align(Align.center).row();
         createRoutineTitle.setFontScale(0.9f);
         createRoutineTitleTable.add(createRoutineTable);
         
-        createRoutineTable.add(buttonA).size(600, 80).left().padTop(50);
+        createRoutineTable.add(btA).size(600, 80).left().padTop(50);
         createRoutineTable.add().size(600, 100).row();
-        createRoutineTable.add(buttonB).size(600, 80).left().padTop(10).row();
-        createRoutineTable.add(buttonC).size(600, 80).left().padTop(10).row();
-        createRoutineTable.add(buttonD).size(600, 80).left().padTop(10);
+        createRoutineTable.add(btB).size(600, 80).left().padTop(10).row();
+        createRoutineTable.add(btC).size(600, 80).left().padTop(10).row();
+        createRoutineTable.add(btD).size(600, 80).left().padTop(10);
         
-        buttonA.getLabel().setFontScale(0.6f);
-        buttonA.getLabel().setAlignment(Align.left);
-        buttonB.getLabel().setFontScale(0.6f);
-        buttonB.getLabel().setAlignment(Align.left);
-        buttonC.getLabel().setFontScale(0.6f);
-        buttonC.getLabel().setAlignment(Align.left);
-        buttonD.getLabel().setFontScale(0.6f);
-        buttonD.getLabel().setAlignment(Align.left);
+        btA.getLabel().setFontScale(0.6f);
+        btA.getLabel().setAlignment(Align.left);
+        btB.getLabel().setFontScale(0.6f);
+        btB.getLabel().setAlignment(Align.left);
+        btC.getLabel().setFontScale(0.6f);
+        btC.getLabel().setAlignment(Align.left);
+        btD.getLabel().setFontScale(0.6f);
+        btD.getLabel().setAlignment(Align.left);
     
-        buttonA.addListener(new ChangeListener() {
+        // I Spy
+        btA.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {
                 ((Game) Gdx.app.getApplicationListener()).setScreen(new I_Spy());
             }
         });    
         
-        buttonB.addListener(new ChangeListener() {
+        // Memory Game
+        btB.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {
                 ((Game) Gdx.app.getApplicationListener()).setScreen(new MemoryGame());
             }
         });    
         
-        buttonD.addListener(new ChangeListener() {
+        // Back
+        btD.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {
                 createRoutineTable.clear();
                 createRoutineTable.remove();                              
                 stage.clear();
-                createMainMenu();
+                createPatientMenu();
             }
         });    
     
