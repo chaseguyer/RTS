@@ -33,8 +33,10 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
     Vector2 two=new Vector2(-1,-1);
     int hitMark=0;
     long counter=0;
-    int time=3;
+    int time=1;
     //Vector2 two=new Vector2(-2,-2);
+    int difficulty=0;
+    int maxDifficulty=1;
     
     @Override
     public void show ()
@@ -55,7 +57,13 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
         }
         memoryGameLogic(cardPairs);
         if(running(cardPairs)==false)
+        {
+            if(difficulty>maxDifficulty)
+                difficulty=0;
+            else
+                difficulty++;
             first=true;
+        }
             //Gdx.app.exit();
     }
 
@@ -84,6 +92,8 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
         for(int x=0; x<cardPairs; ++x)
             for(int y=0; y<(int)(cardPairs/numRow); ++y)
                 deckFill[x][y]=0;
+        
+        int displacement=rand.nextInt(4);
         
         for(int x=0; x<cardPairs; ++x)
             for(int y=0; y<(int)(cardPairs/numRow); ++y)
@@ -126,7 +136,10 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
                         temp=seven;
                         break;
                 }
-                deck[x][y]=new Card(x,y,temp, num, 250, 250);
+                if(difficulty==0)
+                    deck[x][y]=new Card(x,y+displacement,temp, num, 250, 250);
+                else
+                    deck[x][y]=new Card(y+displacement,x,temp, num, 250, 150);
                 deckFill[x][y]=num;
             }
     }
