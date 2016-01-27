@@ -26,8 +26,8 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
     Texture img;
     boolean first=true;
     Card[][] deck;
-    int cardPairs=7;
-    double numRow=3.5;
+    int cardPairs=6;
+    double numRow=cardPairs/2;
     int mark=-1;
     Vector2 one=new Vector2(-1,-1);
     Vector2 two=new Vector2(-1,-1);
@@ -35,7 +35,7 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
     long counter=0;
     int time=1;
     //Vector2 two=new Vector2(-2,-2);
-    int difficulty=0;
+    int difficulty=1;
     int maxDifficulty=1;
     
     @Override
@@ -50,6 +50,7 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
     @Override
     public void render (float f) 
     {
+        
         if(first)
         {
             first=false;
@@ -58,10 +59,6 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
         memoryGameLogic(cardPairs);
         if(running(cardPairs)==false)
         {
-            if(difficulty>maxDifficulty)
-                difficulty=0;
-            else
-                difficulty++;
             first=true;
         }
             //Gdx.app.exit();
@@ -78,13 +75,18 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
     
     public void cardGame(double cardPairs)
     {
-        Sprite one=new Sprite(new Texture(Gdx.files.internal("Items/redBox.png")));
-        Sprite two=new Sprite(new Texture(Gdx.files.internal("Items/cross.png")));
-        Sprite three=new Sprite(new Texture(Gdx.files.internal("Items/greenBox.png")));
-        Sprite four=new Sprite(new Texture(Gdx.files.internal("Items/delete.png")));
-        Sprite five=new Sprite(new Texture(Gdx.files.internal("Items/plus.png")));
-        Sprite six=new Sprite(new Texture(Gdx.files.internal("Items/Lemon.png")));
-        Sprite seven=new Sprite(new Texture(Gdx.files.internal("Items/lemonSeed.png")));
+        Sprite one=new Sprite(new Texture(Gdx.files.internal("Items/NumbersLetters/one.png")));
+        Sprite two=new Sprite(new Texture(Gdx.files.internal("Items/NumbersLetters/two.png")));
+        Sprite three=new Sprite(new Texture(Gdx.files.internal("Items/NumbersLetters/three.png")));
+        Sprite four=new Sprite(new Texture(Gdx.files.internal("Items/NumbersLetters/four.png")));
+        Sprite five=new Sprite(new Texture(Gdx.files.internal("Items/NumbersLetters/five.png")));
+        Sprite six=new Sprite(new Texture(Gdx.files.internal("Items/NumbersLetters/six.png")));
+        Sprite blue=new Sprite(new Texture(Gdx.files.internal("Items/Colors/Blue.png")));
+        Sprite brown=new Sprite(new Texture(Gdx.files.internal("Items/Colors/Brown.png")));
+        Sprite green=new Sprite(new Texture(Gdx.files.internal("Items/Colors/Green.png")));
+        Sprite purple=new Sprite(new Texture(Gdx.files.internal("Items/Colors/Purple.png")));
+        Sprite white=new Sprite(new Texture(Gdx.files.internal("Items/Colors/White.png")));
+        Sprite yellow=new Sprite(new Texture(Gdx.files.internal("Items/Colors/Yellow.png")));
         //int cardPairs=3;
         /*Card[][] */deck=new Card[(int)cardPairs][(int)(cardPairs/numRow)];
         int [][] deckFill= new int[(int)cardPairs][(int)(cardPairs/numRow)];
@@ -94,7 +96,15 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
                 deckFill[x][y]=0;
         
         int displacement=rand.nextInt(4);
-        
+        boolean orientation=rand.nextBoolean();
+        if(difficulty>=maxDifficulty)
+        {
+            difficulty=0;
+            System.out.println("test");
+        }
+        else
+            difficulty++;
+        System.out.println("Diff: "+difficulty);
         for(int x=0; x<cardPairs; ++x)
             for(int y=0; y<(int)(cardPairs/numRow); ++y)
             {
@@ -104,6 +114,7 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
                 while(taken==true)
                 {
                     num=rand.nextInt((int) cardPairs)+1;
+                    num+= 6*difficulty;
                     int count=0;
                     for(int a=0; a<cardPairs; ++a)
                         for(int b=0; b<cardPairs/numRow; ++b)
@@ -112,6 +123,9 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
                     if(count<2)
                         taken=false;
                 }
+                System.out.println(num+" "+difficulty+" "+(num+6*difficulty));
+                
+                
                 switch(num)
                 {
                     case 1:
@@ -133,10 +147,26 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
                         temp=six;
                         break;
                     case 7:
-                        temp=seven;
+                        temp=blue;
+                        break;
+                    case 8:
+                        temp=brown;
+                        break;
+                    case 9:
+                        temp=green;
+                        break;
+                    case 10:
+                        temp=purple;
+                        break;
+                    case 11:
+                        temp=white;
+                        break;
+                    case 12:
+                        temp=yellow;
                         break;
                 }
-                if(difficulty==0)
+                
+                if(orientation)
                     deck[x][y]=new Card(x,y+displacement,temp, num, 250, 250);
                 else
                     deck[x][y]=new Card(y+displacement,x,temp, num, 250, 150);
@@ -176,6 +206,8 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
         batch.end();
         if(Gdx.input.isKeyJustPressed(Keys.Q))
             Gdx.app.exit();
+        if(Gdx.input.isKeyJustPressed(Keys.SPACE))
+            first=true;
         
         if(Gdx.input.isButtonPressed(Input.Buttons.LEFT) && Gdx.input.justTouched() && two.x==-1)//if(Gdx.input.isKeyJustPressed(Keys.F))
         {
