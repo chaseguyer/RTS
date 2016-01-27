@@ -35,8 +35,9 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
     long counter=0;
     int time=1;
     //Vector2 two=new Vector2(-2,-2);
-    int difficulty=1;
+    int difficulty=-1;
     int maxDifficulty=1;
+    boolean stripped=false;
     
     @Override
     public void show ()
@@ -100,6 +101,7 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
         if(difficulty>=maxDifficulty)
         {
             difficulty=0;
+            stripped=true;
             System.out.println("test");
         }
         else
@@ -129,40 +131,40 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
                 switch(num)
                 {
                     case 1:
-                        temp=one;
-                        break;
-                    case 2:
-                        temp=two;
-                        break;
-                    case 3:
-                        temp=three;
-                        break;
-                    case 4:
-                        temp=four;
-                        break;
-                    case 5:
-                        temp=five;
-                        break;
-                    case 6:
-                        temp=six;
-                        break;
-                    case 7:
                         temp=blue;
                         break;
-                    case 8:
+                    case 2:
                         temp=brown;
                         break;
-                    case 9:
+                    case 3:
                         temp=green;
                         break;
-                    case 10:
+                    case 4:
                         temp=purple;
                         break;
-                    case 11:
+                    case 5:
                         temp=white;
                         break;
-                    case 12:
+                    case 6:
                         temp=yellow;
+                        break;
+                    case 7:
+                        temp=one;
+                        break;
+                    case 8:
+                        temp=two;
+                        break;
+                    case 9:
+                        temp=three;
+                        break;
+                    case 10:
+                        temp=four;
+                        break;
+                    case 11:
+                        temp=five;
+                        break;
+                    case 12:
+                        temp=six;
                         break;
                 }
                 
@@ -179,6 +181,15 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
         Gdx.gl.glClearColor(0,0,0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         batch.begin();
+        Sprite s=new Sprite(new Texture(Gdx.files.internal("Items/stripped.png")));
+        if(stripped)
+            for(int x=0; x<80; ++x)
+            {
+                for(int y=0; y<50; ++y)
+                {
+                    batch.draw(s, x*25,y*25);
+                }
+            }
         for(int x=0; x<cardPairs; ++x)
             for(int y=0; y<cardPairs/numRow; ++y)
                 if(deck[x][y]!=null)

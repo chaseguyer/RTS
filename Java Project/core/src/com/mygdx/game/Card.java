@@ -22,7 +22,7 @@ public class Card
         y=(int) (yt*ySpace*(Gdx.graphics.getHeight()/1080.0f));
         mark=markT;
         clicked=false;
-        hidden=new Sprite(new Texture(Gdx.files.internal("Items/dirt.png")));
+        hidden=new Sprite(new Texture(Gdx.files.internal("Items/PlayingCard.png")));
         image=new Sprite(img);
         image.setPosition(x, y);
         hidden.setPosition(x, y);
