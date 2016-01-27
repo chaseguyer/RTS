@@ -36,7 +36,7 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
     int time=1;
     //Vector2 two=new Vector2(-2,-2);
     int difficulty=-1;
-    int maxDifficulty=1;
+    int maxDifficulty=2;
     boolean stripped=false;
     
     @Override
@@ -88,6 +88,12 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
         Sprite purple=new Sprite(new Texture(Gdx.files.internal("Items/Colors/Purple.png")));
         Sprite white=new Sprite(new Texture(Gdx.files.internal("Items/Colors/White.png")));
         Sprite yellow=new Sprite(new Texture(Gdx.files.internal("Items/Colors/Yellow.png")));
+        Sprite box=new Sprite(new Texture(Gdx.files.internal("Items/Shapes/Box.png")));
+        Sprite circle=new Sprite(new Texture(Gdx.files.internal("Items/Shapes/Circle.png")));
+        Sprite diamond=new Sprite(new Texture(Gdx.files.internal("Items/Shapes/Diamond.png")));
+        Sprite heart=new Sprite(new Texture(Gdx.files.internal("Items/Shapes/Heart.png")));
+        Sprite star=new Sprite(new Texture(Gdx.files.internal("Items/Shapes/Star.png")));
+        Sprite triangle=new Sprite(new Texture(Gdx.files.internal("Items/Shapes/Triangle.png")));
         //int cardPairs=3;
         /*Card[][] */deck=new Card[(int)cardPairs][(int)(cardPairs/numRow)];
         int [][] deckFill= new int[(int)cardPairs][(int)(cardPairs/numRow)];
@@ -165,6 +171,24 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
                         break;
                     case 12:
                         temp=six;
+                        break;
+                    case 13:
+                        temp=box;
+                        break;
+                    case 14:
+                        temp=circle;
+                        break;
+                    case 15:
+                        temp=diamond;
+                        break;
+                    case 16:
+                        temp=heart;
+                        break;
+                    case 17:
+                        temp=star;
+                        break;
+                    case 18:
+                        temp=triangle;
                         break;
                 }
                 
