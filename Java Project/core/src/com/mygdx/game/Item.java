@@ -18,7 +18,7 @@ public class Item
     Sprite image;
     int x,y;
     String name;
-    int shift=100;
+    int shift=25;
     public Item(Sprite s, int xt, int yt, String n)
     {
         image=s;
@@ -35,7 +35,7 @@ public class Item
     
     public boolean clicked(int xt, int yt)
     {
-        if(xt>=x && xt<=x*shift && yt>=y && yt<=y*shift)
+        if(xt>=x && xt<=x+shift && yt>=y && yt<=y+shift)
             return true;
         return false;
     }

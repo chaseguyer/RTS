@@ -27,9 +27,9 @@ import com.badlogic.gdx.graphics.GL20;
 public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor {
 
     SpriteBatch batch;
-    boolean first=true;
+    boolean first=true, stripped=false;
     ArrayList<Item> board=new ArrayList<Item>();
-    int score=0, marked, imageCount=7;
+    int score=0, marked, imageCount=21;
     Random rand=new Random();
     BitmapFont font;
   
@@ -54,28 +54,29 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor 
         batch.end();
         if(Gdx.input.isKeyJustPressed(Keys.Q))
             Gdx.app.exit();
+        if(Gdx.input.isKeyJustPressed(Keys.SPACE))
+            stripped=!stripped;
     }
 
     public void makeGame()
     {
-        Sprite image;
         int count=0;
-        String name=null;
         marked=rand.nextInt(imageCount);
-        
-        for(int y=1; y<10; ++y)
+        board.clear();
+        while(count<imageCount)
         {
-            for(int x=1; x<11; ++x)
+            int x=rand.nextInt(80);
+            int y=rand.nextInt(40);
+            boolean taken=false;
+            for(int i=0; i<board.size(); ++i)
             {
-                //image=getImage(count);
-                //System.out.println("round: "+count);
-                board.add(getItem(count, (int) (x*100+Gdx.graphics.getHeight()*.45f), (int) (y+Gdx.graphics.getHeight()*.5f)));
-                ++count;
-                if(count>imageCount)
-                {
-                    first=false;
-                    return;
-                }
+                if(x>=board.get(i).x && x<=board.get(i).x+25 && y>=board.get(i).y && y<=board.get(i).y+25)
+                    taken=true;
+            }
+            if(!taken)
+            {
+                board.add(getItem(count, (int) (x*25*Gdx.graphics.getHeight()/1920), (int) (y*25*Gdx.graphics.getHeight()/1080)));
+                count++;
             }
         }
         first=false;
@@ -85,6 +86,7 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor 
     {
         Sprite image;
         String name;
+        
         switch(count)
         {
             case 0:
@@ -92,20 +94,20 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor 
                 name="Find the Lemon";
                 break;
             case 1:
-                image=new Sprite(new Texture(Gdx.files.internal("Items/cross.png")));
-                name="Find the Cross";
+                image=new Sprite(new Texture(Gdx.files.internal("Items/Colors/Blue.png")));
+                name="Find the blue box";
                 break;
             case 2:
                 image=new Sprite(new Texture(Gdx.files.internal("Items/delete.png")));
                 name="Find the X";
                 break;
             case 3:
-                image=new Sprite(new Texture(Gdx.files.internal("Items/dirt.png")));
-                name="Find the dirt";
+                image=new Sprite(new Texture(Gdx.files.internal("Items/Shapes/Circle.png")));
+                name="Find the circle";
                 break;
             case 4:
-                image=new Sprite(new Texture(Gdx.files.internal("Items/greenBox.png")));
-                name="Find the Green box";
+                image=new Sprite(new Texture(Gdx.files.internal("Items/Shapes/Heart.png")));
+                name="Find the Heart";
                 break;
             case 5:
                 image=new Sprite(new Texture(Gdx.files.internal("Items/LemonSeed.png")));
@@ -116,9 +118,65 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor 
                 name="Find the plus sign";
                 break;
             case 7:
-                image=new Sprite(new Texture(Gdx.files.internal("Items/redBox.png")));
-                name="Find the red box";
-                break;                
+                image=new Sprite(new Texture(Gdx.files.internal("Items/Shapes/Star.png")));
+                name="Find the Star";
+                break;           
+            case 8:
+                image=new Sprite(new Texture(Gdx.files.internal("Items/NumbersLetters/one.png")));
+                name="Find the Number One";
+                break;
+            case 9:
+                image=new Sprite(new Texture(Gdx.files.internal("Items/NumbersLetters/two.png")));
+                name="Find the Number Two";
+                break;
+            case 10: 
+                image=new Sprite(new Texture(Gdx.files.internal("Items/NumbersLetters/three.png")));
+                name="Find the Number Three";
+                break;
+            case 11:
+                image=new Sprite(new Texture(Gdx.files.internal("Items/NumbersLetters/four.png")));
+                name="Find the Number Four";
+                break;
+            case 12:
+                image=new Sprite(new Texture(Gdx.files.internal("Items/NumbersLetters/five.png")));
+                name="Find the Number Five";
+                break;
+            case 13:
+                image=new Sprite(new Texture(Gdx.files.internal("Items/NumbersLetters/six.png")));
+                name="Find the Number Six";
+                break;
+            case 14:
+                image=new Sprite(new Texture(Gdx.files.internal("Items/Colors/Brown.png")));
+                name="Find the Brown Box";
+                break;
+            case 15:
+                image=new Sprite(new Texture(Gdx.files.internal("Items/Colors/Green.png")));
+                name="Find the Green Box";
+                break;
+            case 16:
+                image=new Sprite(new Texture(Gdx.files.internal("Items/Colors/Purple.png")));
+                name="Find the Purple Box";
+                break;
+            case 17:
+                image=new Sprite(new Texture(Gdx.files.internal("Items/Colors/White.png")));
+                name="Find the White Box";
+                break;
+            case 18:
+                image=new Sprite(new Texture(Gdx.files.internal("Items/Colors/Yellow.png")));
+                name="Find the Yellow Box";
+                break;
+            case 19:
+                image=new Sprite(new Texture(Gdx.files.internal("Items/PlayingCard.png")));
+                name="Find the Playing Card";
+                break;
+            case 20:
+                image=new Sprite(new Texture(Gdx.files.internal("Items/Shapes/Diamond.png")));
+                name="Find the Diamond";
+                break;
+            case 21:
+                image=new Sprite(new Texture(Gdx.files.internal("Items/Shapes/Triangle.png")));
+                name="Find the Triangle";
+                break;
             default: 
                 image=null;
                 name=null;
@@ -129,6 +187,15 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor 
     }
     public void ISpy()
     {
+        Sprite s=new Sprite(new Texture(Gdx.files.internal("Items/stripped.png")));
+        if(stripped)
+            for(int x=0; x<80; ++x)
+            {
+                for(int y=0; y<50; ++y)
+                {
+                    batch.draw(s, x*25,y*25);
+                }
+            }
         for(int i=0; i<board.size(); ++i)
             board.get(i).draw(batch);
         if(Gdx.input.isButtonPressed(Input.Buttons.LEFT) && Gdx.input.justTouched())
@@ -140,7 +207,14 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor 
                     first=true;
                 }
         }
-        font.draw(batch, board.get(marked).name+" and your score is: "+score, Gdx.graphics.getWidth()*.5f, Gdx.graphics.getHeight()*.95f);
+        font.getData().setScale(2);
+        font.draw(batch, board.get(marked).name+" and your score is: "+score, Gdx.graphics.getWidth()*.45f, Gdx.graphics.getHeight()*.95f);
+        boolean hit=false;
+        for(int i=0; i<board.size(); ++i)
+                if(board.get(i).clicked(Gdx.input.getX(), Gdx.graphics.getHeight()-Gdx.input.getY()) && i==marked)
+                    hit=true;
+        font.getData().setScale(1);
+        font.draw(batch, "Status: "+hit+" x: "+Gdx.input.getX()+" y: "+ (Gdx.graphics.getHeight()-Gdx.input.getY()) , 50,50);
     }
     
     @Override
