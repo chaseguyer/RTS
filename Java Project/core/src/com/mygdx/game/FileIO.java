@@ -13,39 +13,65 @@ import java.util.*;
  * @author chaseguyer
  */
 public class FileIO {
+
+    public PrintWriter writer = null;
     
-    FileInputStream in = null;
-    FileOutputStream out = null;
-    
-    public void openDB() {
-        try {
-            // This will HAVE to change
-            File db = new File("/Users/chaseguyer/Documents/RTS/Documents/dbFile");
-            
-            if(db.createNewFile()) {
-                System.out.println("New db file was created.");
-            } else {
-                System.out.println("There already exists a databse.");
-            }
-            
-            // Regardless of whether or not file exists, we want it in the input stream
-            in = new FileInputStream("/Users/chaseguyer/Documents/RTS/Documents/dbFile.txt");
-            
-        } catch(IOException e) {
-            //System.out.println("Could not find the file");
-        }        
-    
-        // add therpist username and pw
-        LinkedList usernameList = new LinkedList(); // maybe combine these (java version of c++ pair?)
-        LinkedList passwordList = new LinkedList();
-        
-    
-    }
+    public LinkedList usernameList = new LinkedList(); // maybe combine these (java version of c++ pair?)
+    public LinkedList passwordList = new LinkedList();
     
     public void checkTherapistCreds(String username, String password) {
-       
+        // add therpist username and pw
+        
+        
+        
+        
+        //Scanner scan;
+        
+        // what if there are no therapists?
+        //scan = new Scanner("rts-db.txt");
+        
+        /*
+        String line = "", name, pw;
+        while(scan.hasNext() && line!= null) {
+            name = scan.next();
+            pw = scan.next();
+           
+            line = scan.nextLine();
+            
+            usernameList.add(name);
+            passwordList.add(pw);
+        }
+        */
+        //scan.close();
+
+        //loadPatients();
+        
+        
+        while(usernameList != null) {
+            
+            
+        }
+        
+        
+        
+        
+    }
     
-        loadPatients();
+    public void newTherapist(String username, String password) {
+        try{
+            writer = new PrintWriter("rts-db.txt", "UTF-8");
+        } catch (FileNotFoundException e) {
+        } catch (UnsupportedEncodingException e) {  
+        }
+        
+        writer.println(username + " " + password);
+        
+        // this is only temporary
+        usernameList.add(username);
+        passwordList.add(password);
+        
+        
+        writer.close();
     }
     
     public void loadPatients() {
@@ -53,11 +79,6 @@ public class FileIO {
         
         // find therapist, skip his password, scan all in based off of \n until whitespace found
             // (or something to that effect)
-        
-    }
-    
-    public void addTherapist(String name, String pw) {
-        
         
     }
             

@@ -29,6 +29,16 @@ import com.badlogic.gdx.utils.SnapshotArray;
  */
 
 
+/*
+    Quests:        
+        -In the listeners
+            -stage.clear() then stage.addActor(parentTable);
+            -Try Joe's hide visibility thing
+            
+        -Then when Michael's games are called, hide MainMenu, set screen to game
+        -Then when you quit Michael's game, set the screen back to MainMenu
+*/
+
 public class MainMenu implements Screen {
     
     // Static variables
@@ -39,7 +49,6 @@ public class MainMenu implements Screen {
     public static Skin skin = new Skin(Gdx.files.internal("skins/skins.json"), new TextureAtlas(Gdx.files.internal("skins/test.pack")));
 
     // Misc - do some things
-    private final TextButton exit = new TextButton("Exit", skin);
     FileIO file = new FileIO(); // file I/O for db stuff
     public String theName, thePw, theConPw;
     
@@ -56,6 +65,8 @@ public class MainMenu implements Screen {
     private Table loginButtons = new Table();
     private TextButton newTherapist = new TextButton("Create New Therapist Profile", skin); // i want normal underlined text for this
     private TextButton next = new TextButton("Next", skin);
+    private TextButton exit = new TextButton("Exit", skin);
+
     
     // Create New Therpist
     private Table newTherapistTitleTable = new Table();
@@ -82,8 +93,19 @@ public class MainMenu implements Screen {
     
     private Table therapistMenuTable = new Table();
     private TextButton createP = new TextButton("Create Patient Profile", skin);
-    private TextButton loadP = new TextButton("Load Patient Profile", skin); 
+    private TextButton loadP = new TextButton("Load Patient Profile", skin);
+    private TextButton settings = new TextButton("Therpist Settings", skin);
     private TextButton logT = new TextButton("Logout Therapist", skin);
+    
+    // Create paitent menu
+    private Table createPTitleTable = new Table();
+    private Label createPTitle = new Label("CREATE NEW PATIENT", skin);
+    
+    
+    
+    
+    
+    
     
     // Patient menu
     private Table patientMenuTitleTable = new Table();
@@ -95,7 +117,7 @@ public class MainMenu implements Screen {
     private TextButton editP = new TextButton("Edit Patient Information", skin);
     private TextButton logP = new TextButton("Logout Patient", skin);
     
-    // Edit/Create Patient - make use of SelectBox (drop down menus)
+    // Edit Patient - make use of SelectBox (drop down menus)
     private Table patientInfoTitleTable = new Table();
     private Label patientInfoTitle = new Label("Patient Information", skin);
     
@@ -137,12 +159,19 @@ public class MainMenu implements Screen {
     public void show() {
         Gdx.input.setInputProcessor(stage);   
         resize(Gdx.graphics.getDesktopDisplayMode().width, Gdx.graphics.getDesktopDisplayMode().height);
-        createTherapistLogin();
+        
+        createTables();
+        createListeners();
+        
+        stage.addActor(loginTitle);
     }
            
-    public void createTherapistLogin() {                
-        stage.addActor(loginTitle); // add the first table, the title
-   
+    public void createTables() {
+        
+        /*
+        *
+        * CREATE THERAPIST LOGIN
+        */
         loginTitle.setFillParent(true);               
         loginTitle.add(login).padBottom(100).align(Align.center).row();
         loginTitle.add(loginTable).row(); // add the text field tables in a new row
@@ -167,75 +196,11 @@ public class MainMenu implements Screen {
         // does not work for some reason
         pwText.setPasswordMode(true); // makes text in pwText bullet points
         
-        // Listener for text fields so we can compare the text
-        loginTable.addListener(new ChangeListener() {
-            @Override
-            public void changed (ChangeEvent event, Actor actor) {
-                theName = unText.getText();
-                thePw = pwText.getText();
-                
-                // maybe put me in listener for next?
-                //System.out.println("The name will be " + theName);
-                therapistMenuTitle.setText("Welcome back, " + theName);
-            }
-        });
- 
-        // Create new therapist
-        newTherapist.addListener(new ChangeListener() {
-            @Override
-            public void changed (ChangeEvent event, Actor actor) {
-                getRidOfTable(loginButtons);
-                getRidOfTable(loginTable);
-                getRidOfTable(loginTitle);
-                
-                stage.clear();
-
-                createNewTherapistMenu();
-            }
-        }); 
         
-        // Next button
-        next.addListener(new ChangeListener() {
-            @Override
-            public void changed (ChangeEvent event, Actor actor) {
-                
-                getRidOfTable(loginButtons);
-                getRidOfTable(loginTable);
-                getRidOfTable(loginTitle);
-
-                stage.clear();
-                
-                file.openDB();
-                file.checkTherapistCreds(theName, thePw);
-                
-                // open up dbFile, check if therapistName is in dbFile
-                // if not, report error & pwText.clearSelection();, else...
-                    // check if therapistPw matches password
-                    // if not, report error else move on
-                
-                // Change the title of the therpist menu to print his name           
-                
-                
-                
-                
-                
-                // IF all checks out...
-                createTherapistMenu();
-            }
-        }); 
-        
-        // Exit button
-        exit.addListener(new ChangeListener() {
-            @Override
-            public void changed (ChangeEvent event, Actor actor) {
-                Gdx.app.exit();
-            }
-        }); 
-    }
-    
-    public void createNewTherapistMenu() {
-        stage.addActor(newTherapistTitleTable);
-        
+        /*
+        *
+        * CREATE NEW THERAPIST LOGIN
+        */
         newTherapistTitleTable.setFillParent(true);
         newTherapistTitleTable.add(newTherapistTitle).padBottom(100).align(Align.center).row();               
         newTherapistTitleTable.add(newTherapistInfo).row();
@@ -266,55 +231,11 @@ public class MainMenu implements Screen {
         newThButtons.add(backBt).size(300,80).align(Align.center).row();
         backBt.getLabel().setFontScale(0.5f);
         
-                // Create Patient
-        newTherapistInfo.addListener(new ChangeListener() {
-            @Override
-            public void changed (ChangeEvent event, Actor actor) {
-                theName = thName.getText();
-                thePw = thPw.getText();
-                theConPw = thConPw.getText();
-           } 
-        });
-                
-        doneBt.addListener(new ChangeListener() {
-            @Override
-            public void changed (ChangeEvent event, Actor actor) {
-                
-                // CHECK FOR NULL STRINGS
-                
-                if(thePw.equals(theConPw)) {
-                    file.addTherapist(theName, thePw);
-
-                    getRidOfTable(newThButtons);
-                    getRidOfTable(newTherapistInfo);
-                    getRidOfTable(newTherapistTitleTable);
-
-                    stage.clear();
-                    
-                    createTherapistLogin();
-                } else {
-                    // print an error message saying passwords don't match
-                    Gdx.app.exit();
-                }
-           } 
-        }); 
-    
-        backBt.addListener(new ChangeListener() {
-            @Override
-            public void changed (ChangeEvent event, Actor actor) {    
-                getRidOfTable(newThButtons);
-                getRidOfTable(newTherapistInfo);
-                getRidOfTable(newTherapistTitleTable);
-            
-                stage.clear();
-                    
-                createTherapistLogin();        
-            }
-        });
-    }
-    
-    public void createTherapistMenu() {
-        stage.addActor(therapistMenuTitleTable);
+        
+        /*
+        *
+        * CREATE THERAPIST MENU
+        */   
         therapistMenuTitleTable.setFillParent(true);
         therapistMenuTitleTable.add(therapistMenuTitle).align(Align.center).row();
         therapistMenuTitle.setFontScale(0.9f);
@@ -323,84 +244,24 @@ public class MainMenu implements Screen {
         therapistMenuTable.add(createP).size(600, 80).left().padTop(50);
         therapistMenuTable.add().size(600, 100).row();
         therapistMenuTable.add(loadP).size(600, 80).left().padTop(10).row();
+        therapistMenuTable.add(settings).size(600, 80).left().padTop(10).row();
         therapistMenuTable.add(logT).size(600, 80).left().padTop(10).row();
-        therapistMenuTable.add(exit).size(600, 80).left().padTop(10).row();
 
         createP.getLabel().setFontScale(0.6f);
         createP.getLabel().setAlignment(Align.left);
         loadP.getLabel().setFontScale(0.6f);
         loadP.getLabel().setAlignment(Align.left);
+        settings.getLabel().setAlignment(Align.left);
+        settings.getLabel().setFontScale(0.6f);
         logT.getLabel().setFontScale(0.6f);
         logT.getLabel().setAlignment(Align.left);
-        exit.getLabel().setFontScale(0.6f);
-        exit.getLabel().setAlignment(Align.left);
-        
-        // Create Patient
-        createP.addListener(new ChangeListener() {
-            @Override
-            public void changed (ChangeEvent event, Actor actor) {
-                therapistMenuTitleTable.clearChildren();
-                therapistMenuTable.clearChildren();
-                stage.clear();
-                createNewPatientMenu();
-           } 
-        });
-        
-        // Load Patient
-        loadP.addListener(new ChangeListener() {
-            @Override
-            public void changed (ChangeEvent event, Actor actor) {
-                getRidOfTable(therapistMenuTable);
-                getRidOfTable(therapistMenuTitleTable);
-                
-                stage.clear();
-                
-                // if therapist patient list == null
-                // print message, would you like to create new patient?
-                
-                // else
-                createTherapistsPatientsList();
-           } 
-        });
-        
-        // Logout Therapist
-        logT.addListener(new ChangeListener() {
-            @Override
-            public void changed (ChangeEvent event, Actor actor) {
-                getRidOfTable(therapistMenuTable);
-                getRidOfTable(therapistMenuTitleTable);
-                
-                stage.clear();
-
-                createTherapistLogin();            
-            }
-        });    
-        
-        // Exit
-        exit.addListener(new ChangeListener() {
-            @Override
-            public void changed (ChangeEvent event, Actor actor) {
-                Gdx.app.exit();
-            }
-        });    
-    }
-    
-    // Set new patient info, create profile
-    public void createNewPatientMenu() {
-     
         
         
-    }
-    
-    // Load the therapists patients
-    public void createTherapistsPatientsList() {
-    
         
-    }    
-    
-    public void createPatientMenu() {
-        stage.clear();
-        stage.addActor(patientMenuTitleTable);
+        /*
+        *
+        * CREATE PATIENT MENU
+        */
         patientMenuTitleTable.setFillParent(true);
         patientMenuTitleTable.add(patientMenuTitle).align(Align.center).row();
         patientMenuTitle.setFontScale(0.9f);
@@ -421,46 +282,11 @@ public class MainMenu implements Screen {
         logP.getLabel().setFontScale(0.6f);
         logP.getLabel().setAlignment(Align.left);
         
-        // Create Routine
-        createR.addListener(new ChangeListener() {
-            @Override
-            public void changed (ChangeEvent event, Actor actor) {
-                patientMenuTitleTable.clear();
-                patientMenuTitleTable.remove();
-                patientMenuTable.clear();
-                patientMenuTable.remove();
-                stage.clear();
-                createRoutine();
-           } 
-        });
-           
-        // Back (Logout Patient)
-        logP.addListener(new ChangeListener() {
-            @Override
-            public void changed (ChangeEvent event, Actor actor) {
-                patientMenuTable.clear();
-                patientMenuTable.remove();
-                patientMenuTitleTable.clear();
-                patientMenuTitleTable.remove();
-                stage.clear();
-
-                createTherapistMenu();            
-            }
-        });    
         
-        // Exit
-        exit.addListener(new ChangeListener() {
-            @Override
-            public void changed (ChangeEvent event, Actor actor) {
-                Gdx.app.exit();
-            }
-        });    
-    
-    }
-    
-    public void createRoutine() {
-        stage.clear();
-        stage.addActor(createRoutineTitleTable);
+        /*
+        *
+        * CREATE ROUTINE
+        */
         createRoutineTitleTable.setFillParent(true);
         createRoutineTitleTable.add(createRoutineTitle).align(Align.center).row();
         createRoutineTitle.setFontScale(0.9f);
@@ -480,7 +306,220 @@ public class MainMenu implements Screen {
         btC.getLabel().setAlignment(Align.left);
         btD.getLabel().setFontScale(0.6f);
         btD.getLabel().setAlignment(Align.left);
+        
+        
+        /*
+        *
+        * CREATE SOMETHING ELSE
+        */
+        
+        
+        
+        
+    }
     
+    public void createListeners() {
+        /*
+        *
+        * CREATE THERAPIST LOGIN
+        */
+        // Listener for text fields so we can compare the text
+        loginTable.addListener(new ChangeListener() {
+            @Override
+            public void changed (ChangeEvent event, Actor actor) {
+                theName = unText.getText();
+                thePw = pwText.getText();
+                
+                // maybe put me in listener for next?
+                //System.out.println("The name will be " + theName);
+                therapistMenuTitle.setText("Welcome back, " + theName);
+            }
+        });
+ 
+        // Create new therapist
+        newTherapist.addListener(new ChangeListener() {
+            @Override
+            public void changed (ChangeEvent event, Actor actor) {
+                stage.clear();
+                
+                // textFields.clearText()
+                
+                stage.addActor(newTherapistTitleTable);
+            }
+        }); 
+        
+        // Next button
+        next.addListener(new ChangeListener() {
+            @Override
+            public void changed (ChangeEvent event, Actor actor) {             
+                file.checkTherapistCreds(theName, thePw);
+                
+                // open up dbFile, check if therapistName is in dbFile
+                // if not, report error & pwText.clearSelection();, else...
+                    // check if therapistPw matches password
+                    // if not, report error else move on
+                
+                // Change the title of the therpist menu to print his name           
+                
+                
+                // textFields.clearText()
+
+                
+                
+                // IF all checks out...
+                stage.clear();
+                stage.addActor(therapistMenuTitleTable);
+            }
+        }); 
+        
+        // Exit button
+        exit.addListener(new ChangeListener() {
+            @Override
+            public void changed (ChangeEvent event, Actor actor) {
+                Gdx.app.exit();
+            }
+        }); 
+        
+        
+        
+        /*
+        *
+        * CREATE NEW THERAPIST LOGIN
+        */
+        // Create Patient
+        newTherapistInfo.addListener(new ChangeListener() {
+            @Override
+            public void changed (ChangeEvent event, Actor actor) {
+                theName = thName.getText();
+                thePw = thPw.getText();
+                theConPw = thConPw.getText();
+           } 
+        });
+                
+        doneBt.addListener(new ChangeListener() {
+            @Override
+            public void changed (ChangeEvent event, Actor actor) {
+                
+                // CHECK FOR NULL STRINGS
+                
+                if(thePw.equals(theConPw)) {
+                    file.newTherapist(theName, thePw);
+
+                    stage.clear();
+                    stage.addActor(loginTitle);
+                } else {
+                    // print an error message saying passwords don't match
+                    System.out.println("Passwords did not match");
+                    Gdx.app.exit();
+                }
+           } 
+        }); 
+    
+        backBt.addListener(new ChangeListener() {
+            @Override
+            public void changed (ChangeEvent event, Actor actor) {    
+
+            
+                stage.clear();
+                stage.addActor(therapistMenuTitleTable);     
+            }
+        });
+        
+        
+        
+        /*
+        *
+        * CREATE THERAPIST MENU
+        */   
+        // Create Patient
+        createP.addListener(new ChangeListener() {
+            @Override
+            public void changed (ChangeEvent event, Actor actor) {
+                
+                stage.clear();
+                
+           } 
+        });
+        
+        // Load Patient
+        loadP.addListener(new ChangeListener() {
+            @Override
+            public void changed (ChangeEvent event, Actor actor) {
+
+                
+                stage.clear();
+                
+                // if therapist patient list == null
+                // print message, would you like to create new patient?
+                
+                // else
+                //stage.addActor();
+           } 
+        });
+        
+        // Logout Therapist
+        logT.addListener(new ChangeListener() {
+            @Override
+            public void changed (ChangeEvent event, Actor actor) {
+                stage.clear();
+                stage.addActor(loginTitle);          
+            }
+        });    
+        
+        // Exit
+        exit.addListener(new ChangeListener() {
+            @Override
+            public void changed (ChangeEvent event, Actor actor) {
+                Gdx.app.exit();
+            }
+        });    
+        
+        
+        
+        /*
+        *
+        * CREATE PATIENT MENU
+        */
+        // Create Routine
+        createR.addListener(new ChangeListener() {
+            @Override
+            public void changed (ChangeEvent event, Actor actor) {
+                patientMenuTitleTable.clear();
+                patientMenuTitleTable.remove();
+                patientMenuTable.clear();
+                patientMenuTable.remove();
+                stage.clear();
+                
+           } 
+        });
+           
+        // Back (Logout Patient)
+        logP.addListener(new ChangeListener() {
+            @Override
+            public void changed (ChangeEvent event, Actor actor) {
+                patientMenuTable.clear();
+                patientMenuTable.remove();
+                patientMenuTitleTable.clear();
+                patientMenuTitleTable.remove();
+                stage.clear();
+
+            }
+        });    
+        
+        // Exit
+        exit.addListener(new ChangeListener() {
+            @Override
+            public void changed (ChangeEvent event, Actor actor) {
+                Gdx.app.exit();
+            }
+        });    
+        
+        
+        
+        /*
+        *
+        * CREATE ROUTINE
+        */
         // I Spy
         btA.addListener(new ChangeListener() {
             @Override
@@ -504,28 +543,13 @@ public class MainMenu implements Screen {
                 createRoutineTable.clear();
                 createRoutineTable.remove();                              
                 stage.clear();
-                createPatientMenu();
             }
         });    
-    
+        
+        
+        
     }
-    
-    public void getRidOfTable(Table table) {
-        SnapshotArray<Actor> children = table.getChildren();
-        for (int i = 0; i < children.size-1; i++) {
-            System.out.println("The child's name is " + children.get(i).getName());
-            children.get(i).clearActions();
-            //children.get(i).clear();
-            children.get(i).remove();
-            table.removeActor(children.get(i));
-        }
-        table.clearChildren();
-
-        table.clear();
-        table.reset();
-        table.remove();
-    }
-    
+        
     @Override
     public void resize(int width, int height) {
         stage.getViewport().update(width, height, true);
@@ -548,6 +572,30 @@ public class MainMenu implements Screen {
     public void dispose() {
         stage.dispose();
         skin.dispose();
+        
+        // table.clear();
+        createPTitleTable.remove();
+        createRoutineTable.remove();
+        createRoutineTitleTable.remove();
+        fmScores.remove();
+        gsScores.remove();
+        hpScores.remove();
+        loginButtons.remove();
+        loginTable.remove();
+        loginTitle.remove();
+        newThButtons.remove();
+        newTherapistInfo.remove();
+        newTherapistTitleTable.remove();
+        patientInfoTable.remove();
+        patientInfoTitleTable.remove();
+        patientMenuTable.remove();
+        patientMenuTitleTable.remove();
+        psScores.remove();
+        therapistMenuTable.remove();
+        therapistMenuTitleTable.remove();
+        
+        // listeners.remove();
+        
     }
 
     @Override
