@@ -12,20 +12,24 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 public class Card 
 {
     int x, y;
-    int width=100;
+    int width=25;
     int mark;
+    float xScale=2f, yScale=3f;
     Sprite image, hidden;//=null;
     boolean clicked;
+    
     public Card(int xt, int yt, Sprite img, int markT, float xSpace, float ySpace)
     {
-        x=(int) (xt*xSpace*(Gdx.graphics.getWidth()/1920.0f));
-        y=(int) (yt*ySpace*(Gdx.graphics.getHeight()/1080.0f));
+        x=(int) (xt*xSpace*(Gdx.graphics.getWidth()/1920.0f))+25;
+        y=(int) (yt*ySpace*(Gdx.graphics.getHeight()/1080.0f))+25;
         mark=markT;
         clicked=false;
         hidden=new Sprite(new Texture(Gdx.files.internal("Items/PlayingCard.png")));
         image=new Sprite(img);
         image.setPosition(x, y);
+        image.setScale(xScale, yScale);
         hidden.setPosition(x, y);
+        hidden.setScale(xScale, yScale);
     }
     
     public void draw(SpriteBatch batch)
@@ -39,10 +43,8 @@ public class Card
     public boolean click(double xt, double yt)
     {
         //System.out.println("my x: "+x+" my y: "+y);
-        if(xt>=x && xt<=x+width && yt>=y && yt<=y+width)
+        if(xt>=x && xt<=x+width*xScale && yt>=y-width && yt<=y+width*yScale)
         {
-            //System.out.println("TEST");
-            //clicked=true;
             return true;
         }
         //clicked=false;

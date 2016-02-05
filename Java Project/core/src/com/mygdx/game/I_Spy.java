@@ -65,17 +65,17 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor 
         board.clear();
         while(count<imageCount)
         {
-            int x=rand.nextInt(80);
-            int y=rand.nextInt(40);
+            int x=rand.nextInt(100);
+            int y=rand.nextInt(35);
             boolean taken=false;
             for(int i=0; i<board.size(); ++i)
             {
-                if(x>=board.get(i).x && x<=board.get(i).x+25 && y>=board.get(i).y && y<=board.get(i).y+25)
+                if(x>=board.get(i).x && x<=board.get(i).x+25*2 && y>=board.get(i).y && y<=board.get(i).y+25*3)
                     taken=true;
             }
             if(!taken)
             {
-                board.add(getItem(count, (int) (x*25*Gdx.graphics.getHeight()/1920), (int) (y*25*Gdx.graphics.getHeight()/1080)));
+                board.add(getItem(count, (int) (x*25*Gdx.graphics.getHeight()/1920+25), (int) (y*25*Gdx.graphics.getHeight()/1080+25)));
                 count++;
             }
         }
@@ -94,8 +94,8 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor 
                 name="Find the Lemon";
                 break;
             case 1:
-                image=new Sprite(new Texture(Gdx.files.internal("Items/Colors/Blue.png")));
-                name="Find the blue box";
+                image=new Sprite(new Texture(Gdx.files.internal("Items/Colors/Grey.png")));
+                name="Find the grey box";
                 break;
             case 2:
                 image=new Sprite(new Texture(Gdx.files.internal("Items/delete.png")));
@@ -150,8 +150,8 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor 
                 name="Find the Brown Box";
                 break;
             case 15:
-                image=new Sprite(new Texture(Gdx.files.internal("Items/Colors/Green.png")));
-                name="Find the Green Box";
+                image=new Sprite(new Texture(Gdx.files.internal("Items/Colors/Orange.png")));
+                name="Find the Orange Box";
                 break;
             case 16:
                 image=new Sprite(new Texture(Gdx.files.internal("Items/Colors/Purple.png")));
@@ -208,7 +208,8 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor 
                 }
         }
         font.getData().setScale(2);
-        font.draw(batch, board.get(marked).name+" and your score is: "+score, Gdx.graphics.getWidth()*.45f, Gdx.graphics.getHeight()*.95f);
+        font.draw(batch, board.get(marked).name, Gdx.graphics.getWidth()*.45f, Gdx.graphics.getHeight()*.95f);
+        font.draw(batch, "your score is: "+score, Gdx.graphics.getWidth()*.45f, Gdx.graphics.getHeight()*.92f);
         boolean hit=false;
         for(int i=0; i<board.size(); ++i)
                 if(board.get(i).clicked(Gdx.input.getX(), Gdx.graphics.getHeight()-Gdx.input.getY()) && i==marked)

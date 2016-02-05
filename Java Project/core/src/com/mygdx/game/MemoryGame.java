@@ -33,7 +33,7 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
     Vector2 two=new Vector2(-1,-1);
     int hitMark=0;
     long counter=0;
-    int time=1;
+    int time=2;
     //Vector2 two=new Vector2(-2,-2);
     int difficulty=-1;
     int maxDifficulty=2;
@@ -82,9 +82,9 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
         Sprite four=new Sprite(new Texture(Gdx.files.internal("Items/NumbersLetters/four.png")));
         Sprite five=new Sprite(new Texture(Gdx.files.internal("Items/NumbersLetters/five.png")));
         Sprite six=new Sprite(new Texture(Gdx.files.internal("Items/NumbersLetters/six.png")));
-        Sprite blue=new Sprite(new Texture(Gdx.files.internal("Items/Colors/Blue.png")));
+        Sprite grey=new Sprite(new Texture(Gdx.files.internal("Items/Colors/Grey.png")));
         Sprite brown=new Sprite(new Texture(Gdx.files.internal("Items/Colors/Brown.png")));
-        Sprite green=new Sprite(new Texture(Gdx.files.internal("Items/Colors/Green.png")));
+        Sprite orange=new Sprite(new Texture(Gdx.files.internal("Items/Colors/Orange.png")));
         Sprite purple=new Sprite(new Texture(Gdx.files.internal("Items/Colors/Purple.png")));
         Sprite white=new Sprite(new Texture(Gdx.files.internal("Items/Colors/White.png")));
         Sprite yellow=new Sprite(new Texture(Gdx.files.internal("Items/Colors/Yellow.png")));
@@ -137,13 +137,13 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
                 switch(num)
                 {
                     case 1:
-                        temp=blue;
+                        temp=grey;
                         break;
                     case 2:
                         temp=brown;
                         break;
                     case 3:
-                        temp=green;
+                        temp=orange;
                         break;
                     case 4:
                         temp=purple;
