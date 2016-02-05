@@ -18,7 +18,9 @@ public class Item
     Sprite image;
     int x,y;
     String name;
-    int shift=100;
+    int shift=25;
+    float xScale=2, yScale=3;
+    
     public Item(Sprite s, int xt, int yt, String n)
     {
         image=s;
@@ -26,6 +28,7 @@ public class Item
         y=yt;
         name=n;
         image.setPosition(x, y);
+        image.setScale(xScale, yScale);
     }
     
     public String getName()
@@ -35,7 +38,7 @@ public class Item
     
     public boolean clicked(int xt, int yt)
     {
-        if(xt>=x && xt<=x*shift && yt>=y && yt<=y*shift)
+        if(xt>=x-shift && xt<=x+shift*xScale && yt>=y-shift && yt<=y+shift*yScale-shift)
             return true;
         return false;
     }
