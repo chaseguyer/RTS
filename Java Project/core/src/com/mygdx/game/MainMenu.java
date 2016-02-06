@@ -60,9 +60,12 @@ public class MainMenu implements Screen {
     private Label unLabel = new Label("Username:", skin);
     private TextField unText = new TextField("", skin);
     private Label pwLabel = new Label("Password:", skin);
-    private TextField pwText = new TextField("", skin);
+    private final TextField pwText = new TextField("", skin);
+
+    
     
     private Table loginButtons = new Table();
+    private Label loginError = new Label("Incorrect username or password", skin, "error");
     private TextButton newTherapist = new TextButton("Create New Therapist Profile", skin); // i want normal underlined text for this
     private TextButton next = new TextButton("Next", skin);
     private TextButton exit = new TextButton("Exit", skin);
@@ -82,6 +85,8 @@ public class MainMenu implements Screen {
     
     private Label thConPwLabel = new Label("Confirm Password:", skin);
     private TextField thConPw = new TextField("", skin); 
+    
+    private Label pwError = new Label("The passwords are not valid!", skin, "error");
     
     private Table newThButtons = new Table();
     private TextButton doneBt = new TextButton("Done", skin);
@@ -185,21 +190,23 @@ public class MainMenu implements Screen {
         loginTable.add(pwLabel).left();
         pwLabel.setFontScale(0.6f);
         loginTable.add(pwText).width(TB_WIDTH).row();
-        
+        pwText.setPasswordCharacter('*'); // makes text in pwText bullet points
+
+        loginButtons.add(loginError).row();
+        loginError.setFontScale(0.6f);
+        loginError.setVisible(false);
         loginButtons.add(newTherapist).size(650,80).left().padTop(50).align(Align.center).row();
         newTherapist.getLabel().setFontScale(0.5f);
         loginButtons.add(next).size(300,80).left().padTop(10).align(Align.center).row();
         next.getLabel().setFontScale(0.5f);
         loginButtons.add(exit).size(300,80).left().padTop(10).align(Align.center).row();
         exit.getLabel().setFontScale(0.5f);
-        
-        // does not work for some reason
-        pwText.setPasswordMode(true); // makes text in pwText bullet points
+
         
         
         /*
         *
-        * CREATE NEW THERAPIST LOGIN
+        * CREATE NEW THERAPIST
         */
         newTherapistTitleTable.setFillParent(true);
         newTherapistTitleTable.add(newTherapistTitle).padBottom(100).align(Align.center).row();               
@@ -217,14 +224,19 @@ public class MainMenu implements Screen {
         newTherapistInfo.add(thPwLabel).left();
         thPwLabel.setFontScale(0.6f);
         newTherapistInfo.add(thPw).width(TB_WIDTH).row();
-        thPw.setPasswordMode(true);
+        thPw.setPasswordCharacter('*');
         
         // Confirm password:
         newTherapistInfo.add(thConPwLabel).left();     
         thConPwLabel.setFontScale(0.6f);
         newTherapistInfo.add(thConPw).width(TB_WIDTH).row();
-        thConPw.setPasswordMode(true);
+        thConPw.setPasswordCharacter('*');
         
+        //error message
+        newThButtons.add(pwError).align(Align.center).row();
+        pwError.setFontScale(0.6f);
+        pwError.setVisible(false); // makes it not visible for now
+
         // done and back buttons
         newThButtons.add(doneBt).size(300,80).padTop(40).align(Align.center).row();
         doneBt.getLabel().setFontScale(0.5f);
@@ -329,10 +341,6 @@ public class MainMenu implements Screen {
             public void changed (ChangeEvent event, Actor actor) {
                 theName = unText.getText();
                 thePw = pwText.getText();
-                
-                // maybe put me in listener for next?
-                //System.out.println("The name will be " + theName);
-                therapistMenuTitle.setText("Welcome back, " + theName);
             }
         });
  
@@ -340,10 +348,11 @@ public class MainMenu implements Screen {
         newTherapist.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {
+                // clear text when we move to next window
+                unText.setText("");
+                pwText.setText("");
+                
                 stage.clear();
-                
-                // textFields.clearText()
-                
                 stage.addActor(newTherapistTitleTable);
             }
         }); 
@@ -352,23 +361,23 @@ public class MainMenu implements Screen {
         next.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {             
-                file.checkTherapistCreds(theName, thePw);
+                if(file.isValidLogin(theName, thePw)) {
+                    therapistMenuTitle.setText("Welcome back, " + theName);
                 
-                // open up dbFile, check if therapistName is in dbFile
-                // if not, report error & pwText.clearSelection();, else...
-                    // check if therapistPw matches password
-                    // if not, report error else move on
+                    loginError.setVisible(false);
+                    
+                    unText.setText("");
+                    pwText.setText("");                
                 
-                // Change the title of the therpist menu to print his name           
-                
-                
-                // textFields.clearText()
-
+                    stage.clear();
+                    stage.addActor(therapistMenuTitleTable);  
+                } else {
+                    loginError.setVisible(true);
+                }
                 
                 
                 // IF all checks out...
-                stage.clear();
-                stage.addActor(therapistMenuTitleTable);
+                
             }
         }); 
         
@@ -390,6 +399,7 @@ public class MainMenu implements Screen {
         newTherapistInfo.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {
+                // Grab the text in the fields and put into strings
                 theName = thName.getText();
                 thePw = thPw.getText();
                 theConPw = thConPw.getText();
@@ -399,29 +409,33 @@ public class MainMenu implements Screen {
         doneBt.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {
-                
-                // CHECK FOR NULL STRINGS
-                
-                if(thePw.equals(theConPw)) {
+                if((thePw == null || theConPw == null) || !(thePw.equals(theConPw))) {
+                    pwError.setVisible(true);
+                } else {
                     file.newTherapist(theName, thePw);
-
+                    
+                    pwError.setVisible(false);
+                    
+                    // Need to clear text in the fields when leaving this page
+                    thName.setText("");
+                    thPw.setText("");
+                    thConPw.setText("");
+                    
                     stage.clear();
                     stage.addActor(loginTitle);
-                } else {
-                    // print an error message saying passwords don't match
-                    System.out.println("Passwords did not match");
-                    Gdx.app.exit();
-                }
+                }  
            } 
         }); 
     
         backBt.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {    
-
-            
+                thName.setText("");
+                thPw.setText("");
+                thConPw.setText("");
+                
                 stage.clear();
-                stage.addActor(therapistMenuTitleTable);     
+                stage.addActor(loginTitle);
             }
         });
         

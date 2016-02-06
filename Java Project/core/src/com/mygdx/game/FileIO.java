@@ -16,69 +16,47 @@ public class FileIO {
 
     public PrintWriter writer = null;
     
-    public LinkedList usernameList = new LinkedList(); // maybe combine these (java version of c++ pair?)
-    public LinkedList passwordList = new LinkedList();
     
-    public void checkTherapistCreds(String username, String password) {
-        // add therpist username and pw
-        
-        
-        
-        
-        //Scanner scan;
-        
-        // what if there are no therapists?
-        //scan = new Scanner("rts-db.txt");
-        
-        /*
-        String line = "", name, pw;
-        while(scan.hasNext() && line!= null) {
-            name = scan.next();
-            pw = scan.next();
-           
-            line = scan.nextLine();
+    
+    
+    ArrayList<String> unList = new ArrayList<String>();
+    ArrayList<String> pwList = new ArrayList<String>();
+    
+    ArrayList<String> patientList = new ArrayList<String>();
+    
+    // just to be clear, i have no idea what i'm doing...
+    public boolean isValidLogin(String username, String password) {
+        try{
+            Scanner scan = new Scanner(new File("rts-login.txt")).useDelimiter("\n");
+            Scanner small = new Scanner("");
             
-            usernameList.add(name);
-            passwordList.add(pw);
-        }
-        */
-        //scan.close();
-
-        //loadPatients();
+            // scan in the entries from the file and add them to the list of users
+            while(scan.hasNextLine()) {
+                small = new Scanner(scan.nextLine()).useDelimiter(","); // ...AND IT SHOWS :D 
+                unList.add(small.next());
+                pwList.add(small.next());
+            }
+            scan.close();
+        } catch(FileNotFoundException e) {}
         
-        
-        while(usernameList != null) {
-            
-            
-        }
-        
-        
-        
-        
+        // check if the un and pw we've been handed matches any one of these
+        for(int i = 0; i < unList.size(); i++) {
+            if(unList.get(i).equals(username) && pwList.get(i).equals(password)) {
+                return true;
+            }
+        }        
+        return false;
     }
     
     public void newTherapist(String username, String password) {
         try{
-            writer = new PrintWriter("rts-db.txt", "UTF-8");
-        } catch (FileNotFoundException e) {
-        } catch (UnsupportedEncodingException e) {  
-        }
-        
-        writer.println(username + " " + password);
-        
-        // this is only temporary
-        usernameList.add(username);
-        passwordList.add(password);
-        
-        
-        writer.close();
+            writer = new PrintWriter(new FileOutputStream("rts-login.txt", true));
+            writer.append(username + "," + password + "\n");
+            writer.close();
+        } catch (FileNotFoundException e) {}
     }
     
     public void loadPatients() {
-        LinkedList patientList = new LinkedList();
-        
-        // find therapist, skip his password, scan all in based off of \n until whitespace found
-            // (or something to that effect)
         
     }
             
@@ -103,6 +81,25 @@ try {
 writer.close()l
 
 LOAD
+Scanner scan;
+        if(nameT==null)
+            scan= new Scanner(new File("last.txt"));
+        else
+            scan= new Scanner(new File(name));
+        ArrayList<Monster> monsters=new ArrayList<Monster>();
+         
+        String line="";
+        while(scan.hasNextLine() && line!= null && !line.equalsIgnoreCase("!M"))
+            line=scan.nextLine();
+        if(line==null || !scan.hasNextLine()) return monsters;
+        line=scan.next();
+        while(!line.equalsIgnoreCase("!I"))
+        {
+            Monster m=getMonster(line);      
+            float a=scan.nextFloat();
+scan.close()l
+
+
 Scanner scan;
         if(nameT==null)
             scan= new Scanner(new File("last.txt"));
