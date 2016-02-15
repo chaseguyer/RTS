@@ -1,6 +1,7 @@
 package com.mygdx.game;
 
 import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Input.Keys;
@@ -239,8 +240,10 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
         }
 //          
         batch.end();
-        if(Gdx.input.isKeyJustPressed(Keys.Q))
-            Gdx.app.exit();
+        if(Gdx.input.isKeyJustPressed(Keys.Q)) {
+            ((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenu());
+        }
+
         if(Gdx.input.isKeyJustPressed(Keys.SPACE))
             first=true;
         

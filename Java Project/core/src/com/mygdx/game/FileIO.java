@@ -8,6 +8,7 @@ package com.mygdx.game;
 import java.io.*;
 import java.util.*;
 
+
 /**
  *
  * @author chaseguyer
@@ -16,13 +17,10 @@ public class FileIO {
 
     public PrintWriter writer = null;
     
-    
-    
-    
     ArrayList<String> unList = new ArrayList<String>();
     ArrayList<String> pwList = new ArrayList<String>();
     
-    ArrayList<String> patientList = new ArrayList<String>();
+    
     
     // just to be clear, i have no idea what i'm doing...
     public boolean isValidLogin(String username, String password) {
@@ -48,6 +46,7 @@ public class FileIO {
         return false;
     }
     
+    // Creates a new therapist
     public void newTherapist(String username, String password) {
         try{
             writer = new PrintWriter(new FileOutputStream("rts-login.txt", true));
@@ -56,68 +55,53 @@ public class FileIO {
         } catch (FileNotFoundException e) {}
     }
     
-    public void loadPatients() {
-        
+    // This function creates/edits the patient information section
+    public void patientInfo(String thName, String fName, String lName, float fm, float gs, float ps, float hp, boolean isNewPatient) {
+        if(isNewPatient) {
+            try{
+                // add patient's info to their own file
+                writer = new PrintWriter(new FileOutputStream(lName + "_" + fName + ".txt", true));
+                writer.append(lName + "," + fName + "," + fm + "," + gs + "," + ps + "," + hp + "\n");
+                writer.close();
+                
+                // add patient to patient list
+                writer = new PrintWriter(new FileOutputStream(thName + "-patient-list.txt", true));
+                writer.append(lName + "," + fName + "\n");
+                writer.close();
+            } catch (FileNotFoundException e) {} 
+        } else { // load patient
+            try {
+                Scanner scan = new Scanner(new File(lName + "_" + fName + ".txt"));
+                // open patient file
+                // dump info into textFields?
+                
+                
+            } catch(FileNotFoundException e) {}
+        }        
     }
+        
+    // Loads a specific therapists patient list
+    public ArrayList<String> loadPatients(String therapistName) {
+        
+        ArrayList<String> pList = new ArrayList<String>();
+        ArrayList<String> patientFirst = new ArrayList<String>();
+        ArrayList<String> patientLast = new ArrayList<String>();   
+        
+        try{
+            Scanner scan = new Scanner(new File(therapistName + "-patient-list.txt")).useDelimiter("\n");
+            Scanner small;
             
+            while(scan.hasNextLine()) {
+                small = new Scanner(scan.nextLine()).useDelimiter(","); // ...AND IT SHOWS :D 
+                patientLast.add(small.next());
+                patientFirst.add(small.next());
+            }
+            scan.close();
+        } catch(FileNotFoundException e) {}
+        
+        for(int i = 0; i < patientLast.size(); i++) {
+            pList.add(patientLast.get(i) + ", " + patientFirst.get(i));    
+        }
+        return pList;
+    }           
 }
-
-/*
-
-SAVE
-PrintWriter writer=null;
-String mapName=map.getMapName();
-map.changeMap(spawnedMonsters, items, null);
-
-try {
-    writer = new PrintWriter("player.txt", "UTF-8");
-} catch (FileNotFoundException ex) {
-    Logger.getLogger(apoc.class.getName()).log(Level.SEVERE, null, ex);
-} catch (UnsupportedEncodingException ex) {
-   Logger.getLogger(apoc.class.getName()).log(Level.SEVERE, null, ex);
-}
-    if(player.activeItem.isRanged())
-    writer.println(player.activeItem.getID() + " "+ player.activeItem.getRemainingRounds()+" "+player.activeItem.getAmmoType()+" "+player.totalRounds(player.activeItem.getAmmoType()));
-writer.close()l
-
-LOAD
-Scanner scan;
-        if(nameT==null)
-            scan= new Scanner(new File("last.txt"));
-        else
-            scan= new Scanner(new File(name));
-        ArrayList<Monster> monsters=new ArrayList<Monster>();
-         
-        String line="";
-        while(scan.hasNextLine() && line!= null && !line.equalsIgnoreCase("!M"))
-            line=scan.nextLine();
-        if(line==null || !scan.hasNextLine()) return monsters;
-        line=scan.next();
-        while(!line.equalsIgnoreCase("!I"))
-        {
-            Monster m=getMonster(line);      
-            float a=scan.nextFloat();
-scan.close()l
-
-
-Scanner scan;
-        if(nameT==null)
-            scan= new Scanner(new File("last.txt"));
-        else
-            scan= new Scanner(new File(name));
-        ArrayList<Monster> monsters=new ArrayList<Monster>();
-         
-        String line="";
-        while(scan.hasNextLine() && line!= null && !line.equalsIgnoreCase("!M"))
-            line=scan.nextLine();
-        if(line==null || !scan.hasNextLine()) return monsters;
-        line=scan.next();
-        while(!line.equalsIgnoreCase("!I"))
-        {
-            Monster m=getMonster(line);      
-            float a=scan.nextFloat();
-scan.close()l
-
-
-
-*/
