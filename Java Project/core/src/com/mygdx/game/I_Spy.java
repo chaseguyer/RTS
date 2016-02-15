@@ -65,19 +65,30 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor 
         int count=0;
         marked=rand.nextInt(imageCount);
         board.clear();
+        int xs=50, ys=75;
+        
         while(count<imageCount)
         {
-            int x=rand.nextInt(100);
-            int y=rand.nextInt(35);
+            int x=rand.nextInt((1920*Gdx.graphics.getWidth()/1920)-50)+25;
+            int y=rand.nextInt((1080*Gdx.graphics.getHeight()/1080)-50)+25;
             boolean taken=false;
             for(int i=0; i<board.size(); ++i)
             {
-                if(x>=board.get(i).x && x<=board.get(i).x+25*2 && y>=board.get(i).y && y<=board.get(i).y+25*3)
-                    taken=true;
+//                for(int a=0; a<xs; ++a)
+//                    for(int b=0; b<ys; ++b)
+//                        for(int c=0; c<xs; ++c)
+//                            for(int d=0; d<ys; ++d)
+//                        if(x+a>=board.get(i).x+c && x+a<=board.get(i).x+c && y+b>=board.get(i).y+d && y+b<=board.get(i).y+d)
+                for(int a=-25; a<xs; ++a)
+                    for(int b=-25; b<ys; ++b)
+                        if(board.get(i).clicked(x+a, y+b))
+                            taken=true;
             }
             if(!taken)
             {
-                board.add(getItem(count, (int) (x*25*Gdx.graphics.getHeight()/1920+25), (int) (y*25*Gdx.graphics.getHeight()/1080+25)));
+                board.add(getItem(count, (int) x, (int) y));
+
+//                board.add(getItem(count, (int) (x*25*Gdx.graphics.getHeight()/1920+25), (int) (y*25*Gdx.graphics.getHeight()/1080+25)));
                 count++;
             }
         }
@@ -212,12 +223,12 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor 
         font.getData().setScale(2);
         font.draw(batch, board.get(marked).name, Gdx.graphics.getWidth()*.45f, Gdx.graphics.getHeight()*.95f);
         font.draw(batch, "your score is: "+score, Gdx.graphics.getWidth()*.45f, Gdx.graphics.getHeight()*.92f);
-        boolean hit=false;
-        for(int i=0; i<board.size(); ++i)
-                if(board.get(i).clicked(Gdx.input.getX(), Gdx.graphics.getHeight()-Gdx.input.getY()) && i==marked)
-                    hit=true;
-        font.getData().setScale(1);
-        font.draw(batch, "Status: "+hit+" x: "+Gdx.input.getX()+" y: "+ (Gdx.graphics.getHeight()-Gdx.input.getY()) , 50,50);
+//        boolean hit=false;
+//        for(int i=0; i<board.size(); ++i)
+//                if(board.get(i).clicked(Gdx.input.getX(), Gdx.graphics.getHeight()-Gdx.input.getY()) && i==marked)
+//                    hit=true;
+        //font.getData().setScale(1);
+        //font.draw(batch, "Status: "+hit+" x: "+Gdx.input.getX()+" y: "+ (Gdx.graphics.getHeight()-Gdx.input.getY()) , 50,50);
     }
     
     @Override
