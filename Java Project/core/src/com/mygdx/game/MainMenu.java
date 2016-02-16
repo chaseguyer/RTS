@@ -196,10 +196,10 @@ public class MainMenu implements Screen {
     private Label createRoutineTitle = new Label("Pick a game to play", skin);
     
     private Table createRoutineTable = new Table();
-    private TextButton btA = new TextButton("I Spy", skin);
-    private TextButton btB = new TextButton("Memory", skin);
-    private TextButton btC = new TextButton("Maze", skin);
-    private TextButton btD = new TextButton("Back", skin);
+    private TextButton ispyBt = new TextButton("I Spy", skin);
+    private TextButton memoryBt = new TextButton("Memory", skin);
+    private TextButton mazeBt = new TextButton("Maze", skin);
+    private TextButton routineBack = new TextButton("Back", skin);
     
     // Load Routine
     
@@ -212,16 +212,6 @@ public class MainMenu implements Screen {
         
         createTables();
         createListeners();
-        
-        /*
-        TextField text = new TextField("", skin);
-        text.setHeight(TB_HEIGHT);
-        text.setWidth(TB_WIDTH);
-        //text.setPasswordCharacter('*');
-        text.setPasswordMode(true);
-        
-        loginTable.add(text);
-        */
         
         stage.addActor(loginTitle);
     }
@@ -315,7 +305,7 @@ public class MainMenu implements Screen {
         therapistMenuTitleTable.add(therapistMenuTable);
         
         therapistMenuTable.add(createP).size(600, 80).left().padTop(50);
-        therapistMenuTable.add().size(600, 100).row();
+        therapistMenuTable.add().size(600, 100).row(); // this is to push everything to the left
         therapistMenuTable.add(loadP).size(600, 80).left().padTop(10).row();
         therapistMenuTable.add(logT).size(600, 80).left().padTop(10).row();
         therapistMenuTable.add(exitT).size(600, 80).left().padTop(10).row();
@@ -460,22 +450,23 @@ public class MainMenu implements Screen {
         createRoutineTitleTable.setFillParent(true);
         createRoutineTitleTable.add(createRoutineTitle).align(Align.center).row();
         createRoutineTitle.setFontScale(0.9f);
-        createRoutineTitleTable.add(createRoutineTable);
+        createRoutineTitleTable.add(createRoutineTable).left();
         
-        createRoutineTable.add(btA).size(600, 80).left().padTop(50);
-        createRoutineTable.add().size(600, 100).row();
-        createRoutineTable.add(btB).size(600, 80).left().padTop(10).row();
-        createRoutineTable.add(btC).size(600, 80).left().padTop(10).row();
-        createRoutineTable.add(btD).size(600, 80).left().padTop(10);
         
-        btA.getLabel().setFontScale(LABEL_FS);
-        btA.getLabel().setAlignment(Align.left);
-        btB.getLabel().setFontScale(LABEL_FS);
-        btB.getLabel().setAlignment(Align.left);
-        btC.getLabel().setFontScale(LABEL_FS);
-        btC.getLabel().setAlignment(Align.left);
-        btD.getLabel().setFontScale(LABEL_FS);
-        btD.getLabel().setAlignment(Align.left);
+        createRoutineTable.add(ispyBt).size(600, 80).left().padTop(50);
+        createRoutineTable.add().size(600,100).row(); // this is to push everything to the left
+        createRoutineTable.add(memoryBt).size(600, 80).left().padTop(10).row();
+        createRoutineTable.add(mazeBt).size(600, 80).left().padTop(10).row();
+        createRoutineTable.add(routineBack).size(600, 80).left().padTop(10);
+        
+        ispyBt.getLabel().setFontScale(LABEL_FS);
+        ispyBt.getLabel().setAlignment(Align.left);
+        memoryBt.getLabel().setFontScale(LABEL_FS);
+        memoryBt.getLabel().setAlignment(Align.left);
+        mazeBt.getLabel().setFontScale(LABEL_FS);
+        mazeBt.getLabel().setAlignment(Align.left);
+        routineBack.getLabel().setFontScale(LABEL_FS);
+        routineBack.getLabel().setAlignment(Align.left);
         
         
         
@@ -961,7 +952,7 @@ public class MainMenu implements Screen {
         * CREATE ROUTINE
         */
         // I Spy
-        btA.addListener(new ChangeListener() {
+        ispyBt.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {
                 ((Game) Gdx.app.getApplicationListener()).setScreen(new I_Spy());
@@ -969,7 +960,7 @@ public class MainMenu implements Screen {
         });    
         
         // Memory Game
-        btB.addListener(new ChangeListener() {
+        memoryBt.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {
                 //MainMenu.hide();
@@ -977,8 +968,16 @@ public class MainMenu implements Screen {
             }
         });    
         
+        mazeBt.addListener(new ChangeListener() {
+            @Override
+            public void changed (ChangeEvent event, Actor actor) {
+                //MainMenu.hide();
+                ((Game) Gdx.app.getApplicationListener()).setScreen(new MazeGame());
+            }
+        }); 
+        
         // Back
-        btD.addListener(new ChangeListener() {
+        routineBack.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {                
                 stage.clear();
