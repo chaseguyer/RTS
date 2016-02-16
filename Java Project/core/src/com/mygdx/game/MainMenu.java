@@ -326,7 +326,7 @@ public class MainMenu implements Screen {
         * Patient Information
         */
         patientInfoTitleTable.setFillParent(true);
-        patientInfoTitleTable.add(patientInfoTitle).padBottom(20).align(Align.center).row();
+        patientInfoTitleTable.add(patientInfoTitle).padBottom(15).align(Align.center).row();
         patientInfoTitleTable.add(pNameTable).left().row();
         patientInfoTitleTable.add(fmScores).left().row();
         patientInfoTitleTable.add(gsScores).left().row();
@@ -334,6 +334,9 @@ public class MainMenu implements Screen {
         patientInfoTitleTable.add(hpScores).left().row();
         patientInfoTitleTable.add(piError).row();
         patientInfoTitleTable.add(piButtons);
+        
+        // title
+        patientInfoTitle.setFontScale(0.8f);
         
         // Name info
         pNameTable.add(firstNameLabel).left();
@@ -375,7 +378,7 @@ public class MainMenu implements Screen {
         piError.setVisible(false);
         
         // patient info buttons
-        piButtons.add(piDone).size(300,80).left().padTop(10).align(Align.center).row();
+        piButtons.add(piDone).size(300,80).left().padTop(0).align(Align.center).row();
         piDone.getLabel().setFontScale(LABEL_FS);
         piButtons.add(piBack).size(300,80).left().padTop(10).align(Align.center).row();
         piBack.getLabel().setFontScale(LABEL_FS);
