@@ -573,6 +573,9 @@ public class MainMenu implements Screen {
                     thPw.setText("");
                     thConPw.setText("");
                     
+                    theName = "";
+                    thePw = "";
+                    
                     stage.clear();
                     stage.addActor(loginTitle);
                 }  
