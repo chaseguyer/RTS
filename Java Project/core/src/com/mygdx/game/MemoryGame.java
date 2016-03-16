@@ -12,7 +12,12 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.Random;
+import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -28,7 +33,7 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
     boolean first=true;
     Card[][] deck;
     int cardPairs=6;
-    double numRow=cardPairs/2;
+    double numRow=2;//cardPairs/2;
     int mark=-1;
     Vector2 one=new Vector2(-1,-1);
     Vector2 two=new Vector2(-1,-1);
@@ -36,9 +41,41 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
     long counter=0;
     int time=2;
     //Vector2 two=new Vector2(-2,-2);
-    int difficulty=-1;
-    int maxDifficulty=2;
-    boolean stripped=false;
+    int difficulty=-1, maxDifficulty=2;
+    boolean stripped=false; 
+    boolean orientation;
+    int cardsPerRound, roundsTillStats;
+    float displacement, revealTime;
+    int failedAttempts;
+    
+    public void loadPlacement()
+    {
+        File file=new File("Data/MemoryGameInfo.txt");
+        try 
+        {
+            Scanner scan=new Scanner(file);
+            orientation=scan.nextBoolean();
+            displacement=scan.nextFloat();
+            cardPairs=scan.nextInt();
+            roundsTillStats=scan.nextInt();
+            revealTime=scan.nextFloat();
+            difficulty=scan.nextInt();
+            scan.close();
+            if(cardPairs<2) cardPairs=2;
+            if(cardPairs>12) cardPairs=12;
+            if(displacement >100) displacement=100;
+            else if(displacement<0) displacement=0;
+            if(orientation)
+                displacement=(9.0f*(displacement/100.0f));
+            else
+                displacement=(12.0f*(displacement/100.0f));
+         
+        } 
+        catch (FileNotFoundException ex) 
+        {
+            Logger.getLogger(MemoryGame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
     
     @Override
     public void show ()
@@ -56,7 +93,9 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
         if(first)
         {
             first=false;
+            loadPlacement();
             cardGame(cardPairs);
+            failedAttempts=0;
         }
         memoryGameLogic(cardPairs);
         if(running(cardPairs)==false)
@@ -69,7 +108,7 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
     public boolean running(int cardPairs)
     {
         for(int x=0; x<cardPairs; ++x)
-            for(int y=0; y<cardPairs/numRow; ++y)
+            for(int y=0; y<numRow; ++y)//for(int y=0; y<cardPairs/numRow; ++y)
                 if(deck[x][y]!=null) 
                     return true;
         return false;
@@ -95,27 +134,24 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
         Sprite heart=new Sprite(new Texture(Gdx.files.internal("Items/Shapes/Heart.png")));
         Sprite star=new Sprite(new Texture(Gdx.files.internal("Items/Shapes/Star.png")));
         Sprite triangle=new Sprite(new Texture(Gdx.files.internal("Items/Shapes/Triangle.png")));
-        //int cardPairs=3;
-        /*Card[][] */deck=new Card[(int)cardPairs][(int)(cardPairs/numRow)];
-        int [][] deckFill= new int[(int)cardPairs][(int)(cardPairs/numRow)];
+        deck=new Card[(int)cardPairs][(int)numRow];
+        //deck=new Card[(int)cardPairs][(int)(cardPairs/numRow)];
+        int [][] deckFill= new int[(int)cardPairs][(int)(numRow)];
+//        int [][] deckFill= new int[(int)cardPairs][(int)(cardPairs/numRow)];
         Random rand=new Random();
         for(int x=0; x<cardPairs; ++x)
-            for(int y=0; y<(int)(cardPairs/numRow); ++y)
+            for(int y=0; y<(int)(numRow); ++y)//for(int y=0; y<(int)(cardPairs/numRow); ++y)
                 deckFill[x][y]=0;
         
-        int displacement=rand.nextInt(4);
-        boolean orientation=rand.nextBoolean();
-        if(difficulty>=maxDifficulty)
-        {
-            difficulty=0;
-            stripped=true;
-            System.out.println("test");
-        }
-        else
-            difficulty++;
-        System.out.println("Diff: "+difficulty);
+//        if(difficulty>=maxDifficulty)
+//        {
+//            difficulty=0;
+//            stripped=true;
+//        }
+//        else
+//            difficulty++;
         for(int x=0; x<cardPairs; ++x)
-            for(int y=0; y<(int)(cardPairs/numRow); ++y)
+            for(int y=0; y<(int)(numRow); ++y)//for(int y=0; y<(int)(cardPairs/numRow); ++y)
             {
                 Sprite temp=null;
                 boolean taken=true;
@@ -126,14 +162,12 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
                     num+= 6*difficulty;
                     int count=0;
                     for(int a=0; a<cardPairs; ++a)
-                        for(int b=0; b<cardPairs/numRow; ++b)
+                        for(int b=0; b<numRow; ++b)//for(int b=0; b<cardPairs/numRow; ++b)
                             if(deckFill[a][b]==num)
                                 count++;
                     if(count<2)
                         taken=false;
-                }
-                System.out.println(num+" "+difficulty+" "+(num+6*difficulty));
-                
+                }                
                 
                 switch(num)
                 {
@@ -194,9 +228,9 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
                 }
                 
                 if(orientation)
-                    deck[x][y]=new Card(x,y+displacement,temp, num, 250, 250);
+                    deck[x][y]=new Card(x,y+displacement,temp, num, 150, 100);
                 else
-                    deck[x][y]=new Card(y+displacement,x,temp, num, 250, 150);
+                    deck[x][y]=new Card(y+displacement,x,temp, num, 150, 90);
                 deckFill[x][y]=num;
             }
     }
@@ -216,12 +250,13 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
                 }
             }
         for(int x=0; x<cardPairs; ++x)
-            for(int y=0; y<cardPairs/numRow; ++y)
+            for(int y=0; y<numRow; ++y)//for(int y=0; y<cardPairs/numRow; ++y)
                 if(deck[x][y]!=null)
                 {   
                     deck[x][y].draw(batch);
                 }
-        if(two.x!=-1 && System.currentTimeMillis()-counter>time*1000)
+
+        if(two.x!=-1 && System.currentTimeMillis()-counter>revealTime*1000)
         {
             deck[(int)one.x][(int)one.y].setClicked(false);
             deck[(int)two.x][(int)two.y].setClicked(false);
@@ -229,16 +264,26 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
             {
                 deck[(int)one.x][(int)one.y]=null;
                 deck[(int)two.x][(int)two.y]=null;
-                System.out.println("purge");
+            }
+            else
+            {
+                if(deck[(int)one.x][(int)one.y].wasAttempted() || deck[(int)two.x][(int)two.y].wasAttempted())
+                {
+                    failedAttempts++;
+                    deck[(int)one.x][(int)one.y].setClicked(false);
+                    deck[(int)two.x][(int)two.y].setClicked(false);
+                    System.out.println(failedAttempts+" wrong");
+                }
+                deck[(int)one.x][(int)one.y].setClicked(false);
+                deck[(int)two.x][(int)two.y].setClicked(false);
+                
             }
             one.x=-1;
             one.y=-1;
             two.x=-1;
             two.y=-1;
             mark=-1;
-            System.out.println("clean");
         }
-//          
         batch.end();
         if(Gdx.input.isKeyJustPressed(Keys.Q)) {
             ((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenu());
@@ -251,7 +296,7 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
         {
             //System.out.println("click at x: "+Gdx.input.getX() +" and y: "+(Gdx.graphics.getHeight()-Gdx.input.getY()));
             for(int x=0; x<cardPairs; ++x)
-                for(int y=0; y<cardPairs/numRow; ++y)
+                for(int y=0; y<numRow; ++y)//for(int y=0; y<cardPairs/numRow; ++y)
                     if(deck[x][y]!=null)
                     if(deck[x][y].click(Gdx.input.getX(), Gdx.graphics.getHeight()-Gdx.input.getY()))
                     {
@@ -259,7 +304,6 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
                         if( same(x,y)==false && one.x!=-1)//&& mark==deck[x][y].getMark() /*&& one.x!=-1 && mark!=-1*/)
                         {
                             //hit and matched
-                            System.out.println("1");
                             two.x=x;
                             two.y=y;
                             deck[x][y].setClicked(true);
@@ -268,16 +312,11 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
                         else //if(mark==-1) 
                         {
                             //set mark
-                            System.out.println("2");
                             one.x=x;
                             one.y=y;
                             deck[x][y].setClicked(true);
                             mark=deck[x][y].getMark();
                         }
-//                        else
-//                        {
-//                            //missed on both
-//                        }
                     }
         }
     }
