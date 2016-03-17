@@ -9,11 +9,19 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -41,12 +49,21 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
     long counter=0;
     int time=2;
     //Vector2 two=new Vector2(-2,-2);
-    int difficulty=-1, maxDifficulty=2;
+    int difficulty=-1, round=0;
     boolean stripped=false; 
-    boolean orientation;
+    boolean orientation, displayStats=false;
     int cardsPerRound, roundsTillStats;
     float displacement, revealTime;
-    int failedAttempts;
+    int failedAttempts=0;
+    //float statsTime[];
+    ArrayList<Float> statsTime=new ArrayList<Float>();
+    //int statsWrong[];
+    ArrayList<Integer> statsWrong=new ArrayList<Integer>();
+    BitmapFont font=new BitmapFont();
+    float averageMissesUp, averageTimeUp, counterUp;
+    float averageMissesSide, averageTimeSide, counterSide;
+    long roundTime;
+    
     
     public void loadPlacement()
     {
@@ -69,9 +86,87 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
                 displacement=(9.0f*(displacement/100.0f));
             else
                 displacement=(12.0f*(displacement/100.0f));
-         
+            //statsTime=new float[roundsTillStats];
+            //statsWrong=new int[roundsTillStats];
+            
         } 
         catch (FileNotFoundException ex) 
+        {
+            Logger.getLogger(MemoryGame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public void loadAverage(String patientFirst, String patientLast)
+    {
+        String fileName=patientFirst+patientLast+"MemoryGameStatistics.txt";
+        File file=new File(fileName);
+        try 
+        {
+            Scanner scan=new Scanner(file);
+            counterUp=0;
+            counterSide=0;
+            averageMissesUp=0;
+            averageTimeUp=0;
+            averageMissesSide=0;
+            averageTimeSide=0;
+            while(scan.hasNext())
+            {
+                if(scan.nextBoolean())//orientation
+                {
+                    averageMissesUp+=scan.nextInt();
+                    averageTimeUp+=scan.nextFloat();
+                    counterUp++;
+                }
+                else
+                {
+                    averageMissesSide+=scan.nextInt();
+                    averageTimeSide+=scan.nextFloat(); 
+                    counterSide++;
+                }
+                scan.nextInt();
+                scan.next();
+                scan.nextInt();
+                //while(!scan.hasNextBoolean() && scan.hasNext())
+                //    System.out.println(scan.next());//burn the time
+            }
+            averageMissesUp=averageMissesUp/counterUp;
+            averageTimeUp=averageTimeUp/counterUp;
+            averageMissesSide=averageMissesSide/counterSide;
+            averageTimeSide=averageTimeSide/counterSide;
+            scan.close();
+        } 
+        catch (FileNotFoundException ex) 
+        {
+            Logger.getLogger(MemoryGame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public void saveClient(String patientFirst, String patientLast)
+    {
+        String file=patientFirst+patientLast+"MemoryGameStatistics.txt";
+        DateFormat dateFormat = new SimpleDateFormat("yyyy MM dd");
+        Date date = new Date();
+        System.out.println(dateFormat.format(date)); //2014/08/06 
+        try 
+        {
+            
+            BufferedWriter bw = new BufferedWriter(new FileWriter(file, true));
+            for(int i=0; i<roundsTillStats; ++i)
+            {
+                //System.out.println(i+" ");
+                //System.out.println(" "+stats[i]==null);
+                //System.out.println(orientation+" ");
+                //System.out.println((statsTime[i]+" "));
+                //System.out.println(statsWrong[i]+" ");
+                
+                bw.append(orientation+" "+ statsWrong.get(i)+" "+(statsTime.get(i))+" "+dateFormat.format(date)+"\n");// time is *1000 so that it displays in seconds
+
+                //bw.append(orientation+" "+ statsWrong[i]+" "+(statsTime[i])+" "+dateFormat.format(date)+"\n");// time is *1000 so that it displays in seconds
+                //bw.append(!orientation+" "+ statsWrong.get(i)+" "+(statsTime.get(i))+" "+dateFormat.format(date)+"\n");// time is *1000 so that it displays in seconds
+                bw.flush();
+            }
+        } 
+        catch (IOException ex) 
         {
             Logger.getLogger(MemoryGame.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -89,20 +184,66 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
     @Override
     public void render (float f) 
     {
-        
-        if(first)
+        if(!displayStats)
         {
-            first=false;
-            loadPlacement();
-            cardGame(cardPairs);
-            failedAttempts=0;
+            if(first)
+            {
+                first=false;
+                loadPlacement();
+                cardGame(cardPairs);
+                roundTime=System.currentTimeMillis();
+                failedAttempts=0;
+                
+            }
+            memoryGameLogic(cardPairs);
+            if(running(cardPairs)==false)
+            {
+                first=true;
+                //System.out.println("failed clickes: "+failedAttempts);
+                statsTime.add((System.currentTimeMillis()-roundTime)/1000.0f);
+                //System.out.println("time: "+statsTime.get(round)+" "+round+" "+failedAttempts);
+                statsWrong.add(failedAttempts);
+                //System.out.println((System.currentTimeMillis()-stats[round].time));
+                //System.out.println(stats[round].misses+" ");
+                //System.out.println(roundsTillStats+" ");
+                if(round==roundsTillStats-1)
+                {
+                    saveClient("a", "a");
+                    round=0;
+                    displayStats=true;
+                    loadAverage("a", "a");
+                }
+                else
+                    round++;
+            }
         }
-        memoryGameLogic(cardPairs);
-        if(running(cardPairs)==false)
+        else
         {
-            first=true;
+            displayBlockInfo();
+            if(Gdx.input.isKeyJustPressed(Keys.N)) 
+            {
+                displayStats=!displayStats;
+                statsTime.clear();
+            }
+        
         }
             //Gdx.app.exit();
+    }
+    
+    public void displayBlockInfo()
+    {
+        Gdx.gl.glClearColor(0,0,0, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+        batch.begin();
+        //display averages up/side
+        font.draw(batch, "Horizontal Averages", Gdx.graphics.getWidth()*.25f, Gdx.graphics.getHeight()*.95f);
+        font.draw(batch, "Missed: "+averageMissesSide+"     "+"Time: "+averageTimeSide, Gdx.graphics.getWidth()*.25f, Gdx.graphics.getHeight()*.85f);
+        font.draw(batch, "Vertical", Gdx.graphics.getWidth()*.75f, Gdx.graphics.getHeight()*.95f);
+        font.draw(batch, "Missed: "+averageMissesUp+"     "+"Time: "+averageTimeUp, Gdx.graphics.getWidth()*.75f, Gdx.graphics.getHeight()*.85f);
+        for(int i=0; i<roundsTillStats; ++i)
+            font.draw(batch, statsWrong.get(i)+" "+( statsTime.get(i)  ), Gdx.graphics.getWidth()*.45f, Gdx.graphics.getHeight()*.75f-i*25);
+            //batch.write(stats[i].misses+" "+( (System.currentTimeMillis()-stats[i].time)*1000  )+dateFormat.format(date));// time is *1000 so that it displays in seconds
+        batch.end();
     }
 
     public boolean running(int cardPairs)
@@ -122,18 +263,36 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
         Sprite four=new Sprite(new Texture(Gdx.files.internal("Items/NumbersLetters/four.png")));
         Sprite five=new Sprite(new Texture(Gdx.files.internal("Items/NumbersLetters/five.png")));
         Sprite six=new Sprite(new Texture(Gdx.files.internal("Items/NumbersLetters/six.png")));
+        Sprite seven=new Sprite(new Texture(Gdx.files.internal("Items/NumbersLetters/seven.png")));
+        Sprite eight=new Sprite(new Texture(Gdx.files.internal("Items/NumbersLetters/eight.png")));
+        Sprite nine=new Sprite(new Texture(Gdx.files.internal("Items/NumbersLetters/nine.png")));
+        Sprite ten=new Sprite(new Texture(Gdx.files.internal("Items/NumbersLetters/ten.png")));
+        Sprite eleven=new Sprite(new Texture(Gdx.files.internal("Items/NumbersLetters/eleven.png")));
+        Sprite twelve=new Sprite(new Texture(Gdx.files.internal("Items/NumbersLetters/twelve.png")));
         Sprite grey=new Sprite(new Texture(Gdx.files.internal("Items/Colors/Grey.png")));
         Sprite brown=new Sprite(new Texture(Gdx.files.internal("Items/Colors/Brown.png")));
         Sprite orange=new Sprite(new Texture(Gdx.files.internal("Items/Colors/Orange.png")));
         Sprite purple=new Sprite(new Texture(Gdx.files.internal("Items/Colors/Purple.png")));
         Sprite white=new Sprite(new Texture(Gdx.files.internal("Items/Colors/White.png")));
         Sprite yellow=new Sprite(new Texture(Gdx.files.internal("Items/Colors/Yellow.png")));
+        Sprite bp=new Sprite(new Texture(Gdx.files.internal("Items/Colors/BP.png")));
+        Sprite blue=new Sprite(new Texture(Gdx.files.internal("Items/Colors/Blue.png")));
+        Sprite gb=new Sprite(new Texture(Gdx.files.internal("Items/Colors/GB.png")));
+        Sprite gy=new Sprite(new Texture(Gdx.files.internal("Items/Colors/GY.png")));
+        Sprite op=new Sprite(new Texture(Gdx.files.internal("Items/Colors/OP.png")));
+        Sprite yb=new Sprite(new Texture(Gdx.files.internal("Items/Colors/YB.png")));
         Sprite box=new Sprite(new Texture(Gdx.files.internal("Items/Shapes/Box.png")));
         Sprite circle=new Sprite(new Texture(Gdx.files.internal("Items/Shapes/Circle.png")));
         Sprite diamond=new Sprite(new Texture(Gdx.files.internal("Items/Shapes/Diamond.png")));
         Sprite heart=new Sprite(new Texture(Gdx.files.internal("Items/Shapes/Heart.png")));
         Sprite star=new Sprite(new Texture(Gdx.files.internal("Items/Shapes/Star.png")));
         Sprite triangle=new Sprite(new Texture(Gdx.files.internal("Items/Shapes/Triangle.png")));
+        Sprite arrow=new Sprite(new Texture(Gdx.files.internal("Items/Shapes/arrow.png")));
+        Sprite cross=new Sprite(new Texture(Gdx.files.internal("Items/Shapes/cross.png")));
+        Sprite downArrow=new Sprite(new Texture(Gdx.files.internal("Items/Shapes/downArrow.png")));
+        Sprite leftArrow=new Sprite(new Texture(Gdx.files.internal("Items/Shapes/leftArrow.png")));
+        Sprite pentagon=new Sprite(new Texture(Gdx.files.internal("Items/Shapes/pentagon.png")));
+        Sprite upArrow=new Sprite(new Texture(Gdx.files.internal("Items/Shapes/upArrow.png")));
         deck=new Card[(int)cardPairs][(int)numRow];
         //deck=new Card[(int)cardPairs][(int)(cardPairs/numRow)];
         int [][] deckFill= new int[(int)cardPairs][(int)(numRow)];
@@ -159,7 +318,7 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
                 while(taken==true)
                 {
                     num=rand.nextInt((int) cardPairs)+1;
-                    num+= 6*difficulty;
+                    num+= 12*difficulty;
                     int count=0;
                     for(int a=0; a<cardPairs; ++a)
                         for(int b=0; b<numRow; ++b)//for(int b=0; b<cardPairs/numRow; ++b)
@@ -190,40 +349,94 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
                         temp=yellow;
                         break;
                     case 7:
-                        temp=one;
+                        temp=bp;
                         break;
                     case 8:
-                        temp=two;
+                        temp=blue;
                         break;
                     case 9:
-                        temp=three;
+                        temp=gb;
                         break;
                     case 10:
-                        temp=four;
+                        temp=gy;
                         break;
                     case 11:
-                        temp=five;
+                        temp=op;
                         break;
                     case 12:
-                        temp=six;
+                        temp=yb;
                         break;
                     case 13:
-                        temp=box;
+                        temp=one;
                         break;
                     case 14:
-                        temp=circle;
+                        temp=two;
                         break;
                     case 15:
-                        temp=diamond;
+                        temp=three;
                         break;
                     case 16:
-                        temp=heart;
+                        temp=four;
                         break;
                     case 17:
-                        temp=star;
+                        temp=five;
                         break;
                     case 18:
+                        temp=six;
+                        break;
+                    case 19:
+                        temp=seven;
+                        break;
+                    case 20:
+                        temp=eight;
+                        break;
+                    case 21:
+                        temp=nine;
+                        break;
+                    case 22:
+                        temp=ten;
+                        break;
+                    case 23:
+                        temp=eleven;
+                        break;
+                    case 24:
+                        temp=twelve;
+                        break;
+                    case 25:
+                        temp=box;
+                        break;
+                    case 26:
+                        temp=circle;
+                        break;
+                    case 27:
+                        temp=diamond;
+                        break;
+                    case 28:
+                        temp=heart;
+                        break;
+                    case 29:
+                        temp=star;
+                        break;
+                    case 30:
                         temp=triangle;
+                        break;
+                    case 31:
+                        temp=arrow;
+                        break;
+                    case 32:
+                        temp=cross;
+                        break;
+                    case 33:
+                        temp=downArrow;
+                        break;
+                    case 34:
+                        temp=leftArrow;
+                        break;
+                    case 35:
+                        temp=upArrow;
+                        break;
+                    case 36:
+                        temp=pentagon;
                         break;
                 }
                 
@@ -284,13 +497,19 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
             two.y=-1;
             mark=-1;
         }
+        font.draw(batch, round+" "+displayStats, Gdx.graphics.getWidth()*.5f, Gdx.graphics.getHeight()*.1f);
         batch.end();
         if(Gdx.input.isKeyJustPressed(Keys.Q)) {
             ((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenu());
         }
 
         if(Gdx.input.isKeyJustPressed(Keys.SPACE))
-            first=true;
+        {
+            //first=true;
+            for(int x=0; x<cardPairs; ++x)
+                for(int y=0; y<numRow; ++y)
+                    deck[x][y]=null;
+        }
         
         if(Gdx.input.isButtonPressed(Input.Buttons.LEFT) && Gdx.input.justTouched() && two.x==-1)//if(Gdx.input.isKeyJustPressed(Keys.F))
         {
