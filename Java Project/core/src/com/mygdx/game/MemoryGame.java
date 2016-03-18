@@ -153,16 +153,7 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
             BufferedWriter bw = new BufferedWriter(new FileWriter(file, true));
             for(int i=0; i<roundsTillStats; ++i)
             {
-                //System.out.println(i+" ");
-                //System.out.println(" "+stats[i]==null);
-                //System.out.println(orientation+" ");
-                //System.out.println((statsTime[i]+" "));
-                //System.out.println(statsWrong[i]+" ");
-                
                 bw.append(orientation+" "+ statsWrong.get(i)+" "+(statsTime.get(i))+" "+dateFormat.format(date)+"\n");// time is *1000 so that it displays in seconds
-
-                //bw.append(orientation+" "+ statsWrong[i]+" "+(statsTime[i])+" "+dateFormat.format(date)+"\n");// time is *1000 so that it displays in seconds
-                //bw.append(!orientation+" "+ statsWrong.get(i)+" "+(statsTime.get(i))+" "+dateFormat.format(date)+"\n");// time is *1000 so that it displays in seconds
                 bw.flush();
             }
         } 
@@ -193,7 +184,6 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
                 cardGame(cardPairs);
                 roundTime=System.currentTimeMillis();
                 failedAttempts=0;
-                
             }
             memoryGameLogic(cardPairs);
             if(running(cardPairs)==false)
@@ -224,6 +214,7 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
             {
                 displayStats=!displayStats;
                 statsTime.clear();
+                statsWrong.clear();
             }
         
         }
