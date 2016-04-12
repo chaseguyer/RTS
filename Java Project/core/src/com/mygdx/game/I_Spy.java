@@ -373,6 +373,7 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
         
         return new Item(image, x, y, name);
     }
+    
     public void ISpy()
     {
         Sprite s=new Sprite(new Texture(Gdx.files.internal("Items/stripped.png")));
