@@ -14,6 +14,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import java.util.ArrayList;
 import java.util.Random;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.utils.TimeUtils;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -42,19 +43,20 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
     SpriteBatch batch;
     boolean first=true, stripped=false, reshuffle, one=true, drawStats=false, drawPreRound=true;
     ArrayList<Item> board=new ArrayList<Item>();
-    int score=0, marked, imageCount=27, roundsTillStats, placeCounter=0, placeMax, wrong=0;
+    int score=0, marked, imageCount=27, roundsTillStats, placeCounter=0, placeMax, wrong=0, roundTimer=3;
     Random rand=new Random();
     BitmapFont font;
     boolean displacement[]=new boolean[9];
     ArrayList<Float> statsTime=new ArrayList<Float>();
     ArrayList<Integer> statsWrong=new ArrayList<Integer>();
     float averageMisses, averageTime, counter;
-    long roundTime;
-    
+    long roundTime, timer=System.currentTimeMillis();
+    String firstN="a", lastN="a";
     
     public void loadPlacement()
     {
-        File file=new File("Data/ISpyGameInfo.txt");
+        String f=firstN+lastN+"/Data/ISpyGameInfo.txt";
+        File file=new File(f);
         try 
         {
             Scanner scan=new Scanner(file);
@@ -66,6 +68,7 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
             }
             roundsTillStats=scan.nextInt();
             reshuffle=scan.nextBoolean();
+            stripped=scan.nextBoolean();
             scan.close();
         } 
         catch (FileNotFoundException ex) 
@@ -74,9 +77,9 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
         }
     }
     
-    public void loadAverage(String patientFirst, String patientLast)
+    public void loadAverage()
     {
-        String fileName=patientFirst+patientLast+"ISpyStatistics.txt";
+        String fileName=firstN+lastN+"/Data/ISpyStatistics.txt";
         File file=new File(fileName);
         try 
         {
@@ -86,6 +89,7 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
             averageTime=0;
             while(scan.hasNext())
             {
+                boolean temp=scan.nextBoolean();
                 averageMisses+=scan.nextInt();
                 averageTime+=scan.nextFloat();
                 counter++;
@@ -103,19 +107,19 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
         }
     }
     
-    public void saveClient(String patientFirst, String patientLast)
+    public void saveClient()
     {
-        String file=patientFirst+patientLast+"ISpyStatistics.txt";
+        String file=firstN+lastN+"/Data/ISpyStatistics.txt";
         DateFormat dateFormat = new SimpleDateFormat("yyyy MM dd");
         Date date = new Date();
-        System.out.println(dateFormat.format(date)); //2014/08/06 
+        //System.out.println(dateFormat.format(date)); //2014/08/06 
         try 
         {
             //System.out.println(roundsTillStats+" "+statsWrong.size());
             BufferedWriter bw = new BufferedWriter(new FileWriter(file, true));
             for(int i=0; i<roundsTillStats; ++i)
             {
-                bw.append(statsWrong.get(i)+" "+(statsTime.get(i))+" "+dateFormat.format(date)+"\n");// time is *1000 so that it displays in seconds
+                bw.append(stripped+" "+statsWrong.get(i)+" "+(statsTime.get(i))+" "+dateFormat.format(date)+"\n");// time is *1000 so that it displays in seconds
                 bw.flush();
             }
         } 
@@ -131,10 +135,11 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         batch.begin();
         //display averages up/side
+        font.draw(batch, "PRESS ANY KEY TO CONTINUE", (int)(Gdx.graphics.getWidth()*.4f), (int)(Gdx.graphics.getHeight()*.1f));
         font.draw(batch, "Averages", Gdx.graphics.getWidth()*.25f, Gdx.graphics.getHeight()*.95f);
         font.draw(batch, "Missed: "+averageMisses+"     "+"Time: "+averageTime, Gdx.graphics.getWidth()*.25f, Gdx.graphics.getHeight()*.85f);
         for(int i=0; i<roundsTillStats; ++i)
-            font.draw(batch, statsWrong.get(i)+" "+( statsTime.get(i)  ), Gdx.graphics.getWidth()*.45f, Gdx.graphics.getHeight()*.75f-i*25);
+            font.draw(batch, statsWrong.get(i)+"      "+( statsTime.get(i)  ), Gdx.graphics.getWidth()*.45f, Gdx.graphics.getHeight()*.75f-i*25);
             //batch.write(stats[i].misses+" "+( (System.currentTimeMillis()-stats[i].time)*1000  )+dateFormat.format(date));// time is *1000 so that it displays in seconds
         batch.end();
     }
@@ -145,7 +150,10 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         batch.begin();
         font.getData().setScale(2);
-        font.draw(batch, board.get(marked).name, Gdx.graphics.getWidth()*.45f, Gdx.graphics.getHeight()*.95f);
+        font.draw(batch, board.get(marked).name, Gdx.graphics.getWidth()*.45f, Gdx.graphics.getHeight()*.5f);
+        Item i=getItem(marked, (int)(Gdx.graphics.getWidth()*.5f), (int)(Gdx.graphics.getHeight()*.40f) );
+        i.draw(batch);
+        //board.get(marked).draw(batch);
         batch.end();
     }
     
@@ -176,9 +184,13 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
         if(drawPreRound)
         {
             displayPreRoundInfo();
-            if(Gdx.input.isKeyJustPressed(Keys.ANY_KEY))
+            if(TimeUtils.timeSinceMillis(timer)/1000>roundTimer)//if(Gdx.input.isKeyJustPressed(Keys.ANY_KEY))
             {
                 drawPreRound=false;
+                Gdx.input.setCursorPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);
+//                for(int i=0; i<statsWrong.size(); ++i)
+//                   System.out.print(statsWrong.get(i)+" ");
+//                System.out.println();
             }
         }
         else if(drawStats)
@@ -187,6 +199,8 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
             if(Gdx.input.isKeyJustPressed(Keys.ANY_KEY))
             {
                 drawPreRound=true;
+                timer=System.currentTimeMillis();
+                //System.out.println("PURGE!");
                 drawStats=false;
                 statsWrong.clear();
                 statsTime.clear();
@@ -201,13 +215,14 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
         if(Gdx.input.isKeyJustPressed(Keys.Q)) {
             ((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenu());
         }
-        if(Gdx.input.isKeyJustPressed(Keys.SPACE))
-            stripped=!stripped;
+//        if(Gdx.input.isKeyJustPressed(Keys.SPACE))
+//            stripped=!stripped;
         
     }
 
     public void makeGame()
     {
+        Gdx.input.setCursorPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);
         one=false;
         int count=0;
         board.clear();
@@ -223,8 +238,7 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
             int x=25;//rand.nextInt(( (1920*Gdx.graphics.getWidth()/1920))+25);
             int y=25;//rand.nextInt(( (1080*Gdx.graphics.getHeight()/1080))+25);
             boolean taken=false;
-            //System.out.println("loop: "+loop++);
-            //System.out.println(x+" "+y);
+
             if(displacement[id])
             {
                 //System.out.println( (xZone*(id%3))+" ");
@@ -363,6 +377,30 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
                 image=new Sprite(new Texture(Gdx.files.internal("Items/Shapes/Triangle.png")));
                 name="Find the Triangle";
                 break;
+            case 22:
+                image=new Sprite(new Texture(Gdx.files.internal("Items/Shapes/upArrow.png")));
+                name="Find the Up Arrow";
+                break;
+            case 23:
+                image=new Sprite(new Texture(Gdx.files.internal("Items/Shapes/Pentagon.png")));
+                name="Find the Pentagon";
+                break;
+            case 24:
+                image=new Sprite(new Texture(Gdx.files.internal("Items/Shapes/leftArrow.png")));
+                name="Find the Left Arrow";
+                break;
+            case 25:
+                image=new Sprite(new Texture(Gdx.files.internal("Items/Shapes/downArrow.png")));
+                name="Find the Down Arrow";
+                break;
+            case 26:
+                image=new Sprite(new Texture(Gdx.files.internal("Items/NumbersLetters/eleven.png")));
+                name="Find the number Eleven";
+                break;    
+            case 27:
+                image=new Sprite(new Texture(Gdx.files.internal("Items/NumbersLetters/eight.png")));
+                name="Find the number Eight";
+                break;
             default:
                 System.out.println("defualt");
                 image=new Sprite(new Texture(Gdx.files.internal("Items/Shapes/Triangle.png")));
@@ -389,23 +427,31 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
             board.get(i).draw(batch);
         if(Gdx.input.isButtonPressed(Input.Buttons.LEFT) && Gdx.input.justTouched())
         {
+            boolean got=false;
             for(int i=0; i<board.size(); ++i)
                 if(board.get(i).clicked(Gdx.input.getX(), Gdx.graphics.getHeight()-Gdx.input.getY()) && i==marked)
                 {
+                    got=true;
                     statsWrong.add(wrong);
-                    statsTime.add( (float)(System.currentTimeMillis()-roundTime)/1000.0f);
+                    //System.out.println("adding "+wrong);
+                    statsTime.add( ( (float)(System.currentTimeMillis()-roundTime)/1000.0f)-roundTimer );
                     if(score%roundsTillStats==0 && score>0)
                     {
-                        saveClient("a", "a");
+                        saveClient();
                         
-                        loadAverage("a", "a");
+                        loadAverage();
                         drawStats=true;
                     }
                     else
+                    {
                         drawPreRound=true;
+                        timer=System.currentTimeMillis();
+                    }
                     score++;
                     first=true;
                 }
+            if(!got)
+                wrong++;
         }
         
         //font.draw(batch, "your score is: "+score, Gdx.graphics.getWidth()*.45f, Gdx.graphics.getHeight()*.92f);

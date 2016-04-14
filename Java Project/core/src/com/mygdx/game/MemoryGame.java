@@ -48,35 +48,44 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
     int hitMark=0;
     long counter=0;
     int time=2;
-    //Vector2 two=new Vector2(-2,-2);
     int difficulty=-1, round=0;
     boolean stripped=false; 
     boolean orientation, displayStats=false;
     int cardsPerRound, roundsTillStats;
     float displacement, revealTime;
     int failedAttempts=0;
-    //float statsTime[];
     ArrayList<Float> statsTime=new ArrayList<Float>();
-    //int statsWrong[];
     ArrayList<Integer> statsWrong=new ArrayList<Integer>();
     BitmapFont font=new BitmapFont();
     float averageMissesUp, averageTimeUp, counterUp;
     float averageMissesSide, averageTimeSide, counterSide;
     long roundTime;
+    String firstN="a", lastN="a";
     
+
     
+    //load from a file and set up the placement of the board
     public void loadPlacement()
     {
-        File file=new File("Data/MemoryGameInfo.txt");
+        String f=firstN+lastN+"/Data/MemoryGameInfo.txt";
+        File file=new File(f);
         try 
         {
             Scanner scan=new Scanner(file);
+            //vertical or horizontal
             orientation=scan.nextBoolean();
+            //percent across the screen 
             displacement=scan.nextFloat();
+            //how many pairs on the board
             cardPairs=scan.nextInt();
+            //rounds till it displayes info from the player
             roundsTillStats=scan.nextInt();
+            //how long are the cards revealed before being removed or flipped back over
             revealTime=scan.nextFloat();
+            //choose the card set
             difficulty=scan.nextInt();
+            
+            stripped=scan.nextBoolean();
             scan.close();
             if(cardPairs<2) cardPairs=2;
             if(cardPairs>12) cardPairs=12;
@@ -96,9 +105,9 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
         }
     }
     
-    public void loadAverage(String patientFirst, String patientLast)
+    public void loadAverage()
     {
-        String fileName=patientFirst+patientLast+"MemoryGameStatistics.txt";
+        String fileName=firstN+lastN+"/Data/MemoryGameStatistics.txt";
         File file=new File(fileName);
         try 
         {
@@ -111,6 +120,7 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
             averageTimeSide=0;
             while(scan.hasNext())
             {
+                boolean isStrip=scan.nextBoolean();
                 if(scan.nextBoolean())//orientation
                 {
                     averageMissesUp+=scan.nextInt();
@@ -141,9 +151,9 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
         }
     }
     
-    public void saveClient(String patientFirst, String patientLast)
+    public void saveClient()
     {
-        String file=patientFirst+patientLast+"MemoryGameStatistics.txt";
+        String file=firstN+lastN+"/Data/MemoryGameStatistics.txt";
         DateFormat dateFormat = new SimpleDateFormat("yyyy MM dd");
         Date date = new Date();
         System.out.println(dateFormat.format(date)); //2014/08/06 
@@ -153,7 +163,7 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
             BufferedWriter bw = new BufferedWriter(new FileWriter(file, true));
             for(int i=0; i<roundsTillStats; ++i)
             {
-                bw.append(orientation+" "+ statsWrong.get(i)+" "+(statsTime.get(i))+" "+dateFormat.format(date)+"\n");// time is *1000 so that it displays in seconds
+                bw.append(stripped+" "+orientation+" "+ statsWrong.get(i)+" "+(statsTime.get(i))+" "+dateFormat.format(date)+"\n");// time is *1000 so that it displays in seconds
                 bw.flush();
             }
         } 
@@ -198,10 +208,10 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
                 //System.out.println(roundsTillStats+" ");
                 if(round==roundsTillStats-1)
                 {
-                    saveClient("a", "a");
+                    saveClient();
                     round=0;
                     displayStats=true;
-                    loadAverage("a", "a");
+                    loadAverage();
                 }
                 else
                     round++;
@@ -210,7 +220,7 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
         else
         {
             displayBlockInfo();
-            if(Gdx.input.isKeyJustPressed(Keys.N)) 
+            if(Gdx.input.isKeyJustPressed(Keys.ANY_KEY)) 
             {
                 displayStats=!displayStats;
                 statsTime.clear();
@@ -227,6 +237,7 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         batch.begin();
         //display averages up/side
+        font.draw(batch, "PRESS ANY KEY TO CONTINUE", (int)(Gdx.graphics.getWidth()*.4f), (int)(Gdx.graphics.getHeight()*.1f));
         font.draw(batch, "Horizontal Averages", Gdx.graphics.getWidth()*.25f, Gdx.graphics.getHeight()*.95f);
         font.draw(batch, "Missed: "+averageMissesSide+"     "+"Time: "+averageTimeSide, Gdx.graphics.getWidth()*.25f, Gdx.graphics.getHeight()*.85f);
         font.draw(batch, "Vertical", Gdx.graphics.getWidth()*.75f, Gdx.graphics.getHeight()*.95f);
@@ -476,7 +487,7 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
                     failedAttempts++;
                     deck[(int)one.x][(int)one.y].setClicked(false);
                     deck[(int)two.x][(int)two.y].setClicked(false);
-                    System.out.println(failedAttempts+" wrong");
+                    //System.out.println(failedAttempts+" wrong");
                 }
                 deck[(int)one.x][(int)one.y].setClicked(false);
                 deck[(int)two.x][(int)two.y].setClicked(false);
@@ -488,19 +499,19 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
             two.y=-1;
             mark=-1;
         }
-        font.draw(batch, round+" "+displayStats, Gdx.graphics.getWidth()*.5f, Gdx.graphics.getHeight()*.1f);
+        //font.draw(batch, round+" "+displayStats, Gdx.graphics.getWidth()*.5f, Gdx.graphics.getHeight()*.1f);
         batch.end();
         if(Gdx.input.isKeyJustPressed(Keys.Q)) {
             ((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenu());
         }
 
-        if(Gdx.input.isKeyJustPressed(Keys.SPACE))
-        {
-            //first=true;
-            for(int x=0; x<cardPairs; ++x)
-                for(int y=0; y<numRow; ++y)
-                    deck[x][y]=null;
-        }
+//        if(Gdx.input.isKeyJustPressed(Keys.SPACE))
+//        {
+//            //first=true;
+//            for(int x=0; x<cardPairs; ++x)
+//                for(int y=0; y<numRow; ++y)
+//                    deck[x][y]=null;
+//        }
         
         if(Gdx.input.isButtonPressed(Input.Buttons.LEFT) && Gdx.input.justTouched() && two.x==-1)//if(Gdx.input.isKeyJustPressed(Keys.F))
         {

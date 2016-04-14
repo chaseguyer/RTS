@@ -1,0 +1,12 @@
+false true 1 36.445 2016 04 13
+false true 1 13.123 2016 04 13
+false true 0 9.058 2016 04 13
+false true 0 6.608 2016 04 13
+false true 1 13.175 2016 04 13
+false true 0 22.125 2016 04 13
+true true 0 6.427 2016 04 13
+true true 0 8.073 2016 04 13
+true true 0 9.307 2016 04 13
+true true 1 9.592 2016 04 13
+true true 0 11.359 2016 04 13
+true true 0 13.591 2016 04 13
