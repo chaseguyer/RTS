@@ -84,13 +84,17 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
             revealTime=scan.nextFloat();
             //choose the card set
             difficulty=scan.nextInt();
-            
+            //is the background stripped?
             stripped=scan.nextBoolean();
             scan.close();
+            //client wants minimum of 2 pairs
             if(cardPairs<2) cardPairs=2;
+            //maximum of 12 pairs
             if(cardPairs>12) cardPairs=12;
+            //cant have more than a 100% displacement
             if(displacement >100) displacement=100;
             else if(displacement<0) displacement=0;
+            //use the orientation to move the displacement based off of a percent
             if(orientation)
                 displacement=(9.0f*(displacement/100.0f));
             else
@@ -105,8 +109,10 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
         }
     }
     
+    //load the averages of a patient
     public void loadAverage()
     {
+        //concatinate to create the string of the file
         String fileName=firstN+lastN+"/Data/MemoryGameStatistics.txt";
         File file=new File(fileName);
         try 
@@ -118,16 +124,19 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
             averageTimeUp=0;
             averageMissesSide=0;
             averageTimeSide=0;
+            //is there more in the data file?
             while(scan.hasNext())
             {
+                //stats displayed do not need background, so consume the data
                 boolean isStrip=scan.nextBoolean();
-                if(scan.nextBoolean())//orientation
+                //switch on orientation
+                if(scan.nextBoolean())//vertical
                 {
                     averageMissesUp+=scan.nextInt();
                     averageTimeUp+=scan.nextFloat();
                     counterUp++;
                 }
-                else
+                else//horizontal
                 {
                     averageMissesSide+=scan.nextInt();
                     averageTimeSide+=scan.nextFloat(); 
@@ -136,9 +145,8 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
                 scan.nextInt();
                 scan.next();
                 scan.nextInt();
-                //while(!scan.hasNextBoolean() && scan.hasNext())
-                //    System.out.println(scan.next());//burn the time
             }
+            //math to set up the averages
             averageMissesUp=averageMissesUp/counterUp;
             averageTimeUp=averageTimeUp/counterUp;
             averageMissesSide=averageMissesSide/counterSide;
@@ -151,18 +159,20 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
         }
     }
     
+    //save the info of the player(client) into their first and last name folder and into a data file
     public void saveClient()
     {
+        //make the string for the file to be saved into
         String file=firstN+lastN+"/Data/MemoryGameStatistics.txt";
         DateFormat dateFormat = new SimpleDateFormat("yyyy MM dd");
         Date date = new Date();
         System.out.println(dateFormat.format(date)); //2014/08/06 
         try 
         {
-            
             BufferedWriter bw = new BufferedWriter(new FileWriter(file, true));
             for(int i=0; i<roundsTillStats; ++i)
             {
+                //save background(boolean), orientation(boolean), wrong(int), time(float) and the date int, string, int
                 bw.append(stripped+" "+orientation+" "+ statsWrong.get(i)+" "+(statsTime.get(i))+" "+dateFormat.format(date)+"\n");// time is *1000 so that it displays in seconds
                 bw.flush();
             }
@@ -185,9 +195,10 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
     @Override
     public void render (float f) 
     {
+        //not drawing game stats
         if(!displayStats)
         {
-            if(first)
+            if(first)//does it need to create the game? 
             {
                 first=false;
                 loadPlacement();
@@ -195,22 +206,21 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
                 roundTime=System.currentTimeMillis();
                 failedAttempts=0;
             }
-            memoryGameLogic(cardPairs);
+            memoryGameLogic(cardPairs);//place the board
+            //is the game still going?
             if(running(cardPairs)==false)
             {
                 first=true;
-                //System.out.println("failed clickes: "+failedAttempts);
                 statsTime.add((System.currentTimeMillis()-roundTime)/1000.0f);
-                //System.out.println("time: "+statsTime.get(round)+" "+round+" "+failedAttempts);
                 statsWrong.add(failedAttempts);
-                //System.out.println((System.currentTimeMillis()-stats[round].time));
-                //System.out.println(stats[round].misses+" ");
-                //System.out.println(roundsTillStats+" ");
-                if(round==roundsTillStats-1)
+                //is the player done with a block round
+                if(round==roundsTillStats-1)//-1 to roundsTillStats because i start round at 0
                 {
+                    //save the block averages
                     saveClient();
                     round=0;
                     displayStats=true;
+                    //load the averages to be displayed in the displayBlockInfo()
                     loadAverage();
                 }
                 else
@@ -219,46 +229,51 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
         }
         else
         {
+            //draw the block info until the player hits a key
             displayBlockInfo();
             if(Gdx.input.isKeyJustPressed(Keys.ANY_KEY)) 
             {
+                //flip the draw stats status 
                 displayStats=!displayStats;
+                //clear the stats holders
                 statsTime.clear();
                 statsWrong.clear();
             }
-        
         }
-            //Gdx.app.exit();
     }
     
+    //draw the post block round info
     public void displayBlockInfo()
     {
         Gdx.gl.glClearColor(0,0,0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         batch.begin();
-        //display averages up/side
+        //display averages by orientation
         font.draw(batch, "PRESS ANY KEY TO CONTINUE", (int)(Gdx.graphics.getWidth()*.4f), (int)(Gdx.graphics.getHeight()*.1f));
         font.draw(batch, "Horizontal Averages", Gdx.graphics.getWidth()*.25f, Gdx.graphics.getHeight()*.95f);
         font.draw(batch, "Missed: "+averageMissesSide+"     "+"Time: "+averageTimeSide, Gdx.graphics.getWidth()*.25f, Gdx.graphics.getHeight()*.85f);
         font.draw(batch, "Vertical", Gdx.graphics.getWidth()*.75f, Gdx.graphics.getHeight()*.95f);
         font.draw(batch, "Missed: "+averageMissesUp+"     "+"Time: "+averageTimeUp, Gdx.graphics.getWidth()*.75f, Gdx.graphics.getHeight()*.85f);
+        //display the stats of the last block of rounds
         for(int i=0; i<roundsTillStats; ++i)
             font.draw(batch, statsWrong.get(i)+" "+( statsTime.get(i)  ), Gdx.graphics.getWidth()*.45f, Gdx.graphics.getHeight()*.75f-i*25);
-            //batch.write(stats[i].misses+" "+( (System.currentTimeMillis()-stats[i].time)*1000  )+dateFormat.format(date));// time is *1000 so that it displays in seconds
         batch.end();
     }
 
+    //is the deck emptied out or is the player still looking?
     public boolean running(int cardPairs)
     {
         for(int x=0; x<cardPairs; ++x)
-            for(int y=0; y<numRow; ++y)//for(int y=0; y<cardPairs/numRow; ++y)
+            for(int y=0; y<numRow; ++y)
                 if(deck[x][y]!=null) 
                     return true;
         return false;
     }
     
+    //make the game board
     public void cardGame(double cardPairs)
     {
+        //all of the sprites. This portion could be optimized but there is no need for this small of a program
         Sprite one=new Sprite(new Texture(Gdx.files.internal("Items/NumbersLetters/one.png")));
         Sprite two=new Sprite(new Texture(Gdx.files.internal("Items/NumbersLetters/two.png")));
         Sprite three=new Sprite(new Texture(Gdx.files.internal("Items/NumbersLetters/three.png")));
@@ -296,40 +311,31 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
         Sprite pentagon=new Sprite(new Texture(Gdx.files.internal("Items/Shapes/pentagon.png")));
         Sprite upArrow=new Sprite(new Texture(Gdx.files.internal("Items/Shapes/upArrow.png")));
         deck=new Card[(int)cardPairs][(int)numRow];
-        //deck=new Card[(int)cardPairs][(int)(cardPairs/numRow)];
         int [][] deckFill= new int[(int)cardPairs][(int)(numRow)];
-//        int [][] deckFill= new int[(int)cardPairs][(int)(cardPairs/numRow)];
         Random rand=new Random();
         for(int x=0; x<cardPairs; ++x)
-            for(int y=0; y<(int)(numRow); ++y)//for(int y=0; y<(int)(cardPairs/numRow); ++y)
+            for(int y=0; y<(int)(numRow); ++y)//make sure that the deck has a number to check for "null"
                 deckFill[x][y]=0;
         
-//        if(difficulty>=maxDifficulty)
-//        {
-//            difficulty=0;
-//            stripped=true;
-//        }
-//        else
-//            difficulty++;
         for(int x=0; x<cardPairs; ++x)
-            for(int y=0; y<(int)(numRow); ++y)//for(int y=0; y<(int)(cardPairs/numRow); ++y)
+            for(int y=0; y<(int)(numRow); ++y)//flip through the size of the deck and assign cards
             {
                 Sprite temp=null;
                 boolean taken=true;
                 int num=0;
                 while(taken==true)
                 {
-                    num=rand.nextInt((int) cardPairs)+1;
-                    num+= 12*difficulty;
+                    num=rand.nextInt((int) cardPairs)+1;//find a number from 1 - card pairs (no more than 12 since client only wants a max of 12 card pairs at once)
+                    num+= 12*difficulty; //makes the sprite pull from the correct batch
                     int count=0;
                     for(int a=0; a<cardPairs; ++a)
-                        for(int b=0; b<numRow; ++b)//for(int b=0; b<cardPairs/numRow; ++b)
-                            if(deckFill[a][b]==num)
+                        for(int b=0; b<numRow; ++b)
+                            if(deckFill[a][b]==num)//has the card already been placed?
                                 count++;
-                    if(count<2)
+                    if(count<2)//is there already 2 of this card out?
                         taken=false;
                 }                
-                
+                //find the correct sprite to assign to a card
                 switch(num)
                 {
                     case 1:
@@ -441,21 +447,24 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
                         temp=pentagon;
                         break;
                 }
-                
+                //up down
                 if(orientation)
                     deck[x][y]=new Card(x,y+displacement,temp, num, 150, 100);
-                else
+                else//left right
                     deck[x][y]=new Card(y+displacement,x,temp, num, 150, 90);
+                //place into the deck
                 deckFill[x][y]=num;
             }
     }
     
+    //draws the screen and performs the logic for card deletion
     public void memoryGameLogic(int cardPairs)
     {
         Gdx.gl.glClearColor(0,0,0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         batch.begin();
         Sprite s=new Sprite(new Texture(Gdx.files.internal("Items/stripped.png")));
+        //draw the stripped background across the screen. 
         if(stripped)
             for(int x=0; x<80; ++x)
             {
@@ -464,91 +473,99 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
                     batch.draw(s, x*25,y*25);
                 }
             }
+        
+        //go through the X and Y and draw the cards if not null
         for(int x=0; x<cardPairs; ++x)
-            for(int y=0; y<numRow; ++y)//for(int y=0; y<cardPairs/numRow; ++y)
-                if(deck[x][y]!=null)
+            for(int y=0; y<numRow; ++y)
+                if(deck[x][y]!=null)//null check
                 {   
                     deck[x][y].draw(batch);
                 }
 
+        //has the player chosen two cards? and has the player waited long enough
         if(two.x!=-1 && System.currentTimeMillis()-counter>revealTime*1000)
         {
+            //flip the cards over
             deck[(int)one.x][(int)one.y].setClicked(false);
             deck[(int)two.x][(int)two.y].setClicked(false);
+            //did the player chose the correct mark
             if(mark==deck[(int)two.x][(int)two.y].getMark())
             {
+                //delete the two cards from the deck
                 deck[(int)one.x][(int)one.y]=null;
                 deck[(int)two.x][(int)two.y]=null;
             }
             else
             {
+                //the player has chosen incorrectly for more than the first time on a card and has now failed an attempt
                 if(deck[(int)one.x][(int)one.y].wasAttempted() || deck[(int)two.x][(int)two.y].wasAttempted())
                 {
+                    //increase failed attempts
                     failedAttempts++;
+                    //flip cards over
                     deck[(int)one.x][(int)one.y].setClicked(false);
                     deck[(int)two.x][(int)two.y].setClicked(false);
-                    //System.out.println(failedAttempts+" wrong");
                 }
+                //flip cards over
                 deck[(int)one.x][(int)one.y].setClicked(false);
                 deck[(int)two.x][(int)two.y].setClicked(false);
-                
             }
+            
+            //"null" out the two cards and the mark by setting to -1
             one.x=-1;
             one.y=-1;
             two.x=-1;
             two.y=-1;
             mark=-1;
         }
-        //font.draw(batch, round+" "+displayStats, Gdx.graphics.getWidth()*.5f, Gdx.graphics.getHeight()*.1f);
         batch.end();
+        
+        //quit the game and return to game menu screen
         if(Gdx.input.isKeyJustPressed(Keys.Q)) {
             ((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenu());
         }
-
-//        if(Gdx.input.isKeyJustPressed(Keys.SPACE))
-//        {
-//            //first=true;
-//            for(int x=0; x<cardPairs; ++x)
-//                for(int y=0; y<numRow; ++y)
-//                    deck[x][y]=null;
-//        }
         
-        if(Gdx.input.isButtonPressed(Input.Buttons.LEFT) && Gdx.input.justTouched() && two.x==-1)//if(Gdx.input.isKeyJustPressed(Keys.F))
+        //player has clicked and they are not waiting 
+        if(Gdx.input.isButtonPressed(Input.Buttons.LEFT) && Gdx.input.justTouched() && two.x==-1)
         {
-            //System.out.println("click at x: "+Gdx.input.getX() +" and y: "+(Gdx.graphics.getHeight()-Gdx.input.getY()));
-            for(int x=0; x<cardPairs; ++x)
-                for(int y=0; y<numRow; ++y)//for(int y=0; y<cardPairs/numRow; ++y)
-                    if(deck[x][y]!=null)
-                    if(deck[x][y].click(Gdx.input.getX(), Gdx.graphics.getHeight()-Gdx.input.getY()))
-                    {
-                        //System.out.println("mark= "+mark+" vs "+deck[x][y].getMark()+ "x: "+x+" y: "+y+" one.x: "+one.x+" one.y: "+one.y);
-                        if( same(x,y)==false && one.x!=-1)//&& mark==deck[x][y].getMark() /*&& one.x!=-1 && mark!=-1*/)
+            for(int x=0; x<cardPairs; ++x)//N cardpairs
+                for(int y=0; y<numRow; ++y)//with 2 rows
+                    if(deck[x][y]!=null) // is the card null? 
+                        if(deck[x][y].click(Gdx.input.getX(), Gdx.graphics.getHeight()-Gdx.input.getY()))//did the player click on a card
                         {
-                            //hit and matched
-                            two.x=x;
-                            two.y=y;
-                            deck[x][y].setClicked(true);
-                            counter=System.currentTimeMillis();
+                            if( same(x,y)==false && one.x!=-1)//x and y do not match card one and one is not "null" IE -1
+                            {
+                                //hit and matched
+                                two.x=x;
+                                two.y=y;
+                                deck[x][y].setClicked(true);
+                                counter=System.currentTimeMillis();
+                            }
+                            else  
+                            {
+                                //set card one 
+                                one.x=x;
+                                one.y=y;
+                                deck[x][y].setClicked(true);
+                                mark=deck[x][y].getMark();
+                            }
                         }
-                        else //if(mark==-1) 
-                        {
-                            //set mark
-                            one.x=x;
-                            one.y=y;
-                            deck[x][y].setClicked(true);
-                            mark=deck[x][y].getMark();
-                        }
-                    }
         }
     }
+    
+    //do the two sets of cards match
     boolean same(int x, int y)
     {
+        //if the x's are the same but different y's
         if(x==one.x && y!=one.y)
             return false;
+        //if the y's are the same but different x's
         else if(x!=one.x && y==one.y)
             return false;
+        //if x and y both dont match
         else if(x!=one.x && y!=one.y)
             return false;
+        //otherwise you match
         return true;
     }
 
