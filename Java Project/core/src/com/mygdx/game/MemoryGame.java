@@ -32,7 +32,8 @@ import java.util.logging.Logger;
  * @author muel2767
  * leave cards flipped for 1-5 seconds
  * vertical/horizontal/diagonal 
- * background solid or designed 
+ * background solid or designed
+ * max of 12 card pairs, min of 2
  */
 public class MemoryGame extends ApplicationAdapter implements Screen, InputProcessor
 {

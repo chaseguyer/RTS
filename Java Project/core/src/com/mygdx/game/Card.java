@@ -18,7 +18,7 @@ public class Card
     Sprite image, hidden;//=null;
     boolean clicked;
     int attempted;
-    
+    //setup the image width, place the position
     public Card(float xt, float yt, Sprite img, int markT, float xSpace, float ySpace)
     {
         x=(int) (xt*xSpace*(Gdx.graphics.getWidth()/1920.0f))+35;
@@ -34,6 +34,7 @@ public class Card
         attempted=0;
     }
     
+    //if it was clicked draw the image otherwise draw the back of the card
     public void draw(SpriteBatch batch)
     {
         if(clicked==true)
@@ -42,6 +43,7 @@ public class Card
             hidden.draw(batch);
     }
     
+    //was the mouse inside of the bounds of the card
     public boolean click(double xt, double yt)
     {
         //System.out.println("my x: "+x+" my y: "+y);
@@ -53,6 +55,7 @@ public class Card
         return false;
     }
     
+    //got clicked, so increment attempted
     public void setClicked(boolean cl)
     {
         if(clicked==false && cl)
@@ -61,11 +64,13 @@ public class Card
         
     }    
     
+    //get the id of the card
     public int getMark()
     {
         return mark;
     }
     
+    //has this card been clicked more than once
     public boolean wasAttempted()
     {
         return attempted>1;

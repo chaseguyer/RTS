@@ -53,8 +53,10 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
     long roundTime, timer=System.currentTimeMillis();
     String firstN="a", lastN="a";
     
+    //load the orientation of the board
     public void loadPlacement()
     {
+        //create a string fro the patient folder/data folder/ispygameinfo.txt
         String f=firstN+lastN+"/Data/ISpyGameInfo.txt";
         File file=new File(f);
         try 
@@ -62,12 +64,16 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
             Scanner scan=new Scanner(file);
             for(int i=0; i<9; ++i)
             {
+                //create the tic tac toe board displacement system
                 displacement[i]=scan.nextBoolean();
                 if(displacement[i])
                     placeMax++;
             }
+            //int rounds till stats, should be 6 or 12
             roundsTillStats=scan.nextInt();
+            //boolean should the game be shuffled upon
             reshuffle=scan.nextBoolean();
+            //boolean should the background be stripped 
             stripped=scan.nextBoolean();
             scan.close();
         } 
@@ -77,8 +83,10 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
         }
     }
     
+    //find the patients averages
     public void loadAverage()
     {
+        //emter the patient file
         String fileName=firstN+lastN+"/Data/ISpyStatistics.txt";
         File file=new File(fileName);
         try 
@@ -87,16 +95,22 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
             counter=0;
             averageMisses=0;
             averageTime=0;
+            //loop on all data
             while(scan.hasNext())
             {
+                //waste the background
                 boolean temp=scan.nextBoolean();
+                //add the misses
                 averageMisses+=scan.nextInt();
+                //add the times
                 averageTime+=scan.nextFloat();
                 counter++;
+                //waste the data of yeay, month, day
                 scan.nextInt();
                 scan.next();
                 scan.nextInt();
             }
+            //calculate the averages
             averageMisses=averageMisses/counter;
             averageTime=averageTime/counter;
             scan.close();
@@ -107,8 +121,10 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
         }
     }
     
+    //save the patient data
     public void saveClient()
     {
+        //enter the patient data file
         String file=firstN+lastN+"/Data/ISpyStatistics.txt";
         DateFormat dateFormat = new SimpleDateFormat("yyyy MM dd");
         Date date = new Date();
@@ -119,6 +135,7 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
             BufferedWriter bw = new BufferedWriter(new FileWriter(file, true));
             for(int i=0; i<roundsTillStats; ++i)
             {
+                //loop and save that data
                 bw.append(stripped+" "+statsWrong.get(i)+" "+(statsTime.get(i))+" "+dateFormat.format(date)+"\n");// time is *1000 so that it displays in seconds
                 bw.flush();
             }
@@ -129,6 +146,7 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
         }
     }
     
+    //display the patient info
     public void displayBlockInfo()
     {
         Gdx.gl.glClearColor(0,0,0, 1);
@@ -144,6 +162,7 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
         batch.end();
     }
     
+    //display the target if the round
     public void displayPreRoundInfo()
     {
         Gdx.gl.glClearColor(0,0,0, 1);
@@ -171,37 +190,37 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
     {
         Gdx.gl.glClearColor(0,0,0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-        if(first)
+        if(first)//recreate the board?
         {
+            //load patient file for how to create the board
             loadPlacement();
-            if(reshuffle || one)
+            if(reshuffle || one)//randomize the board
                 makeGame(); 
+            //make a random target
             marked=rand.nextInt(imageCount);
             roundTime=System.currentTimeMillis();
             wrong=0;
             first=false;
         }
-        if(drawPreRound)
+        if(drawPreRound)//draw the target of the round until time passes
         {
-            displayPreRoundInfo();
+            displayPreRoundInfo();//draw the target
             if(TimeUtils.timeSinceMillis(timer)/1000>roundTimer)//if(Gdx.input.isKeyJustPressed(Keys.ANY_KEY))
             {
                 drawPreRound=false;
+                //move mouse to center screen for testing
                 Gdx.input.setCursorPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);
-//                for(int i=0; i<statsWrong.size(); ++i)
-//                   System.out.print(statsWrong.get(i)+" ");
-//                System.out.println();
             }
         }
         else if(drawStats)
         {
-            displayBlockInfo();
+            displayBlockInfo();//draw block info unill a button is hit
             if(Gdx.input.isKeyJustPressed(Keys.ANY_KEY))
             {
                 drawPreRound=true;
                 timer=System.currentTimeMillis();
-                //System.out.println("PURGE!");
                 drawStats=false;
+                //clean out the patient info for the block
                 statsWrong.clear();
                 statsTime.clear();
             }
@@ -212,16 +231,16 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
             ISpy();
             batch.end();
         }
+        //close the game and return to the main menu
         if(Gdx.input.isKeyJustPressed(Keys.Q)) {
             ((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenu());
-        }
-//        if(Gdx.input.isKeyJustPressed(Keys.SPACE))
-//            stripped=!stripped;
-        
+        }   
     }
 
+    //create the game
     public void makeGame()
     {
+        //set mouse to center screen
         Gdx.input.setCursorPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);
         one=false;
         int count=0;
@@ -233,12 +252,14 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
         int yZone=(( (1080*Gdx.graphics.getHeight()/1080))/3 );//+25
         int amountPerZone=3, num=0;
         int loop=0;
+        //set up all of the images on the screen randomly
         while(count<=imageCount)
         {
             int x=25;//rand.nextInt(( (1920*Gdx.graphics.getWidth()/1920))+25);
             int y=25;//rand.nextInt(( (1080*Gdx.graphics.getHeight()/1080))+25);
             boolean taken=false;
 
+            //if biased
             if(displacement[id])
             {
                 //System.out.println( (xZone*(id%3))+" ");
@@ -254,7 +275,7 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
             if(y<25) y+=25;
             if(x>Gdx.graphics.getWidth()-60) x-=50;
             if(y>Gdx.graphics.getHeight()-60) y-=50;
-            
+            //is the spot on the board free
             for(int i=0; i<board.size(); ++i)
             {
                 for(int a=-25; a<xs; ++a)
@@ -262,7 +283,7 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
                         if(board.get(i).clicked(x+a, y+b))
                             taken=true;
             }
-            if(!taken)
+            if(!taken)//if free place on board
             {
                 board.add(getItem(count, (int) x, (int) y));
                 count++;
@@ -273,16 +294,12 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
                 }
                 else
                     placeCounter++;
-            }
-//            if(displacement[id])
-//            {
-//                if(num<=amountPerZone && placeCounter>25)
-//                    id--;
-//            }    
+            }  
         }
         first=false;
     }
 
+    //make the item to be placed on the board
     Item getItem(int count, int x, int y)
     {
         Sprite image;
@@ -412,10 +429,11 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
         return new Item(image, x, y, name);
     }
     
+    //perform the ispy logic
     public void ISpy()
     {
         Sprite s=new Sprite(new Texture(Gdx.files.internal("Items/stripped.png")));
-        if(stripped)
+        if(stripped)//draw the stripped background
             for(int x=0; x<80; ++x)
             {
                 for(int y=0; y<50; ++y)
@@ -423,22 +441,23 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
                     batch.draw(s, x*25,y*25);
                 }
             }
+        //draw the board pieces
         for(int i=0; i<board.size(); ++i)
             board.get(i).draw(batch);
+        //if the player has clicked
         if(Gdx.input.isButtonPressed(Input.Buttons.LEFT) && Gdx.input.justTouched())
         {
             boolean got=false;
+            //check for if the patient clicked the target
             for(int i=0; i<board.size(); ++i)
                 if(board.get(i).clicked(Gdx.input.getX(), Gdx.graphics.getHeight()-Gdx.input.getY()) && i==marked)
                 {
                     got=true;
                     statsWrong.add(wrong);
-                    //System.out.println("adding "+wrong);
                     statsTime.add( ( (float)(System.currentTimeMillis()-roundTime)/1000.0f)-roundTimer );
                     if(score%roundsTillStats==0 && score>0)
                     {
                         saveClient();
-                        
                         loadAverage();
                         drawStats=true;
                     }
@@ -450,17 +469,9 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
                     score++;
                     first=true;
                 }
-            if(!got)
+            if(!got)//patient did not get the targetm increase the wrong
                 wrong++;
         }
-        
-        //font.draw(batch, "your score is: "+score, Gdx.graphics.getWidth()*.45f, Gdx.graphics.getHeight()*.92f);
-//        boolean hit=false;
-//        for(int i=0; i<board.size(); ++i)
-//                if(board.get(i).clicked(Gdx.input.getX(), Gdx.graphics.getHeight()-Gdx.input.getY()) && i==marked)
-//                    hit=true;
-        //font.getData().setScale(1);
-        //font.draw(batch, "Status: "+hit+" x: "+Gdx.input.getX()+" y: "+ (Gdx.graphics.getHeight()-Gdx.input.getY()) , 50,50);
     }
     
     @Override
