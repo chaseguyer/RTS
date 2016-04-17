@@ -79,10 +79,8 @@ public class FileIO {
             } catch(FileNotFoundException e) {}
         }        
     }
-        
-    // Loads a specific therapists patient list
-    public ArrayList<String> loadPatients(String therapistName) {
-        
+    
+    public boolean isPatient(String therapistName, String pFirst, String pLast) {
         ArrayList<String> pList = new ArrayList<String>();
         ArrayList<String> patientFirst = new ArrayList<String>();
         ArrayList<String> patientLast = new ArrayList<String>();   
@@ -92,16 +90,24 @@ public class FileIO {
             Scanner small;
             
             while(scan.hasNextLine()) {
-                small = new Scanner(scan.nextLine()).useDelimiter(","); // ...AND IT SHOWS :D 
+                small = new Scanner(scan.nextLine()).useDelimiter(","); 
                 patientLast.add(small.next());
                 patientFirst.add(small.next());
             }
             scan.close();
         } catch(FileNotFoundException e) {}
         
-        for(int i = 0; i < patientLast.size(); i++) {
-            pList.add(patientLast.get(i) + ", " + patientFirst.get(i));    
+        // check for first and last names in the fields
+        for(String last : patientLast) {
+            if(last.equals(pLast)) {
+                for(String first : patientFirst) {
+                    if(first.equals(pFirst)) {
+                        return true;
+                    }                
+                }                
+            }               
         }
-        return pList;
-    }           
+        return false;
+    }
+    
 }

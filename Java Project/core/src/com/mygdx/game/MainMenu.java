@@ -4,6 +4,46 @@
  * and open the template in the editor.
  */
 
+/**** README
+
+    Here's a basic description of how the menu works and the layout of the code
+
+    How it works:
+    The menu consists of a single screen. That screen is created and on it we will be displaying all of the menu info.
+    To the user, it looks like there are multiple screens because it displays different information when they press "Next"
+    or "Exit" and the like. What is really going on is when they press a button that will take them to the next "screen"
+    libgdx is simply clearing the screen of the table that has all of the buttons and textfields and putting up another one.
+    Technically they are all there stacked on top of one another, we just hide and show them based on what the user has clicked
+    on. So as I said, all the information displayed on screen is in the form of tables. These tables are laid out in a specific
+    fashion(align left, blank row, 10px spacing between text fields, etc.). Libgdx is cool because we can have one parent table for
+    the screen and then add more tables to it to make the formatting easier. Then all we have to do is show() or hide() the parent
+    table.
+
+    Now onto the code:
+
+    Public declarations:
+    Here we have all of the declarations. There are a lot of them because almost no two buttons are similar. I did my best to separate 
+    them into the various screens they belong to but it still looks muddled. I also did my best to give the variables clear names to
+    indicate what they do, but I admit that they are not the best. Even I get confused sometimes when navigating the code. So all of these
+    declarations are the tables, buttons, text fields, etc. How they are all put together comes in section 2.
+
+    createTables():
+    This is the function that goes through and adds all of the buttons and tables to the parent tables. It handles all of the formatting.
+    I separated the sections into the various "screens" that the user will see.
+
+    createListeners():
+    So now that we have a bunch of "screens" and buttons, we need to tell the buttons what to do when they are pressed. That is what this
+    function does. It tells which tables to hide and which to show when certain buttons are pressed. It also handles certain I/O functions
+    when dealing with saving and loading text files that contain the patient/therapist information.
+    
+    FileIO class:
+    This is how we handle saving and loading information. Through text files. To be honest, there is a much better way of doing this, and that
+    is through creating an SQL database; however, we simply did not have the time this semester to implement such a thing. Basically when certain
+    listeners are pressed, we will open or create text files and read/write from/to them. The info is separated by commas and I used a scanner to
+    sift through it.
+
+****/
+
 package com.mygdx.game;
 
 import com.badlogic.gdx.Game;
@@ -20,6 +60,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent;
 import com.badlogic.gdx.utils.Align;
@@ -33,12 +74,9 @@ import java.util.ArrayList;
 
 
 /*
-    Problems found in design review
-    -Duplicate username
-    -Patient/therapist deletion
-    -10+ patients per doctor (redesign that screen)
-    -scrolling in pages
-    -set patient name to the top of p. menu
+    TODO
+    
+    // patient info
     -text field at the end of patient info
     -add a test option
     -dates for tests
@@ -50,14 +88,19 @@ import java.util.ArrayList;
         -lateral
 
     -num trials before feedback is given (6 or 12)
-    -
 
+    // misc
+    -cursor in text fields
+    -Duplicate username
+    -Patient/therapist deletion
 
+    // create routine
+    
+    // edit routine
 
+    // delete routine
 
 */
-
-
 
 public class MainMenu implements Screen {
     
@@ -75,7 +118,12 @@ public class MainMenu implements Screen {
     public String theName, thePw, theConPw, pFirst, pLast; // therapist name, password; patient first and last name
     public float fm, gs, ps, hp; // patient test scores
     
-    // Login
+    
+    
+    /*
+     *
+     * THERAPIST LOGIN
+     */
     private Table loginTitle = new Table();
     private Label login = new Label("THERAPIST LOGIN", skin);
     
@@ -92,7 +140,11 @@ public class MainMenu implements Screen {
     private TextButton exit = new TextButton("Exit", skin);
 
     
-    // Create New Therpist
+    
+    /*
+     *
+     * CREATE THERAPIST
+     */
     private Table newTherapistTitleTable = new Table();
     private Label newTherapistTitle = new Label("CREATE NEW THERAPIST", skin);
     
@@ -113,7 +165,12 @@ public class MainMenu implements Screen {
     private TextButton doneBt = new TextButton("Done", skin);
     private TextButton backBt = new TextButton("Back", skin);
     
-    // Therapist menu
+    
+    
+    /*
+     *
+     * THERAPIST MENU
+     */
     private Table therapistMenuTitleTable = new Table();
     private Label therapistMenuTitle = new Label("", skin); // text will be set when therapist logs in
     
@@ -123,8 +180,15 @@ public class MainMenu implements Screen {
     private TextButton logT = new TextButton("Logout Therapist", skin);
     private TextButton exitT = new TextButton("Exit", skin);
     
-    // Patient information
+    
+    
+    /*
+     *
+     * PATIENT INFORMATION
+     */
+    private Table patientInfoTable = new Table(); // add scroller to me
     private Table patientInfoTitleTable = new Table();
+    private ScrollPane scroller = new ScrollPane(patientInfoTitleTable, skin);
     private Label patientInfoTitle = new Label("PATIENT INFORMATION", skin);    
     
     // Name info
@@ -173,31 +237,33 @@ public class MainMenu implements Screen {
     
     
     
-    // Load therpapist's patient list
-    private Table thPatList = new Table();
-    private Label thPatListTitle = new Label("PLEASE CHOOSE A PATIENT", skin); // set this later with theName
+    /*
+     *
+     * LOAD PATIENT FIELDS
+     */
+    private Table thPatFields = new Table();
+    private Label thPatFieldsTitle = new Label("PLEASE ENTER YOUR PATIENT'S NAME", skin); 
     
-    private Table patList = new Table();
-    // add new buttons as you go?
-    // or have to type the names in?
-    private TextButton pat1 = new TextButton("", skin);
-    private TextButton pat2 = new TextButton("", skin);
-    private TextButton pat3 = new TextButton("", skin);
-    private TextButton pat4 = new TextButton("", skin);
-    private TextButton pat5 = new TextButton("", skin);
-    private TextButton pat6 = new TextButton("", skin);
-    private TextButton pat7 = new TextButton("", skin);
-    private TextButton pat8 = new TextButton("", skin);
-    private TextButton pat9 = new TextButton("", skin);
-    private TextButton pat10 = new TextButton("", skin);
+    private Table patFields = new Table();
+    
+    private Label loadPatientFNLabel = new Label("First Name: ", skin);
+    private Label loadPatientLNLabel = new Label("Last Name: ", skin);
+    
+    private TextField loadPatientFNTextField = new TextField("", skin);
+    private TextField loadPatientLNTextField = new TextField("", skin);
+    
+    private Label loadPatientError = new Label("The patient entered does not exist", skin, "error");
 
-    private Table patListButtons = new Table();
-    private TextButton patListBack = new TextButton("Back", skin);
+    private Table patFieldsButtons = new Table();
+    private TextButton patFieldsDone = new TextButton("Done", skin);
+    private TextButton patFieldsBack = new TextButton("Back", skin);
     
     
     
-    
-    // Patient menu
+    /*
+     *
+     * PATIENT MENU
+     */
     private Table patientMenuTitleTable = new Table();
     private Label patientMenuTitle = new Label("What to do with the patient?", skin);
     
@@ -207,7 +273,12 @@ public class MainMenu implements Screen {
     private TextButton editP = new TextButton("Edit Patient Information", skin);
     private TextButton logP = new TextButton("Logout Patient", skin);
     
-    // Create Routine
+    
+    
+    /*
+     *
+     * CREATE ROUTINE
+     */
     private Table createRoutineTitleTable = new Table();
     private Label createRoutineTitle = new Label("Pick a game to play", skin);
     
@@ -217,7 +288,12 @@ public class MainMenu implements Screen {
     private TextButton mazeBt = new TextButton("Maze", skin);
     private TextButton routineBack = new TextButton("Back", skin);
     
-    // Load Routine
+    
+    
+    /*
+     *
+     * LOAD ROUTINE
+     */
     
 
 
@@ -337,16 +413,23 @@ public class MainMenu implements Screen {
         exitT.getLabel().setAlignment(Align.left);
         
         
+        
         /*
         *
         * Patient Information
         */
-        patientInfoTitleTable.setFillParent(true);
+        
+        // scroll bar
+        // set back to top when leaving this page
+        
+        patientInfoTable.setFillParent(true);
+        patientInfoTable.add(scroller).fill().expand();
+        
         patientInfoTitleTable.add(patientInfoTitle).padBottom(15).align(Align.center).row();
         patientInfoTitleTable.add(pNameTable).left().row();
         patientInfoTitleTable.add(fmScores).left().row();
         patientInfoTitleTable.add(gsScores).left().row();
-        patientInfoTitleTable.add(psScores).left().row();
+        patientInfoTitleTable.add(psScores).left().padTop(200).row();
         patientInfoTitleTable.add(hpScores).left().row();
         patientInfoTitleTable.add(piError).row();
         patientInfoTitleTable.add(piButtons);
@@ -403,39 +486,33 @@ public class MainMenu implements Screen {
         
         /*
         *
-        * LOAD PATIENT LIST
+        * LOAD PATIENT FIELDS
         */
-        thPatList.setFillParent(true);
-        thPatList.add(thPatListTitle).align(Align.center).align(Align.top).padTop(20).row();
-        thPatList.add(patList).padTop(40).row();
-        thPatList.add(patListButtons).padTop(20).row();
+        thPatFields.setFillParent(true);
+        thPatFields.add(thPatFieldsTitle).align(Align.center).align(Align.top).padTop(20).row();
+        thPatFields.add(patFields).padTop(20).row();
+        thPatFields.add(patFieldsButtons).row();
         
-        int tb_width = 600;
+        // First name
+        patFields.add(loadPatientFNLabel).left();
+        patFields.add(loadPatientFNTextField).width(TB_WIDTH).height(TB_HEIGHT).left().row();
+        loadPatientFNLabel.setFontScale(LABEL_FS);
         
-        patList.add(pat1).left().width(tb_width).height(TB_HEIGHT).padRight(10).padBottom(10);
-        patList.add(pat6).width(tb_width).height(TB_HEIGHT).padBottom(10).row();
-        patList.add(pat2).left().width(tb_width).height(TB_HEIGHT).padRight(10).padBottom(10);
-        patList.add(pat7).width(tb_width).height(TB_HEIGHT).padBottom(10).row();
-        patList.add(pat3).left().width(tb_width).height(TB_HEIGHT).padRight(10).padBottom(10);
-        patList.add(pat8).width(tb_width).height(TB_HEIGHT).padBottom(10).row();
-        patList.add(pat4).left().width(tb_width).height(TB_HEIGHT).padRight(10).padBottom(10);
-        patList.add(pat9).width(tb_width).height(TB_HEIGHT).padBottom(10).row();
-        patList.add(pat5).left().width(tb_width).height(TB_HEIGHT).padRight(10).padBottom(10);
-        patList.add(pat10).width(tb_width).height(TB_HEIGHT).padBottom(10).row();
+        // Last name
+        patFields.add(loadPatientLNLabel).left();
+        patFields.add(loadPatientLNTextField).width(TB_WIDTH).height(TB_HEIGHT).left().row();
+        loadPatientLNLabel.setFontScale(LABEL_FS);
         
-        pat1.getLabel().setFontScale(LABEL_FS);
-        pat2.getLabel().setFontScale(LABEL_FS);
-        pat3.getLabel().setFontScale(LABEL_FS);
-        pat4.getLabel().setFontScale(LABEL_FS);
-        pat5.getLabel().setFontScale(LABEL_FS);
-        pat6.getLabel().setFontScale(LABEL_FS);
-        pat7.getLabel().setFontScale(LABEL_FS);
-        pat8.getLabel().setFontScale(LABEL_FS);
-        pat9.getLabel().setFontScale(LABEL_FS);
-        pat10.getLabel().setFontScale(LABEL_FS);
+        patFieldsButtons.add(loadPatientError).center().row();
+        patFieldsButtons.add(patFieldsDone).center().width(TB_WIDTH).height(TB_HEIGHT).row();
+        patFieldsButtons.add(patFieldsBack).center().width(TB_WIDTH).height(TB_HEIGHT);
+        patFieldsBack.getLabel().setFontScale(LABEL_FS);
+        patFieldsDone.getLabel().setFontScale(LABEL_FS);
         
-        patListButtons.add(patListBack).center().width(TB_WIDTH).height(TB_HEIGHT);
-        patListBack.getLabel().setFontScale(LABEL_FS);
+        // error message
+        loadPatientError.setFontScale(LABEL_FS);
+        loadPatientError.setVisible(false);
+        
         
         /*
         *
@@ -626,7 +703,7 @@ public class MainMenu implements Screen {
             @Override
             public void changed (ChangeEvent event, Actor actor) {
                 stage.clear();
-                stage.addActor(patientInfoTitleTable);
+                stage.addActor(patientInfoTable);
            } 
         });
         
@@ -634,29 +711,8 @@ public class MainMenu implements Screen {
         loadP.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {
-                // if therapist patient list == null
-                // print message, would you like to create new patient?
-                
-                // else
-                ArrayList<String> pList = file.loadPatients(theName);
-                                
-                // set the buttons to the members of pList; I do not like this at all              
-                for(int i = 0; i < pList.size(); i++) {
-                    if(i == 0) { pat1.getLabel().setText(pList.get(i)); }
-                    if(i == 1) { pat2.getLabel().setText(pList.get(i)); }
-                    if(i == 2) { pat3.getLabel().setText(pList.get(i)); }
-                    if(i == 3) { pat4.getLabel().setText(pList.get(i)); }
-                    if(i == 4) { pat5.getLabel().setText(pList.get(i)); }
-                    if(i == 5) { pat6.getLabel().setText(pList.get(i)); }
-                    if(i == 6) { pat7.getLabel().setText(pList.get(i)); }
-                    if(i == 7) { pat8.getLabel().setText(pList.get(i)); }
-                    if(i == 8) { pat9.getLabel().setText(pList.get(i)); }
-                    if(i == 9) { pat10.getLabel().setText(pList.get(i)); }
-                }
-                
-                
                 stage.clear();
-                stage.addActor(thPatList);
+                stage.addActor(thPatFields);
            } 
         });
         
@@ -666,18 +722,7 @@ public class MainMenu implements Screen {
             public void changed (ChangeEvent event, Actor actor) {
                 theName = "";
                 thePw = "";
-                
-                pat1.getLabel().setText("");
-                pat2.getLabel().setText("");
-                pat3.getLabel().setText("");
-                pat4.getLabel().setText("");
-                pat5.getLabel().setText("");
-                pat6.getLabel().setText("");
-                pat7.getLabel().setText("");
-                pat8.getLabel().setText("");
-                pat9.getLabel().setText("");
-                pat10.getLabel().setText("");
-                
+             
                 stage.clear();
                 stage.addActor(loginTitle);          
             }
@@ -762,162 +807,40 @@ public class MainMenu implements Screen {
         *
         * LOAD PATIENT PROFILE
         */
-        patListBack.addListener(new ChangeListener() {
+        patFieldsDone.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {    
                 
-                pat1.getLabel().setText("");
-                pat2.getLabel().setText("");
-                pat3.getLabel().setText("");
-                pat4.getLabel().setText("");
-                pat5.getLabel().setText("");
-                pat6.getLabel().setText("");
-                pat7.getLabel().setText("");
-                pat8.getLabel().setText("");
-                pat9.getLabel().setText("");
-                pat10.getLabel().setText("");
-                
-                
-                stage.clear();
-                stage.addActor(therapistMenuTitleTable);
+                // patient found
+                if(file.isPatient(theName, loadPatientFNTextField.getText(), loadPatientLNTextField.getText())) {
+                    patientMenuTitle.setText("Menu for " + loadPatientFNTextField.getText() + " " + loadPatientLNTextField.getText()); 
+                        
+                    // clear text fields
+                    loadPatientLNTextField.setText("");
+                    loadPatientFNTextField.setText("");
+            
+                    loadPatientError.setVisible(false);
+                    
+                    stage.clear();
+                    stage.addActor(patientMenuTitleTable);
+                } else { // patient not found
+                    loadPatientError.setVisible(true);
+                }
             }
         });
         
-        // Patient buttons - i really, really dont like this part
-        pat1.addListener(new ChangeListener() {
+        patFieldsBack.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {    
-                // set global patient name to this patient
-                if(!pat1.getLabel().getText().toString().equals("")) {   
-                    stage.clear();
-                    stage.addActor(patientMenuTitleTable);
-                }
-            }
-        });
-        pat2.addListener(new ChangeListener() {
-            @Override
-            public void changed (ChangeEvent event, Actor actor) {    
-                // set global patient name to this patient
-                if(pat2.getLabel().getText().toString().equals("")) {
-                    // ignore this button
-                } else {
-                    // have to grab the patient name here
-                    
-                    stage.clear();
-                    stage.addActor(patientMenuTitleTable);
-                }
-            }
-        });
-        pat3.addListener(new ChangeListener() {
-            @Override
-            public void changed (ChangeEvent event, Actor actor) {    
-                // set global patient name to this patient
-                if(pat3.getLabel().getText().toString().equals("")) {
-                    // ignore this button
-                } else {
-                    // have to grab the patient name here
-                    
-                    stage.clear();
-                    stage.addActor(patientMenuTitleTable);
-                }
-            }
-        });
-        pat4.addListener(new ChangeListener() {
-            @Override
-            public void changed (ChangeEvent event, Actor actor) {    
-                // set global patient name to this patient
-                if(pat4.getLabel().getText().toString().equals("")) {
-                    // ignore this button
-                } else {
-                    // have to grab the patient name here
-                    
-                    stage.clear();
-                    stage.addActor(patientMenuTitleTable);
-                }
-            }
-        });
-        pat5.addListener(new ChangeListener() {
-            @Override
-            public void changed (ChangeEvent event, Actor actor) {    
-                // set global patient name to this patient
-                if(pat5.getLabel().getText().toString().equals("")) {
-                    // ignore this button
-                } else {
-                    // have to grab the patient name here
-                    
-                    stage.clear();
-                    stage.addActor(patientMenuTitleTable);
-                }
-            }
-        });
-        pat6.addListener(new ChangeListener() {
-            @Override
-            public void changed (ChangeEvent event, Actor actor) {    
-                // set global patient name to this patient
-                if(pat6.getLabel().getText().toString().equals("")) {
-                    // ignore this button
-                } else {
-                    // have to grab the patient name here
-                    
-                    stage.clear();
-                    stage.addActor(patientMenuTitleTable);
-                }
-            }
-        });
-        pat7.addListener(new ChangeListener() {
-            @Override
-            public void changed (ChangeEvent event, Actor actor) {    
-                // set global patient name to this patient
-                if(pat7.getLabel().getText().toString().equals("")) {
-                    // ignore this button
-                } else {
-                    // have to grab the patient name here
-                    
-                    stage.clear();
-                    stage.addActor(patientMenuTitleTable);
-                }
-            }
-        });
-        pat8.addListener(new ChangeListener() {
-            @Override
-            public void changed (ChangeEvent event, Actor actor) {    
-                // set global patient name to this patient
-                if(pat8.getLabel().getText().toString().equals("")) {
-                    // ignore this button
-                } else {
-                    // have to grab the patient name here
-                    
-                    stage.clear();
-                    stage.addActor(patientMenuTitleTable);
-                }
-            }
-        });
-        pat9.addListener(new ChangeListener() {
-            @Override
-            public void changed (ChangeEvent event, Actor actor) {    
-                // set global patient name to this patient
-                if(pat9.getLabel().getText().toString().equals("")) {
-                    // ignore this button
-                } else {
-                    // have to grab the patient name here
-                    
-                    stage.clear();
-                    stage.addActor(patientMenuTitleTable);
-                }
-            }
-        });
-        pat10.addListener(new ChangeListener() {
-            @Override
-            public void changed (ChangeEvent event, Actor actor) {    
-                // set global patient name to this patient
-                if(pat10.getLabel().getText().toString().equals("")) {
-                    // ignore this button
-                } else {
-                    // have to grab the patient name here
-                    
-                    stage.clear();
-                    stage.addActor(patientMenuTitleTable);
-                }
+                
+                // clear text fields
+                loadPatientLNTextField.setText("");
+                loadPatientFNTextField.setText("");
+            
+                loadPatientError.setVisible(false);
+                
+                stage.clear();
+                stage.addActor(therapistMenuTitleTable);
             }
         });
         
@@ -943,7 +866,7 @@ public class MainMenu implements Screen {
             @Override
             public void changed (ChangeEvent event, Actor actor) {
                 stage.clear();
-                stage.addActor(patientInfoTitleTable);
+                stage.addActor(patientInfoTable);
             }
         });  
         

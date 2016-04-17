@@ -35,4 +35,10 @@
     "com.badlogic.gdx.scenes.scene2d.ui.TextField$TextFieldStyle": {
     "default": { "font": cgoth-reg, "fontColor": white-ish, "background": "button" },
   },
+
+    "com.badlogic.gdx.scenes.scene2d.ui.ScrollPane$ScrollPaneStyle": {
+    "default": { "vScrollKnob": "button" },
+        
+  },
+  
 }
