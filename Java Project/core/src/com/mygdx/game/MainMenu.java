@@ -31,10 +31,26 @@ import java.util.ArrayList;
  * @author chaseguyer
  */
 
+
 /*
-    -Highlight boxes when mouse is over them
-    -Create new kind of text button w/o box
-    -Text field font smaller***
+    Problems found in design review
+    -Duplicate username
+    -Patient/therapist deletion
+    -10+ patients per doctor (redesign that screen)
+    -scrolling in pages
+    -set patient name to the top of p. menu
+    -text field at the end of patient info
+    -add a test option
+    -dates for tests
+    -should be able to have no info in the fields
+    -trail making a || b || (a && b)
+    -class routine
+        -pinch : tip
+        -3 jaw
+        -lateral
+
+    -num trials before feedback is given (6 or 12)
+    -
 
 
 
