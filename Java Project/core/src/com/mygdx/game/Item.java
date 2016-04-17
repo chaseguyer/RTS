@@ -21,6 +21,7 @@ public class Item
     int shift=25;
     float xScale=2, yScale=3;
     
+    //setup and scale the image, name the item and place it on the screen
     public Item(Sprite s, int xt, int yt, String n)
     {
         image=s;
@@ -36,6 +37,7 @@ public class Item
         return name;
     }
     
+    //is the bounds of the mouse inside of the item
     public boolean clicked(int xt, int yt)
     {
         if(xt>=x-shift && xt<=x+shift*xScale && yt>=y-shift && yt<=y+shift*yScale-shift)
@@ -43,6 +45,7 @@ public class Item
         return false;
     }
     
+    //draw this objects image
     public void draw(SpriteBatch batch)
     {
         image.draw(batch);
