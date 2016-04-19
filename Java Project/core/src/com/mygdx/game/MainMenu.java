@@ -62,7 +62,6 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
-import com.badlogic.gdx.scenes.scene2d.ui.Value;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent;
 import com.badlogic.gdx.utils.Align;
@@ -77,38 +76,6 @@ import java.util.ArrayList;
 
 /*
     TODO
-    
-    TECHNICAL DEBT
-    // patient info
-    -text field at the end of patient info
-    -add a test option
-    -dates for tests
-    -should be able to have no info in the fields
-    -trail making a || b || (a && b)
-    -class routine
-        -pinch : tip
-        -3 jaw
-        -lateral
-
-    -num trials before feedback is given (6 or 12)
-
-    // misc
-    -cursor in text fields
-    -Duplicate username
-    -Patient/therapist deletion
-    -HIDE THE PASSWORDDDD
-
-
-    NEXT ITERATION
-    // create routine
-    
-    // edit routine
-
-    // delete routine
-
-
-    Priorities:
-
     1. Finish patient information page
         -text box at the end
         -file IO stuff involved
@@ -119,13 +86,18 @@ import java.util.ArrayList;
         -Be able to customize parameters
         -Link the games via the routines
 
-    3. Misc
+    3. Routine editing and deletion
+
+
+    4. Misc
         -Password hiding
         -Patient/Therapist deletion
-        -patient info scrolling
-
-
-
+        -patient info scrolling back to top
+        -patient info going to the right place when "back" is pressed
+        -allowing for a null patient to be created
+        -cursor in text fields
+        -duplicate patient/therapist names
+        -upon quitting a game, set screen back to patient menu
 */
 
 public class MainMenu implements Screen {
@@ -247,7 +219,7 @@ public class MainMenu implements Screen {
     private CheckBox bArmBox = new CheckBox("", skin);
     
     // Drop down menu
-    private SelectBox dropDown = new SelectBox(skin);
+    //private SelectBox dropDown = new SelectBox(skin);
     
     // patient info error
     private Label piError = new Label("One or more of the selections have invalid information", skin, "error");
@@ -264,7 +236,7 @@ public class MainMenu implements Screen {
      * LOAD PATIENT FIELDS
      */
     private Table thPatFields = new Table();
-    private Label thPatFieldsTitle = new Label("PLEASE ENTER YOUR PATIENT'S NAME", skin); 
+    private Label thPatFieldsTitle = new Label("ENTER THE PATIENT NAME", skin); 
     
     private Table patFields = new Table();
     
@@ -309,14 +281,14 @@ public class MainMenu implements Screen {
     
     // choose which game to modify
     private Table gameTable = new Table();
-    private Label gameLabel = new Label("Choose a game to add", skin);
+    private Label gameLabel = new Label("Choose a game to add:", skin);
     private TextButton ispyBt = new TextButton("I Spy", skin);
     private TextButton memoryBt = new TextButton("Memory", skin);
     private TextButton mazeBt = new TextButton("Maze", skin);
     private TextButton pathTraceBt = new TextButton("Path Tracing", skin);
     
     // The routine name table and the routine overview table will reside here
-    private Table leftSide = new Table();
+    private Table rightSide = new Table();
     
     // name routine
     private Table nameRoutineTable = new Table();
@@ -339,17 +311,30 @@ public class MainMenu implements Screen {
      *
      * ISPY ROUTINE CREATION
      */
+    private Table iSpyParamsTable = new Table();
+    private Table iSpyParamsTitleTable = new Table();
+    private Table iSpyParamsObjects = new Table();
+    private Table iSpyParamsButtons = new Table();
     
+    private Label iSpyTitleLabel = new Label("ISPY PARAMETERS", skin);
     
-    
+    private TextButton iSpyDone = new TextButton("Done", skin);
+    private TextButton iSpyBack = new TextButton("Back", skin);
     
     
     /*
      *
      * MEMORY ROUTINE CREATION
      */
+    private Table memoryParamsTable = new Table();
+    private Table memoryParamsTitleTable = new Table();
+    private Table memoryParamsObjects = new Table();
+    private Table memoryParamsButtons = new Table();
     
-    
+    private Label memoryTitleLabel = new Label("MEMORY PARAMETERS", skin);
+
+    private TextButton memoryDone = new TextButton("Done", skin);
+    private TextButton memoryBack = new TextButton("Back", skin);
     
     
     
@@ -357,8 +342,15 @@ public class MainMenu implements Screen {
      *
      * MAZE ROUTINE CREATION
      */
+    private Table mazeParamsTable = new Table();
+    private Table mazeParamsTitleTable = new Table();
+    private Table mazeParamsObjects = new Table();
+    private Table mazeParamsButtons = new Table();
     
+    private Label mazeTitleLabel = new Label("MAZE PARAMETERS", skin);
     
+    private TextButton mazeDone = new TextButton("Done", skin);
+    private TextButton mazeBack = new TextButton("Back", skin);
     
     
     
@@ -366,8 +358,15 @@ public class MainMenu implements Screen {
      *
      * PATH TRACING ROUTINE CREATION
      */
+    private Table pathTraceParamsTable = new Table();
+    private Table pathTraceParamsTitleTable = new Table();
+    private Table pathTraceParamsObjects = new Table();
+    private Table pathTraceParamsButtons = new Table();
     
+    private Label pathTraceTitleLabel = new Label("PATH TRACING PARAMETERS", skin);
     
+    private TextButton pathTraceDone = new TextButton("Done", skin);
+    private TextButton pathTraceBack = new TextButton("Back", skin);
     
     
     
@@ -397,7 +396,7 @@ public class MainMenu implements Screen {
         
         /*
         *
-        * CREATE THERAPIST LOGIN
+        * THERAPIST LOGIN
         */
         loginTitle.setFillParent(true);               
         loginTitle.add(login).padBottom(100).align(Align.center).row();
@@ -578,11 +577,8 @@ public class MainMenu implements Screen {
         piButtons.add(piBack).size(300,80).left().padTop(10).center().row();
         piBack.getLabel().setFontScale(LABEL_FS);
         
-        piButtons.add(dropDown).row();
+        //piButtons.add(dropDown).row();
         
-        String[] poop = new String[]{"stuff", "things", "some other things", "oh yea and that other thing"};
-        
-        dropDown.setItems((Object) poop);
         
         
         
@@ -647,33 +643,141 @@ public class MainMenu implements Screen {
         *
         * CREATE ROUTINE
         */
-        createRoutineTitleTable.setFillParent(true);
-        createRoutineTitleTable.add(createRoutineTitle).align(Align.center).row();
+        createRoutineTable.setFillParent(true);
+        createRoutineTable.add(createRoutineTitleTable).padBottom(50).center().row();
+        
+        // this is for formatting's sake
+        Table twoInOne = new Table();
+        twoInOne.add(gameTable).padRight(200);
+        twoInOne.add(rightSide);
+        
+        createRoutineTable.add(twoInOne).padBottom(50).row();
+        createRoutineTable.add(routineButtonsTable).center().row();
+        
+        // right side of the menu
+        rightSide.add(nameRoutineTable).left().row();
+        rightSide.add(routineOverviewTable).left();
+        
+        // Title
+        createRoutineTitleTable.add(createRoutineTitle);
         createRoutineTitle.setFontScale(0.9f);
-        createRoutineTitleTable.add(createRoutineTable).left();
         
+        // choose which game to modify
+        gameTable.add(gameLabel).row();
+        gameTable.add(ispyBt).size(TB_WIDTH+100, TB_HEIGHT).left().row();
+        gameTable.add(memoryBt).size(TB_WIDTH+100, TB_HEIGHT).left().row();
+        gameTable.add(mazeBt).size(TB_WIDTH+100, TB_HEIGHT).left().row();
+        gameTable.add(pathTraceBt).size(TB_WIDTH+100, TB_HEIGHT).left();
         
-        createRoutineTable.add(ispyBt).size(600, 80).left().padTop(50);
-        createRoutineTable.add().size(600,100).row(); // this is to push everything to the left
-        createRoutineTable.add(memoryBt).size(600, 80).left().padTop(10).row();
-        createRoutineTable.add(mazeBt).size(600, 80).left().padTop(10).row();
-        createRoutineTable.add(routineBack).size(600, 80).left().padTop(10);
-        
+        gameLabel.setFontScale(LABEL_FS);
         ispyBt.getLabel().setFontScale(LABEL_FS);
         ispyBt.getLabel().setAlignment(Align.left);
         memoryBt.getLabel().setFontScale(LABEL_FS);
         memoryBt.getLabel().setAlignment(Align.left);
         mazeBt.getLabel().setFontScale(LABEL_FS);
         mazeBt.getLabel().setAlignment(Align.left);
+        pathTraceBt.getLabel().setFontScale(LABEL_FS);
+        pathTraceBt.getLabel().setAlignment(Align.left);
+        
+        // name routine
+        nameRoutineTable.add(nameRoutineLabel).left().row();
+        nameRoutineTable.add(nameRoutineTextField).size(TB_WIDTH+250, TB_HEIGHT).padBottom(50).row();
+        nameRoutineLabel.setFontScale(LABEL_FS);
+        
+        // routine overview
+        routineOverviewTable.add(routineOverviewLabel).left().row();
+        routineOverviewTable.add(routineOverviewTextField).left().size(TB_WIDTH+250, 250).row();
+        routineOverviewLabel.setFontScale(LABEL_FS);
+
+        
+        // buttons
+        routineButtonsTable.add(routineDone).size(TB_WIDTH, TB_HEIGHT).row();
+        routineButtonsTable.add(routineBack).size(TB_WIDTH, TB_HEIGHT).row();
+        routineDone.getLabel().setFontScale(LABEL_FS);
         routineBack.getLabel().setFontScale(LABEL_FS);
-        routineBack.getLabel().setAlignment(Align.left);
+        
         
         
         
         /*
         *
-        * CREATE SOMETHING ELSE
+        * ISPY PARAMETERS
         */
+        iSpyParamsTable.setFillParent(true);
+        iSpyParamsTable.add(iSpyParamsTitleTable).center().row();
+        iSpyParamsTable.add(iSpyParamsObjects).left().row();
+        iSpyParamsTable.add(iSpyParamsButtons).center().row();
+        
+        // title
+        iSpyParamsTitleTable.add(iSpyTitleLabel);
+        iSpyTitleLabel.setFontScale(0.9f);
+        
+        // parameters
+        
+        // buttons 
+        iSpyParamsButtons.add(iSpyDone).size(TB_WIDTH, TB_HEIGHT).row();
+        iSpyParamsButtons.add(iSpyBack).size(TB_WIDTH, TB_HEIGHT).row();
+        
+        
+        /*
+         *
+         * MEMORY PARAMETERS
+         */
+        memoryParamsTable.setFillParent(true);
+        memoryParamsTable.add(memoryParamsTitleTable).center().row();
+        memoryParamsTable.add(memoryParamsObjects).left().row();
+        memoryParamsTable.add(memoryParamsButtons).center().row();
+        
+        // title
+        memoryParamsTitleTable.add(memoryTitleLabel);
+        memoryTitleLabel.setFontScale(0.9f);
+        
+        // parameters
+        
+        // buttons 
+        memoryParamsButtons.add(memoryDone).size(TB_WIDTH, TB_HEIGHT).row();
+        memoryParamsButtons.add(memoryBack).size(TB_WIDTH, TB_HEIGHT).row();
+        
+        
+        /*
+         *
+         * MAZE PARAMETERS
+         */
+        mazeParamsTable.setFillParent(true);
+        mazeParamsTable.add(mazeParamsTitleTable).center().row();
+        mazeParamsTable.add(mazeParamsObjects).left().row();
+        mazeParamsTable.add(mazeParamsButtons).center().row();
+        
+        // title
+        mazeParamsTitleTable.add(mazeTitleLabel);
+        mazeTitleLabel.setFontScale(0.9f);
+        
+        // parameters
+        
+        // buttons 
+        mazeParamsButtons.add(mazeDone).size(TB_WIDTH, TB_HEIGHT).row();
+        mazeParamsButtons.add(mazeBack).size(TB_WIDTH, TB_HEIGHT).row();
+        
+        
+        /*
+         *
+         * PATH TRACING PARAMETERS
+         */
+        pathTraceParamsTable.setFillParent(true);
+        pathTraceParamsTable.add(pathTraceParamsTitleTable).center().row();
+        pathTraceParamsTable.add(pathTraceParamsObjects).left().row();
+        pathTraceParamsTable.add(pathTraceParamsButtons).center().row();
+        
+        // title
+        pathTraceParamsTitleTable.add(pathTraceTitleLabel);
+        pathTraceTitleLabel.setFontScale(0.9f);
+        
+        // parameters
+        
+        // buttons 
+        pathTraceParamsButtons.add(pathTraceDone).size(TB_WIDTH, TB_HEIGHT).row();
+        pathTraceParamsButtons.add(pathTraceBack).size(TB_WIDTH, TB_HEIGHT).row();
+        
         
         
         
@@ -997,12 +1101,12 @@ public class MainMenu implements Screen {
             @Override
             public void changed (ChangeEvent event, Actor actor) {
                 stage.clear();
-                stage.addActor(createRoutineTitleTable);
+                stage.addActor(createRoutineTable);
                 
            } 
         });
            
-        // Back (Logout Patient)
+        // Edit (edit Patient)
         editP.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {
@@ -1038,6 +1142,8 @@ public class MainMenu implements Screen {
         ispyBt.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {
+                //stage.clear();
+                //stage.addActor(iSpyParamsTable);
                 ((Game) Gdx.app.getApplicationListener()).setScreen(new I_Spy());
             }
         });    
@@ -1046,18 +1152,34 @@ public class MainMenu implements Screen {
         memoryBt.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {
-                //MainMenu.hide();
-                ((Game) Gdx.app.getApplicationListener()).setScreen(new MemoryGame());
+                //stage.clear();
+                //stage.addActor(memoryParamsTable);
+                ((Game) Gdx.app.getApplicationListener()).setScreen(new MemoryGame("a", "a"));
             }
         });    
         
         mazeBt.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {
-                //MainMenu.hide();
-                ((Game) Gdx.app.getApplicationListener()).setScreen(new MazeGame());
+                stage.clear();
+                stage.addActor(mazeParamsTable);
+                //((Game) Gdx.app.getApplicationListener()).setScreen(new MazeGame());
             }
         }); 
+        
+        pathTraceBt.addListener(new ChangeListener() {
+            @Override
+            public void changed (ChangeEvent event, Actor actor) {
+                stage.clear();
+                stage.addActor(pathTraceParamsTable);
+                //((Game) Gdx.app.getApplicationListener()).setScreen(new MazeGame());
+            }
+        });
+        
+        // Done
+            // save routine name
+            // routine info?
+            // save routine itself
         
         // Back
         routineBack.addListener(new ChangeListener() {
@@ -1067,6 +1189,96 @@ public class MainMenu implements Screen {
                 stage.addActor(patientMenuTitleTable);
             }
         });    
+        
+        
+        
+        /*
+         *
+         * ISPY PARAMETERS
+         */
+        iSpyDone.addListener(new ChangeListener() {
+            @Override
+            public void changed (ChangeEvent event, Actor actor) {                
+                stage.clear();
+                stage.addActor(createRoutineTable);
+            }
+        });
+        
+        iSpyBack.addListener(new ChangeListener() {
+            @Override
+            public void changed (ChangeEvent event, Actor actor) {                
+                stage.clear();
+                stage.addActor(createRoutineTable);
+            }
+        });    
+        
+        
+        /*
+         *
+         * MEMORY PARAMETERS
+         */
+        memoryDone.addListener(new ChangeListener() {
+            @Override
+            public void changed (ChangeEvent event, Actor actor) {                
+                stage.clear();
+                stage.addActor(createRoutineTable);
+            }
+        });
+        
+        memoryBack.addListener(new ChangeListener() {
+            @Override
+            public void changed (ChangeEvent event, Actor actor) {                
+                stage.clear();
+                stage.addActor(createRoutineTable);
+            }
+        });
+        
+        
+        
+        /*
+         *
+         * MAZE PARAMETERS
+         */
+        mazeDone.addListener(new ChangeListener() {
+            @Override
+            public void changed (ChangeEvent event, Actor actor) {                
+                stage.clear();
+                stage.addActor(createRoutineTable);
+            }
+        });
+        
+        mazeBack.addListener(new ChangeListener() {
+            @Override
+            public void changed (ChangeEvent event, Actor actor) {                
+                stage.clear();
+                stage.addActor(createRoutineTable);
+            }
+        });
+        
+        
+        
+        /*
+         *
+         * PATH TRACING PARAMETERS
+         */
+        pathTraceDone.addListener(new ChangeListener() {
+            @Override
+            public void changed (ChangeEvent event, Actor actor) {                
+                stage.clear();
+                stage.addActor(createRoutineTable);
+            }
+        });
+        
+        pathTraceBack.addListener(new ChangeListener() {
+            @Override
+            public void changed (ChangeEvent event, Actor actor) {                
+                stage.clear();
+                stage.addActor(createRoutineTable);
+            }
+        });
+        
+        
+        
         
         
         
