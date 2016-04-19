@@ -62,6 +62,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
+import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent;
 import com.badlogic.gdx.utils.Align;
@@ -112,11 +113,14 @@ public class MainMenu implements Screen {
     public static Stage stage = new Stage();
     public static Skin skin = new Skin(Gdx.files.internal("skins/skins.json"), new TextureAtlas(Gdx.files.internal("skins/test.pack")));
 
-    // Misc - do some things
+    // Misc - mostly things for IO
     FileIO file = new FileIO(); // file I/O for db stuff
+    
     public String theName, thePw, theConPw, pFirst, pLast; // therapist name, password; patient first and last name
     public float fm = 0f, gs = 0f, ps = 0f, hp = 0f; // patient test scores
     public boolean lArmBool = false, rArmBool = false, bArmBool = false;
+    
+    public String routineName;
     
     
     
@@ -298,8 +302,8 @@ public class MainMenu implements Screen {
     // routine overview
     private Table routineOverviewTable = new Table();
     private Label routineOverviewLabel = new Label("Your routine:", skin);
-    private TextField routineOverviewTextField = new TextField("", skin); // may need to find a better solution
-                                                                          // because this will be modifiable
+    private TextArea routineOverviewTextField = new TextArea("", skin);     // may need to find a better solution
+                                                                            // because this will be modifiable
     // buttons
     private Table routineButtonsTable = new Table();
     private TextButton routineDone = new TextButton("Done", skin);
@@ -644,7 +648,7 @@ public class MainMenu implements Screen {
         * CREATE ROUTINE
         */
         createRoutineTable.setFillParent(true);
-        createRoutineTable.add(createRoutineTitleTable).padBottom(50).center().row();
+        createRoutineTable.add(createRoutineTitleTable).padBottom(30).center().row();
         
         // this is for formatting's sake
         Table twoInOne = new Table();
@@ -681,12 +685,12 @@ public class MainMenu implements Screen {
         
         // name routine
         nameRoutineTable.add(nameRoutineLabel).left().row();
-        nameRoutineTable.add(nameRoutineTextField).size(TB_WIDTH+250, TB_HEIGHT).padBottom(50).row();
+        nameRoutineTable.add(nameRoutineTextField).size(TB_WIDTH+250, TB_HEIGHT).padBottom(20).row();
         nameRoutineLabel.setFontScale(LABEL_FS);
         
         // routine overview
         routineOverviewTable.add(routineOverviewLabel).left().row();
-        routineOverviewTable.add(routineOverviewTextField).left().size(TB_WIDTH+250, 250).row();
+        routineOverviewTable.add(routineOverviewTextField).left().size(TB_WIDTH+250, 300).row();
         routineOverviewLabel.setFontScale(LABEL_FS);
 
         
@@ -1152,12 +1156,13 @@ public class MainMenu implements Screen {
         memoryBt.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {
-                //stage.clear();
-                //stage.addActor(memoryParamsTable);
-                ((Game) Gdx.app.getApplicationListener()).setScreen(new MemoryGame("a", "a"));
+                stage.clear();
+                stage.addActor(memoryParamsTable);
+                //((Game) Gdx.app.getApplicationListener()).setScreen(new MemoryGame("a", "a"));
             }
         });    
         
+        // Maze
         mazeBt.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {
@@ -1167,6 +1172,7 @@ public class MainMenu implements Screen {
             }
         }); 
         
+        // Path Tracing
         pathTraceBt.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {
@@ -1184,7 +1190,10 @@ public class MainMenu implements Screen {
         // Back
         routineBack.addListener(new ChangeListener() {
             @Override
-            public void changed (ChangeEvent event, Actor actor) {                
+            public void changed (ChangeEvent event, Actor actor) {    
+                routineOverviewTextField.setText("");
+                nameRoutineTextField.setText("");
+                
                 stage.clear();
                 stage.addActor(patientMenuTitleTable);
             }
