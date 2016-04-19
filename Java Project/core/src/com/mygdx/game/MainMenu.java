@@ -1146,9 +1146,9 @@ public class MainMenu implements Screen {
         ispyBt.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {
-                //stage.clear();
-                //stage.addActor(iSpyParamsTable);
-                ((Game) Gdx.app.getApplicationListener()).setScreen(new I_Spy());
+                stage.clear();
+                stage.addActor(iSpyParamsTable);
+                //((Game) Gdx.app.getApplicationListener()).setScreen(new I_Spy());
             }
         });    
         
