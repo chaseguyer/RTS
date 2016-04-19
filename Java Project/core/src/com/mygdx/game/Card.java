@@ -47,7 +47,7 @@ public class Card
     public boolean click(double xt, double yt)
     {
         //System.out.println("my x: "+x+" my y: "+y);
-        if(xt>=x-50 && xt<=x+width*xScale-50 && yt>=y-width && yt<=y+width*yScale)
+        if(xt>=x-50*(Gdx.graphics.getWidth()/1920.0f) && xt<=x+width*xScale-50*(Gdx.graphics.getWidth()/1920.0f) && yt>=y-width*(Gdx.graphics.getWidth()/1920.0f) && yt<=y+width*yScale)
         {
             return true;
         }
