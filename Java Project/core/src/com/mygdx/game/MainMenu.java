@@ -61,6 +61,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
+import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
+import com.badlogic.gdx.scenes.scene2d.ui.Value;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent;
 import com.badlogic.gdx.utils.Align;
@@ -76,6 +78,7 @@ import java.util.ArrayList;
 /*
     TODO
     
+    TECHNICAL DEBT
     // patient info
     -text field at the end of patient info
     -add a test option
@@ -93,12 +96,35 @@ import java.util.ArrayList;
     -cursor in text fields
     -Duplicate username
     -Patient/therapist deletion
+    -HIDE THE PASSWORDDDD
 
+
+    NEXT ITERATION
     // create routine
     
     // edit routine
 
     // delete routine
+
+
+    Priorities:
+
+    1. Finish patient information page
+        -text box at the end
+        -file IO stuff involved
+        -be able to add and keep track of dates for patient
+
+    2. Routine creation
+        -Be able to choose from the 4 games
+        -Be able to customize parameters
+        -Link the games via the routines
+
+    3. Misc
+        -Password hiding
+        -Patient/Therapist deletion
+        -patient info scrolling
+
+
 
 */
 
@@ -108,6 +134,7 @@ public class MainMenu implements Screen {
     public static int TB_WIDTH = 400; // text button width
     public static int TB_HEIGHT = 100; // text button height
     public static float LABEL_FS = 0.5f; // label font scale
+    public static int CB_SIDE = 80;
     
     // Set up the stage and ready the skins
     public static Stage stage = new Stage();
@@ -116,7 +143,8 @@ public class MainMenu implements Screen {
     // Misc - do some things
     FileIO file = new FileIO(); // file I/O for db stuff
     public String theName, thePw, theConPw, pFirst, pLast; // therapist name, password; patient first and last name
-    public float fm, gs, ps, hp; // patient test scores
+    public float fm = 0f, gs = 0f, ps = 0f, hp = 0f; // patient test scores
+    public boolean lArmBool = false, rArmBool = false, bArmBool = false;
     
     
     
@@ -189,43 +217,37 @@ public class MainMenu implements Screen {
     private Table patientInfoTable = new Table(); // add scroller to me
     private Table patientInfoTitleTable = new Table();
     private ScrollPane scroller = new ScrollPane(patientInfoTitleTable, skin);
-    private Label patientInfoTitle = new Label("PATIENT INFORMATION", skin);    
+    private Label patientInfoTitle = new Label("PATIENT INFORMATION", skin);
     
-    // Name info
-    private Table pNameTable = new Table();
+    // Label table
+    private Table patientInfoLabelTable = new Table();
     private Label firstNameLabel = new Label("First name: ", skin);
-    private TextField firstName = new TextField("", skin);
     private Label lastNameLabel = new Label("Last name: ", skin);
-    private TextField lastName = new TextField("", skin);
+    private Label involvedArmLabel = new Label("Most involved arm: ", skin);
+    private Label fmLabel = new Label("Fugl-Meyer Score: ", skin);
+    private Label gsLabel = new Label("Grip Strength(lbs): ", skin);
+    private Label psLabel = new Label("Pinch Strength(lbs): ", skin);
+    private Label hpLabel = new Label("9 Hole Peg Test(sec): ", skin);
     
+    // Text Field table
+    private Table patientInfoValuesTable = new Table();
+    private TextField firstNameTextField = new TextField("", skin);
+    private TextField lastNameTextField = new TextField("", skin);
+    private TextField fmTextField = new TextField("", skin);
+    private TextField gsTextField = new TextField("", skin);
+    private TextField psTextField = new TextField("", skin);
+    private TextField hpTextField = new TextField("", skin);
     
-    // HAVE TO SET UP THE STYLE
-    // Most involved arm
-    //private CheckBox box = new CheckBox("Most involved arm", skin);
+    private Label lArmLabel = new Label("Left ", skin);
+    private Label rArmLabel = new Label("Right ", skin);
+    private Label bArmLabel = new Label("Both ", skin);
+        
+    private CheckBox lArmBox = new CheckBox("", skin);
+    private CheckBox rArmBox = new CheckBox("", skin);
+    private CheckBox bArmBox = new CheckBox("", skin);
     
-    // Fugel-Meyer score (can add dates with updated scores)
-    private Table fmScores = new Table();
-    private Label fmLabel = new Label("Fugel-Meyer Score: ", skin);
-    private TextField fmTF = new TextField("", skin);
-    //private TextButton newScore = new TextButton("New Score?", skin);
-    
-    // Grip Strength (lbs) (which hand)
-    private Table gsScores = new Table();
-    private Label gsLabel = new Label("Grip Strength: ", skin);
-    private TextField gsTF = new TextField("", skin);
-    private Label gsLbs = new Label(" lbs", skin);
-    
-    // Pinch Strength (lbs) (which hand)
-    private Table psScores = new Table();
-    private Label psLabel = new Label("Pinch Strength: ", skin);
-    private TextField psTF = new TextField("", skin);
-    private Label psLbs = new Label(" lbs", skin);
-    
-    // 9 hole peg test (seconds)
-    private Table hpScores = new Table();
-    private Label hpLabel = new Label("9 Hole Peg Test: ", skin);
-    private TextField hpTF = new TextField("", skin);
-    private Label hpSec = new Label(" seconds", skin);
+    // Drop down menu
+    private SelectBox dropDown = new SelectBox(skin);
     
     // patient info error
     private Label piError = new Label("One or more of the selections have invalid information", skin, "error");
@@ -279,14 +301,74 @@ public class MainMenu implements Screen {
      *
      * CREATE ROUTINE
      */
-    private Table createRoutineTitleTable = new Table();
-    private Label createRoutineTitle = new Label("Pick a game to play", skin);
-    
     private Table createRoutineTable = new Table();
+    
+    // title
+    private Table createRoutineTitleTable = new Table();
+    private Label createRoutineTitle = new Label("CREATE ROUTINE", skin);
+    
+    // choose which game to modify
+    private Table gameTable = new Table();
+    private Label gameLabel = new Label("Choose a game to add", skin);
     private TextButton ispyBt = new TextButton("I Spy", skin);
     private TextButton memoryBt = new TextButton("Memory", skin);
     private TextButton mazeBt = new TextButton("Maze", skin);
+    private TextButton pathTraceBt = new TextButton("Path Tracing", skin);
+    
+    // The routine name table and the routine overview table will reside here
+    private Table leftSide = new Table();
+    
+    // name routine
+    private Table nameRoutineTable = new Table();
+    private Label nameRoutineLabel = new Label("Please name your routine:", skin);
+    private TextField nameRoutineTextField = new TextField("", skin);
+    
+    // routine overview
+    private Table routineOverviewTable = new Table();
+    private Label routineOverviewLabel = new Label("Your routine:", skin);
+    private TextField routineOverviewTextField = new TextField("", skin); // may need to find a better solution
+                                                                          // because this will be modifiable
+    // buttons
+    private Table routineButtonsTable = new Table();
+    private TextButton routineDone = new TextButton("Done", skin);
     private TextButton routineBack = new TextButton("Back", skin);
+    
+    
+    
+    /*
+     *
+     * ISPY ROUTINE CREATION
+     */
+    
+    
+    
+    
+    
+    /*
+     *
+     * MEMORY ROUTINE CREATION
+     */
+    
+    
+    
+    
+    
+    /*
+     *
+     * MAZE ROUTINE CREATION
+     */
+    
+    
+    
+    
+    
+    /*
+     *
+     * PATH TRACING ROUTINE CREATION
+     */
+    
+    
+    
     
     
     
@@ -294,6 +376,8 @@ public class MainMenu implements Screen {
      *
      * LOAD ROUTINE
      */
+    
+    
     
 
 
@@ -418,69 +502,87 @@ public class MainMenu implements Screen {
         *
         * Patient Information
         */
-        
-        // scroll bar
-        // set back to top when leaving this page
-        
         patientInfoTable.setFillParent(true);
         patientInfoTable.add(scroller).fill().expand();
+        patientInfoTitleTable.add(patientInfoTitle).padTop(50).padBottom(20).align(Align.center).row();
         
-        patientInfoTitleTable.add(patientInfoTitle).padBottom(15).align(Align.center).row();
-        patientInfoTitleTable.add(pNameTable).left().row();
-        patientInfoTitleTable.add(fmScores).left().row();
-        patientInfoTitleTable.add(gsScores).left().row();
-        patientInfoTitleTable.add(psScores).left().padTop(200).row();
-        patientInfoTitleTable.add(hpScores).left().row();
+        // put label table and values table into their own table, then add that to patient info title table
+        Table patientInfoDoubleTable = new Table();
+        patientInfoDoubleTable.add(patientInfoLabelTable);
+        patientInfoDoubleTable.add(patientInfoValuesTable);
+        
+        patientInfoTitleTable.add(patientInfoDoubleTable).center().row();
         patientInfoTitleTable.add(piError).row();
         patientInfoTitleTable.add(piButtons);
         
         // title
         patientInfoTitle.setFontScale(0.8f);
         
-        // Name info
-        pNameTable.add(firstNameLabel).left();
+        // specific for these labels only
+        int LABEL_BOT_PAD = 62;
+        int TF_BOT_PAD = 10;
+        
+        // patientInfoLabelTable
+        patientInfoLabelTable.add(firstNameLabel).left().padBottom(LABEL_BOT_PAD).row();
+        patientInfoLabelTable.add(lastNameLabel).left().padBottom(LABEL_BOT_PAD).row();
+        patientInfoLabelTable.add(involvedArmLabel).left().padBottom(LABEL_BOT_PAD).row();
+        patientInfoLabelTable.add(fmLabel).left().padBottom(LABEL_BOT_PAD).row();
+        patientInfoLabelTable.add(gsLabel).left().padBottom(LABEL_BOT_PAD).row();
+        patientInfoLabelTable.add(psLabel).left().padBottom(LABEL_BOT_PAD).row();
+        patientInfoLabelTable.add(hpLabel).left();
         firstNameLabel.setFontScale(LABEL_FS);
-        pNameTable.add(firstName).width(TB_WIDTH).height(TB_HEIGHT).row();
-        
-        pNameTable.add(lastNameLabel).left();
         lastNameLabel.setFontScale(LABEL_FS);
-        pNameTable.add(lastName).width(TB_WIDTH).height(TB_HEIGHT).row();
-        
-        // fm scores
-        fmScores.add(fmLabel).left();
+        involvedArmLabel.setFontScale(LABEL_FS);
         fmLabel.setFontScale(LABEL_FS);
-        fmScores.add(fmTF).width(200).height(TB_HEIGHT);
-        
-        // gs scores
-        gsScores.add(gsLabel).left();
         gsLabel.setFontScale(LABEL_FS);
-        gsScores.add(gsTF).width(200).height(TB_HEIGHT);
-        gsScores.add(gsLbs).left();
-        gsLbs.setFontScale(LABEL_FS);
-
-        // ps scores
-        psScores.add(psLabel).left();
         psLabel.setFontScale(LABEL_FS);
-        psScores.add(psTF).width(200).height(TB_HEIGHT);
-        psScores.add(psLbs).left();
-        psLbs.setFontScale(LABEL_FS);
-        
-        // 9 hp scores
-        hpScores.add(hpLabel).left();
         hpLabel.setFontScale(LABEL_FS);
-        hpScores.add(hpTF).width(200).height(TB_HEIGHT);
-        hpScores.add(hpSec).left();
-        hpSec.setFontScale(LABEL_FS);
+        
+        // patientInfoValuesTable
+        patientInfoValuesTable.add(firstNameTextField).width(TB_WIDTH).height(TB_HEIGHT).padBottom(TF_BOT_PAD).row();
+        patientInfoValuesTable.add(lastNameTextField).width(TB_WIDTH).height(TB_HEIGHT).padBottom(TF_BOT_PAD).row();
+        
+        // Since we need to cram multiple things into one cell, we will create a table, add the stuff to it, then the table to the cell
+        Table armStuff = new Table(); 
+        
+        // left arm  
+        armStuff.add(lArmBox).width(CB_SIDE).height(CB_SIDE).left();
+        armStuff.add(lArmLabel).left().padRight(20);
+        lArmLabel.setFontScale(LABEL_FS);
+        
+        // right arm
+        armStuff.add(rArmBox).width(CB_SIDE).height(CB_SIDE).left();
+        armStuff.add(rArmLabel).left().padRight(20);
+        rArmLabel.setFontScale(LABEL_FS);
+        
+        // both arms
+        armStuff.add(bArmBox).width(CB_SIDE).height(CB_SIDE).left();
+        armStuff.add(bArmLabel).left();
+        bArmLabel.setFontScale(LABEL_FS);
+        
+        patientInfoValuesTable.add(armStuff).padLeft(170).padBottom(TF_BOT_PAD).row(); // add the table to the cell
+        
+        // ...back to patientInfoValuesTable
+        patientInfoValuesTable.add(fmTextField).width(TB_WIDTH).height(TB_HEIGHT).padBottom(TF_BOT_PAD).row();
+        patientInfoValuesTable.add(gsTextField).width(TB_WIDTH).height(TB_HEIGHT).padBottom(TF_BOT_PAD).row();
+        patientInfoValuesTable.add(psTextField).width(TB_WIDTH).height(TB_HEIGHT).padBottom(TF_BOT_PAD).row();
+        patientInfoValuesTable.add(hpTextField).width(TB_WIDTH).height(TB_HEIGHT);
         
         // error message
         piError.setFontScale(LABEL_FS);
         piError.setVisible(false);
         
         // patient info buttons
-        piButtons.add(piDone).size(300,80).left().padTop(0).align(Align.center).row();
+        piButtons.add(piDone).size(300,80).left().padTop(0).center().row();
         piDone.getLabel().setFontScale(LABEL_FS);
-        piButtons.add(piBack).size(300,80).left().padTop(10).align(Align.center).row();
+        piButtons.add(piBack).size(300,80).left().padTop(10).center().row();
         piBack.getLabel().setFontScale(LABEL_FS);
+        
+        piButtons.add(dropDown).row();
+        
+        String[] poop = new String[]{"stuff", "things", "some other things", "oh yea and that other thing"};
+        
+        dropDown.setItems((Object) poop);
         
         
         
@@ -503,15 +605,17 @@ public class MainMenu implements Screen {
         patFields.add(loadPatientLNTextField).width(TB_WIDTH).height(TB_HEIGHT).left().row();
         loadPatientLNLabel.setFontScale(LABEL_FS);
         
+        // error message
         patFieldsButtons.add(loadPatientError).center().row();
+        loadPatientError.setFontScale(LABEL_FS);
+        loadPatientError.setVisible(false);
+        
+        // buttons
         patFieldsButtons.add(patFieldsDone).center().width(TB_WIDTH).height(TB_HEIGHT).row();
         patFieldsButtons.add(patFieldsBack).center().width(TB_WIDTH).height(TB_HEIGHT);
         patFieldsBack.getLabel().setFontScale(LABEL_FS);
         patFieldsDone.getLabel().setFontScale(LABEL_FS);
         
-        // error message
-        loadPatientError.setFontScale(LABEL_FS);
-        loadPatientError.setVisible(false);
         
         
         /*
@@ -704,7 +808,7 @@ public class MainMenu implements Screen {
             public void changed (ChangeEvent event, Actor actor) {
                 stage.clear();
                 stage.addActor(patientInfoTable);
-           } 
+            } 
         });
         
         // Load Patient
@@ -713,7 +817,7 @@ public class MainMenu implements Screen {
             public void changed (ChangeEvent event, Actor actor) {
                 stage.clear();
                 stage.addActor(thPatFields);
-           } 
+            } 
         });
         
         // Logout Therapist
@@ -743,38 +847,63 @@ public class MainMenu implements Screen {
         *
         * PATIENT INFORMATION
         */
-        pNameTable.addListener(new ChangeListener() {
-            @Override
-            public void changed (ChangeEvent event, Actor actor) {
-                pFirst = firstName.getText();
-                pLast = lastName.getText();
-            }
-        });
-        
         piDone.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {   
                 try {
-                    fm = Float.parseFloat(fmTF.getText());
-                    gs = Float.parseFloat(gsTF.getText());
-                    ps = Float.parseFloat(psTF.getText());
-                    hp = Float.parseFloat(hpTF.getText());
+                    // file io stuff for the first and last name
+                    pFirst = firstNameTextField.getText();
+                    pLast = lastNameTextField.getText();
                     
-                    // set the text back to blank
-                    firstName.setText("");
-                    lastName.setText("");
-                    fmTF.setText("");
-                    gsTF.setText("");
-                    psTF.setText("");
-                    hpTF.setText("");       
-
+                    // file io stuff for the check boxes
+                    lArmBool = lArmBox.isChecked();
+                    rArmBool = rArmBox.isChecked();
+                    bArmBool = bArmBox.isChecked();
+                    
+                    // the following ifs handle the case where the therapist put nothing in the fields
+                    // instead it just sets the fields to 0.0
+                    if(!fmTextField.getText().equals("")) {
+                        fm = Float.parseFloat(fmTextField.getText());
+                    }
+                    
+                    if(!gsTextField.getText().equals("")) {
+                        gs = Float.parseFloat(gsTextField.getText());
+                    }
+                    
+                    if(!psTextField.getText().equals("")) {
+                        ps = Float.parseFloat(psTextField.getText());
+                    }
+                    
+                    if(!hpTextField.getText().equals("")) {
+                        hp = Float.parseFloat(hpTextField.getText());
+                    }
+                    
                     // add the new patient info in their own file and to the patient list
-                    file.patientInfo(theName, pFirst, pLast, fm, gs, ps, hp, true); // 1 isNewPatient(); // first item is therapists name
+                    // bool isNewPatient(); // first item is therapists name
+                    file.patientInfo(theName, pFirst, pLast, lArmBool, rArmBool, bArmBool, fm, gs, ps, hp, true); 
 
-                    pFirst = "";
-                    pLast = "";
-
+                    // zero out the actors and the global variables
+                    // first and last name
+                    pFirst = pLast = "";
+                    firstNameTextField.setText("");
+                    lastNameTextField.setText("");
+                    
+                    // arm check boxes
+                    lArmBool = rArmBool = bArmBool = false;
+                    lArmBox.setChecked(false);
+                    rArmBox.setChecked(false);
+                    bArmBox.setChecked(false);
+                    
+                    // test scores
+                    fm = gs = ps = hp = 0f;
+                    fmTextField.setText("");
+                    gsTextField.setText("");
+                    psTextField.setText("");
+                    hpTextField.setText("");       
+                    
+                    scroller.scrollTo(0, 0, 0, 0);                 
                     piError.setVisible(false);
+                    
                     stage.clear();
                     stage.addActor(therapistMenuTitleTable);
                 } catch(NumberFormatException e) {
@@ -786,14 +915,26 @@ public class MainMenu implements Screen {
         piBack.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {
-                // set the text back to blank
-                firstName.setText("");
-                lastName.setText("");
-                fmTF.setText("");
-                gsTF.setText("");
-                psTF.setText("");
-                hpTF.setText("");   
+                // zero out the actors and the global variables
+                // first and last name
+                pFirst = pLast = "";
+                firstNameTextField.setText("");
+                lastNameTextField.setText("");
+
+                // arm check boxes
+                lArmBool = rArmBool = bArmBool = false;
+                lArmBox.setChecked(false);
+                rArmBox.setChecked(false);
+                bArmBox.setChecked(false);
+
+                // test scores
+                fm = gs = ps = hp = 0f;
+                fmTextField.setText("");
+                gsTextField.setText("");
+                psTextField.setText("");
+                hpTextField.setText("");
                 
+                scroller.scrollTo(1, 1, 1, 1);
                 piError.setVisible(false);
                 
                 stage.clear();
@@ -955,9 +1096,8 @@ public class MainMenu implements Screen {
         // table.clear();
         createRoutineTable.remove();
         createRoutineTitleTable.remove();
-        fmScores.remove();
-        gsScores.remove();
-        hpScores.remove();
+        patientInfoLabelTable.remove();
+        patientInfoValuesTable.remove();
         loginButtons.remove();
         loginTable.remove();
         loginTitle.remove();
@@ -967,7 +1107,6 @@ public class MainMenu implements Screen {
         patientInfoTitleTable.remove();
         patientMenuTable.remove();
         patientMenuTitleTable.remove();
-        psScores.remove();
         therapistMenuTable.remove();
         therapistMenuTitleTable.remove();
         piButtons.remove();

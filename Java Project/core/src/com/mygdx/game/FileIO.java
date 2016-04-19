@@ -56,12 +56,17 @@ public class FileIO {
     }
     
     // This function creates/edits the patient information section
-    public void patientInfo(String thName, String fName, String lName, float fm, float gs, float ps, float hp, boolean isNewPatient) {
+    public void patientInfo(
+            String thName, String fName, String lName, // therapist name, patient first name, patient last name
+            boolean lArm, boolean rArm, boolean bArm,  // boolean values for most involved arm
+            float fm, float gs, float ps, float hp,    // float values for the various tests
+            boolean isNewPatient) {                    // indicates if this is a new patient or editing a an existing patient
+        
         if(isNewPatient) {
             try{
                 // add patient's info to their own file
                 writer = new PrintWriter(new FileOutputStream(lName + "_" + fName + ".txt", true));
-                writer.append(lName + "," + fName + "," + fm + "," + gs + "," + ps + "," + hp + "\n");
+                writer.append(lName + "," + fName + "," + lArm + "," + rArm + "," + bArm + "," + fm + "," + gs + "," + ps + "," + hp + "\n");
                 writer.close();
                 
                 // add patient to patient list
