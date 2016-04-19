@@ -167,7 +167,7 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
         String file=firstN+lastN+"/Data/MemoryGameStatistics.txt";
         DateFormat dateFormat = new SimpleDateFormat("yyyy MM dd");
         Date date = new Date();
-        System.out.println(dateFormat.format(date)); //2014/08/06 
+        //System.out.println(dateFormat.format(date)); //2014/08/06 
         try 
         {
             BufferedWriter bw = new BufferedWriter(new FileWriter(file, true));
@@ -234,6 +234,7 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
             displayBlockInfo();
             if(Gdx.input.isKeyJustPressed(Keys.ANY_KEY)) 
             {
+                endGame();
                 //flip the draw stats status 
                 displayStats=!displayStats;
                 //clear the stats holders
@@ -251,9 +252,9 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
         batch.begin();
         //display averages by orientation
         font.draw(batch, "PRESS ANY KEY TO CONTINUE", (int)(Gdx.graphics.getWidth()*.4f), (int)(Gdx.graphics.getHeight()*.1f));
-        font.draw(batch, "Horizontal Averages", Gdx.graphics.getWidth()*.25f, Gdx.graphics.getHeight()*.95f);
+        font.draw(batch, "Vertical Averages", Gdx.graphics.getWidth()*.25f, Gdx.graphics.getHeight()*.95f);//was horizontal
         font.draw(batch, "Missed: "+averageMissesSide+"     "+"Time: "+averageTimeSide, Gdx.graphics.getWidth()*.25f, Gdx.graphics.getHeight()*.85f);
-        font.draw(batch, "Vertical", Gdx.graphics.getWidth()*.75f, Gdx.graphics.getHeight()*.95f);
+        font.draw(batch, "Horizontal Average", Gdx.graphics.getWidth()*.75f, Gdx.graphics.getHeight()*.95f);//was vertical
         font.draw(batch, "Missed: "+averageMissesUp+"     "+"Time: "+averageTimeUp, Gdx.graphics.getWidth()*.75f, Gdx.graphics.getHeight()*.85f);
         //display the stats of the last block of rounds
         for(int i=0; i<roundsTillStats; ++i)
@@ -522,8 +523,8 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
         batch.end();
         
         //quit the game and return to game menu screen
-        if(Gdx.input.isKeyJustPressed(Keys.Q)) {
-            ((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenu());
+        if(Gdx.input.isKeyJustPressed(Keys.ESCAPE)) {
+            endGame();
         }
         
         //player has clicked and they are not waiting 
@@ -612,5 +613,10 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
 
     @Override
     public void hide() {
+    }
+    
+    public void endGame()
+    {
+        ((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenu());
     }
 }
