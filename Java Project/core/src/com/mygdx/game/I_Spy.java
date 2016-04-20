@@ -51,13 +51,13 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
     ArrayList<Integer> statsWrong=new ArrayList<Integer>();
     float averageMisses, averageTime, counter;
     long roundTime, timer=System.currentTimeMillis();
-    String firstN="a", lastN="a";
+    String firstN="a", lastN="a", routine="a";
     
     //load the orientation of the board
     public void loadPlacement()
     {
         //create a string fro the patient folder/data folder/ispygameinfo.txt
-        String f=firstN+lastN+"/Data/ISpyGameInfo.txt";
+        String f=firstN+lastN+"/Data/"+routine+"/ISpyGameInfo.txt";
         File file=new File(f);
         try 
         {
@@ -87,7 +87,7 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
     public void loadAverage()
     {
         //emter the patient file
-        String fileName=firstN+lastN+"/Data/ISpyStatistics.txt";
+        String fileName=firstN+lastN+"/Data/"+routine+"/ISpyStatistics.txt";
         File file=new File(fileName);
         try 
         {
@@ -125,7 +125,7 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
     public void saveClient()
     {
         //enter the patient data file
-        String file=firstN+lastN+"/Data/ISpyStatistics.txt";
+        String file=firstN+lastN+"/Data/"+routine+"/ISpyStatistics.txt";
         DateFormat dateFormat = new SimpleDateFormat("yyyy MM dd");
         Date date = new Date();
         //System.out.println(dateFormat.format(date)); //2014/08/06 
@@ -217,6 +217,7 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
             displayBlockInfo();//draw block info unill a button is hit
             if(Gdx.input.isKeyJustPressed(Keys.ANY_KEY))
             {
+                endGame();
                 drawPreRound=true;
                 timer=System.currentTimeMillis();
                 drawStats=false;
@@ -232,8 +233,8 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
             batch.end();
         }
         //close the game and return to the main menu
-        if(Gdx.input.isKeyJustPressed(Keys.Q)) {
-            ((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenu());
+        if(Gdx.input.isKeyJustPressed(Keys.ESCAPE)) {
+            endGame();
         }   
     }
 
@@ -308,11 +309,11 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
         {
             case 0:
                 image=new Sprite(new Texture(Gdx.files.internal("Items/Lemon.png")));
-                name="Find the Lemon";
+                name="Find the Yellow Lemon";
                 break;
             case 1:
                 image=new Sprite(new Texture(Gdx.files.internal("Items/Colors/Grey.png")));
-                name="Find the grey box";
+                name="Find the Grey Box";
                 break;
             case 2:
                 image=new Sprite(new Texture(Gdx.files.internal("Items/delete.png")));
@@ -320,7 +321,7 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
                 break;
             case 3:
                 image=new Sprite(new Texture(Gdx.files.internal("Items/Shapes/Circle.png")));
-                name="Find the circle";
+                name="Find the Circle";
                 break;
             case 4:
                 image=new Sprite(new Texture(Gdx.files.internal("Items/Shapes/Heart.png")));
@@ -328,11 +329,11 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
                 break;
             case 5:
                 image=new Sprite(new Texture(Gdx.files.internal("Items/LemonSeed.png")));
-                name="Find the Lemon seed";
+                name="Find the Brown Lemon seed";
                 break;
             case 6:
                 image=new Sprite(new Texture(Gdx.files.internal("Items/plus.png")));
-                name="Find the plus sign";
+                name="Find the Plus Sign";
                 break;
             case 7:
                 image=new Sprite(new Texture(Gdx.files.internal("Items/Shapes/Star.png")));
@@ -412,14 +413,14 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
                 break;
             case 26:
                 image=new Sprite(new Texture(Gdx.files.internal("Items/NumbersLetters/eleven.png")));
-                name="Find the number Eleven";
+                name="Find the Number Eleven";
                 break;    
             case 27:
                 image=new Sprite(new Texture(Gdx.files.internal("Items/NumbersLetters/eight.png")));
-                name="Find the number Eight";
+                name="Find the Number Eight";
                 break;
             default:
-                System.out.println("defualt");
+                //System.out.println("defualt");
                 image=new Sprite(new Texture(Gdx.files.internal("Items/Shapes/Triangle.png")));
                 name="Find the Triangle";
                 break;
@@ -472,6 +473,7 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
             if(!got)//patient did not get the targetm increase the wrong
                 wrong++;
         }
+        font.draw(batch, board.get(marked).name, Gdx.graphics.getWidth()*.43f, Gdx.graphics.getHeight()*.99f);
     }
     
     @Override
@@ -534,4 +536,8 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
     public void dispose() {  
     }  
     
+    public void endGame()
+    {
+        ((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenu());
+    }
 }
