@@ -61,14 +61,14 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
     float averageMissesUp, averageTimeUp, counterUp;
     float averageMissesSide, averageTimeSide, counterSide;
     long roundTime;
-    String firstN="a", lastN="a";
+    String firstN="a", lastN="a", routine="a";
     
 
     
     //load from a file and set up the placement of the board
     public void loadPlacement()
     {
-        String f=firstN+lastN+"/Data/MemoryGameInfo.txt";
+        String f=firstN+lastN+"/Data/"+routine+"/MemoryGameInfo.txt";
         File file=new File(f);
         try 
         {
@@ -114,7 +114,7 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
     public void loadAverage()
     {
         //concatinate to create the string of the file
-        String fileName=firstN+lastN+"/Data/MemoryGameStatistics.txt";
+        String fileName=firstN+lastN+"/Data/"+routine+"/MemoryGameStatistics.txt";
         File file=new File(fileName);
         try 
         {
@@ -164,7 +164,7 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
     public void saveClient()
     {
         //make the string for the file to be saved into
-        String file=firstN+lastN+"/Data/MemoryGameStatistics.txt";
+        String file=firstN+lastN+"/Data/"+routine+"/MemoryGameStatistics.txt";
         DateFormat dateFormat = new SimpleDateFormat("yyyy MM dd");
         Date date = new Date();
         //System.out.println(dateFormat.format(date)); //2014/08/06 

@@ -51,13 +51,13 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
     ArrayList<Integer> statsWrong=new ArrayList<Integer>();
     float averageMisses, averageTime, counter;
     long roundTime, timer=System.currentTimeMillis();
-    String firstN="a", lastN="a";
+    String firstN="a", lastN="a", routine="a";
     
     //load the orientation of the board
     public void loadPlacement()
     {
         //create a string fro the patient folder/data folder/ispygameinfo.txt
-        String f=firstN+lastN+"/Data/ISpyGameInfo.txt";
+        String f=firstN+lastN+"/Data/"+routine+"/ISpyGameInfo.txt";
         File file=new File(f);
         try 
         {
@@ -87,7 +87,7 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
     public void loadAverage()
     {
         //emter the patient file
-        String fileName=firstN+lastN+"/Data/ISpyStatistics.txt";
+        String fileName=firstN+lastN+"/Data/"+routine+"/ISpyStatistics.txt";
         File file=new File(fileName);
         try 
         {
@@ -125,7 +125,7 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
     public void saveClient()
     {
         //enter the patient data file
-        String file=firstN+lastN+"/Data/ISpyStatistics.txt";
+        String file=firstN+lastN+"/Data/"+routine+"/ISpyStatistics.txt";
         DateFormat dateFormat = new SimpleDateFormat("yyyy MM dd");
         Date date = new Date();
         //System.out.println(dateFormat.format(date)); //2014/08/06 
