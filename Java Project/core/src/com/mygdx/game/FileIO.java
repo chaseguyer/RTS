@@ -65,8 +65,13 @@ public class FileIO {
         if(isNewPatient) {
             try{
                 // add patient's info to their own file
-                writer = new PrintWriter(new FileOutputStream(lName + "_" + fName + ".txt", true));
-                writer.append(lName + "," + fName + "," + lArm + "," + rArm + "," + bArm + "," + fm + "," + gs + "," + ps + "," + hp + "\n");
+                if(!MainMenu.isLoadedPatient) {
+                    writer = new PrintWriter(new FileOutputStream(lName + "_" + fName + ".txt", true));
+                    writer.append(lName + "," + fName + "," + lArm + "," + rArm + "," + bArm + "," + fm + "," + gs + "," + ps + "," + hp + "\n");
+                } else {    
+                    writer = new PrintWriter(new FileOutputStream(lName + "_" + fName + ".txt", false));
+                    writer.write(lName + "," + fName + "," + lArm + "," + rArm + "," + bArm + "," + fm + "," + gs + "," + ps + "," + hp + "\n");
+                }
                 writer.close();
                 
                 // add patient to patient list
@@ -74,13 +79,23 @@ public class FileIO {
                 writer.append(lName + "," + fName + "\n");
                 writer.close();
             } catch (FileNotFoundException e) {} 
-        } else { // load patient
+        } else if(!isNewPatient) { // load patient
             try {
-                Scanner scan = new Scanner(new File(lName + "_" + fName + ".txt"));
-                // open patient file
-                // dump info into textFields?
+                Scanner scan = new Scanner(new File(lName + "_" + fName + ".txt")).useDelimiter("\n");
+                Scanner small;
                 
-                
+                while(scan.hasNextLine()) {
+                    small = new Scanner(scan.nextLine()).useDelimiter(",");
+                    MainMenu.pLast = small.next();
+                    MainMenu.pFirst = small.next();
+                    MainMenu.lArmBool = Boolean.valueOf(small.next());
+                    MainMenu.rArmBool = Boolean.valueOf(small.next());
+                    MainMenu.bArmBool = Boolean.valueOf(small.next());
+                    MainMenu.fm = Float.valueOf(small.next());
+                    MainMenu.gs = Float.valueOf(small.next());
+                    MainMenu.ps = Float.valueOf(small.next());
+                    MainMenu.hp = Float.valueOf(small.next());
+                }
             } catch(FileNotFoundException e) {}
         }        
     }

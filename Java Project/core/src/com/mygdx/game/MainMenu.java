@@ -76,11 +76,16 @@ import java.util.ArrayList;
 
 
 /*
+
+    **Things marked with a ** are of less importance and can be skipped
+
+
     TODO
     1. Finish patient information page
+        -auto fill information if editing existing patient
         -text box at the end
         -file IO stuff involved
-        -be able to add and keep track of dates for patient
+        -be able to add and keep track of dates for patient **
 
     2. Routine creation
         -Be able to choose from the 4 games
@@ -92,13 +97,13 @@ import java.util.ArrayList;
 
     4. Misc
         -Password hiding
-        -Patient/Therapist deletion
-        -patient info scrolling back to top
+        -Patient/Therapist deletion **
+        -patient info scrolling back to top **
         -patient info going to the right place when "back" is pressed
-        -allowing for a null patient to be created
+        -allowing for a null patient to be created **
         -cursor in text fields
-        -duplicate patient/therapist names
-        -upon quitting a game, set screen back to patient menu
+        -duplicate patient/therapist names **
+        -upon quitting a game, set screen back to patient menu **
 */
 
 public class MainMenu implements Screen {
@@ -116,9 +121,9 @@ public class MainMenu implements Screen {
     // Misc - mostly things for IO
     FileIO file = new FileIO(); // file I/O for db stuff
     
-    public String theName, thePw, theConPw, pFirst, pLast; // therapist name, password; patient first and last name
-    public float fm = 0f, gs = 0f, ps = 0f, hp = 0f; // patient test scores
-    public boolean lArmBool = false, rArmBool = false, bArmBool = false;
+    public static String theName, thePw, theConPw, pFirst, pLast, additionalNotes; // therapist name, password; patient first and last name
+    public static float fm = 0f, gs = 0f, ps = 0f, hp = 0f; // patient test scores
+    public static boolean lArmBool = false, rArmBool = false, bArmBool = false, isLoadedPatient = false;
     
     public String routineName;
     
@@ -221,6 +226,9 @@ public class MainMenu implements Screen {
     private CheckBox lArmBox = new CheckBox("", skin);
     private CheckBox rArmBox = new CheckBox("", skin);
     private CheckBox bArmBox = new CheckBox("", skin);
+    
+    private Label addNotesLabel = new Label("Additional notes: ", skin);
+    private TextArea addNotes = new TextArea("", skin);
     
     // Drop down menu
     //private SelectBox dropDown = new SelectBox(skin);
@@ -515,8 +523,11 @@ public class MainMenu implements Screen {
         patientInfoDoubleTable.add(patientInfoValuesTable);
         
         patientInfoTitleTable.add(patientInfoDoubleTable).center().row();
+        patientInfoTitleTable.add(addNotesLabel).padTop(30).left().row();
+        patientInfoTitleTable.add(addNotes).size(1000, 350).left().row();
         patientInfoTitleTable.add(piError).row();
         patientInfoTitleTable.add(piButtons);
+        addNotesLabel.setFontScale(LABEL_FS);
         
         // title
         patientInfoTitle.setFontScale(0.8f);
@@ -963,6 +974,9 @@ public class MainMenu implements Screen {
                     pFirst = firstNameTextField.getText();
                     pLast = lastNameTextField.getText();
                     
+                    //additionalNotes = /* date  + */addNotes.getText();
+                    // notesArrayList.add(additionalNotes);
+                    
                     // file io stuff for the check boxes
                     lArmBool = lArmBox.isChecked();
                     rArmBool = rArmBox.isChecked();
@@ -987,14 +1001,16 @@ public class MainMenu implements Screen {
                     }
                     
                     // add the new patient info in their own file and to the patient list
-                    // bool isNewPatient(); // first item is therapists name
+                    // bool isNewPatient(); // first item is therapists name                    
                     file.patientInfo(theName, pFirst, pLast, lArmBool, rArmBool, bArmBool, fm, gs, ps, hp, true); 
-
+                
                     // zero out the actors and the global variables
                     // first and last name
-                    pFirst = pLast = "";
+                    //pFirst = pLast = "";
                     firstNameTextField.setText("");
                     lastNameTextField.setText("");
+                    addNotes.setText((""));
+                    
                     
                     // arm check boxes
                     lArmBool = rArmBool = bArmBool = false;
@@ -1009,11 +1025,13 @@ public class MainMenu implements Screen {
                     psTextField.setText("");
                     hpTextField.setText("");       
                     
-                    scroller.scrollTo(0, 0, 0, 0);                 
+                    scroller.scrollTo(100, 100, 100, 100);                 
                     piError.setVisible(false);
                     
                     stage.clear();
-                    stage.addActor(therapistMenuTitleTable);
+                    if(!isLoadedPatient) stage.addActor(therapistMenuTitleTable);
+                    else stage.addActor(patientMenuTitleTable);
+                    isLoadedPatient = false;
                 } catch(NumberFormatException e) {
                     piError.setVisible(true);
                 }
@@ -1025,9 +1043,10 @@ public class MainMenu implements Screen {
             public void changed (ChangeEvent event, Actor actor) {
                 // zero out the actors and the global variables
                 // first and last name
-                pFirst = pLast = "";
+                //pFirst = pLast = "";
                 firstNameTextField.setText("");
                 lastNameTextField.setText("");
+                addNotes.setText((""));
 
                 // arm check boxes
                 lArmBool = rArmBool = bArmBool = false;
@@ -1042,11 +1061,13 @@ public class MainMenu implements Screen {
                 psTextField.setText("");
                 hpTextField.setText("");
                 
-                scroller.scrollTo(1, 1, 1, 1);
+                scroller.scrollTo(0, 0, Gdx.graphics.getDesktopDisplayMode().width/2, Gdx.graphics.getDesktopDisplayMode().height/2); // this was trying to set scroller back to the top
                 piError.setVisible(false);
                 
                 stage.clear();
-                stage.addActor(therapistMenuTitleTable);
+                if(!isLoadedPatient) stage.addActor(therapistMenuTitleTable);
+                else stage.addActor(patientMenuTitleTable);
+                isLoadedPatient = false;
             }
         });  
         
@@ -1064,6 +1085,9 @@ public class MainMenu implements Screen {
                 if(file.isPatient(theName, loadPatientFNTextField.getText(), loadPatientLNTextField.getText())) {
                     patientMenuTitle.setText("Menu for " + loadPatientFNTextField.getText() + " " + loadPatientLNTextField.getText()); 
                         
+                    pFirst = loadPatientFNTextField.getText();
+                    pLast = loadPatientLNTextField.getText();
+                    
                     // clear text fields
                     loadPatientLNTextField.setText("");
                     loadPatientFNTextField.setText("");
@@ -1114,15 +1138,37 @@ public class MainMenu implements Screen {
         editP.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {
+                isLoadedPatient = true;
+                
                 stage.clear();
+                file.patientInfo(theName, pFirst, pLast, lArmBool, rArmBool, bArmBool, fm, gs, ps, hp, false);
+                               
+                firstNameTextField.setText(pFirst);
+                lastNameTextField.setText(pLast);
+                //addNotes.setText((""));
+
+                // arm check boxes
+                lArmBox.setChecked(lArmBool);
+                rArmBox.setChecked(rArmBool);
+                bArmBox.setChecked(bArmBool);
+
+                // test scores
+                fmTextField.setText(Float.toString(fm));
+                gsTextField.setText(Float.toString(gs));
+                psTextField.setText(Float.toString(ps));
+                hpTextField.setText(Float.toString(hp));
+                
                 stage.addActor(patientInfoTable);
             }
         });  
         
-        // Back (Logout Patient)
+        // Logout Patient
         logP.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {
+                pFirst = pLast = "";
+                isLoadedPatient = false;
+                
                 stage.clear();
                 stage.addActor(therapistMenuTitleTable);
             }
