@@ -22,221 +22,254 @@ import javafx.util.Pair;
  */
 public class Maze {
     private int width, height;
-    private List<List<Node>> maze;
     private Texture wall;
     private Texture path;
+    private Texture dot;
     private float wallWidth;
+    private float wallHeight;
+    private float dotRadius;
+    private float redDotX;
+    private float redDotY;
+    private int[][] genMaze;
+    private int screenWidth;
+    private int screenHeight;
     
-    public Maze(int width, int height) {
+    /**
+     * Make a new maze.
+     * @param width Number of nodes width-wise.
+     * @param height Number of nodes height-wise.
+     * @param screenWidth
+     * @param screenHeight
+     */
+    public Maze(int width, int height, int screenWidth, int screenHeight) {
         this.width = width;
         this.height = height;
         wall = new Texture(Gdx.files.internal("Textures/Wall.png"));
         path = new Texture(Gdx.files.internal("Textures/Path.png"));
-        wallWidth = wall.getWidth();
+        dot = new Texture(Gdx.files.internal("Textures/Ball.png"));
+        wallWidth = (float)screenWidth/(float)(width*2+1);
+        wallHeight = (float)screenHeight/(float)(height*2+1);
+        this.screenWidth = screenWidth;
+        this.screenHeight = screenHeight;
+        dotRadius = dot.getWidth()/2;
         kruskal();
     }
     
+    /**
+     * Draw the maze.
+     * @param batch The spritebatch to draw on.
+     */
     public void draw(SpriteBatch batch) {
         batch.begin();
-        for (int i = 0; i < height; ++i) {
-            for (int j = 0; j < width; ++j) {
-                batch.draw(wall, i*3*wallWidth, j*3*wallWidth);
-                batch.draw(wall, (i*3+2)*wallWidth, j*3*wallWidth);
-                batch.draw(wall, (i*3+2)*wallWidth, (j*3+2)*wallWidth);
-                batch.draw(wall, i*3*wallWidth, (j*3+2)*wallWidth);
-                batch.draw(path, (i*3+1)*wallWidth, (j*3+1)*wallWidth);
+        for (int i = 0; i < genMaze.length; ++i) {
+            for (int j = 0; j < genMaze[i].length; ++j) {
                 
-                if (maze.get(i).get(j).isUp()) {
-                    batch.draw(path, (i*3+1)*wallWidth, (j*3+2)*wallWidth);
+                if (genMaze[i][j] == 0) {
+                    batch.draw(wall, i*wallWidth, j*wallHeight, wallWidth, wallHeight);
                 }
                 else {
-                    batch.draw(wall, (i*3+1)*wallWidth, (j*3+2)*wallWidth);
-                }
-                
-                if (maze.get(i).get(j).isDown()) {
-                    batch.draw(path, (i*3+1)*wallWidth, j*3*wallWidth);
-                }
-                else {
-                    batch.draw(wall, (i*3+1)*wallWidth, j*3*wallWidth);
-                }
-                
-                if (maze.get(i).get(j).isLeft()) {
-                    batch.draw(path, i*3*wallWidth, (j*3+1)*wallWidth);
-                }
-                else {
-                    batch.draw(wall, i*3*wallWidth, (j*3+1)*wallWidth);
-                }
-                
-                if (maze.get(i).get(j).isRight()) {
-                    batch.draw(path, (i*3+2)*wallWidth, (j*3+1)*wallWidth);
-                }
-                else {
-                    batch.draw(wall, (i*3+2)*wallWidth, (j*3+1)*wallWidth);
+                    batch.draw(path, i*wallWidth, j*wallHeight, wallWidth, wallHeight);
                 }
             }
         }
+        batch.draw(dot, redDotX-dotRadius, redDotY-dotRadius);
         batch.end();
     }
     
+    /**
+     * Print the maze on the console.
+     */
     public void print() {
-        for (int i = 0; i < height; ++i) {
-            for (int j = 0; j < width; ++j) {
-                if (maze.get(j).get(i).isDown()) {
-                    System.out.print("# #");
+        for (int i = 0; i < genMaze.length; ++i) {
+            for (int j = 0; j < genMaze[i].length; ++j) {
+                if (genMaze[i][j] == 0) {
+                    System.out.print("#");
                 }
-                else {
-                    System.out.print("###");
-                }
-            }
-            System.out.println();
-            for (int j = 0; j < width; ++j) {
-                if (maze.get(j).get(i).isLeft() && maze.get(j).get(i).isRight()) {
-                    System.out.print("   ");
-                }
-                else if (maze.get(j).get(i).isLeft()) {
-                    System.out.print("  #");
-                }
-                else if (maze.get(j).get(i).isRight()) {
-                    System.out.print("#  ");
-                }
-                else {
-                    System.out.print("# #");
-                }
-            }
-            System.out.println();
-            for (int j = 0; j < width; ++j) {
-                if (maze.get(j).get(i).isUp()) {
-                    System.out.print("# #");
-                }
-                else {
-                    System.out.print("###");
+                else if (genMaze[i][j] == 1) {
+                    System.out.print(" ");
                 }
             }
             System.out.println();
         }
     }
-    
+
     private void kruskal() {
-        List<List<Node>> grid = new ArrayList();
-        List<Pair<Integer,Integer>> points = new ArrayList();
-        
-        int k = 0;
+        // 1. Make maze
+        int maze[][] = new int[width][height];
         for (int i = 0; i < width; ++i) {
-            List<Node> l = new ArrayList();
             for (int j = 0; j < height; ++j) {
-                l.add(new Node(k));
-                points.add(new Pair(i,j));
-                ++k;
+                maze[i][j] = width*j+i;
             }
-            grid.add(l);
+        }
+        // 2. Create edges
+        List<Edge> edges = new ArrayList();
+        for (int i = 0; i < width; ++i) {
+            for (int j = 0; j < height; ++j) {
+                if (i < width-1) {
+                    Edge e = new Edge();
+                    e.x1 = i;
+                    e.y1 = j;
+                    e.x2 = i+1;
+                    e.y2 = j;
+                    edges.add(e);
+                }
+                if (j < height-1) {
+                    Edge e = new Edge();
+                    e.x1 = i;
+                    e.y1 = j;
+                    e.x2 = i;
+                    e.y2 = j+1;
+                    edges.add(e);
+                }
+            }
+        }
+        // 3. Randomize edges
+        Collections.shuffle(edges);
+        // 4. Select edges for maze
+        List<Edge> selectedEdges = new ArrayList();
+        for (int i = 0; i < edges.size(); ++i) {
+            Edge c = edges.get(i);
+            if (maze[c.x1][c.y1] != maze[c.x2][c.y2]) {
+                selectedEdges.add(c);
+                int findVal = maze[c.x2][c.y2];
+                int replaceVal = maze[c.x1][c.y1];
+                for (int j = 0; j < width; ++j) {
+                    for (int k = 0; k < height; ++k) {
+                        if (maze[j][k] == findVal) {
+                            maze[j][k] = replaceVal;
+                        }
+                    }
+                }
+            }
+        }
+        // 5. Generate Maze
+        genMaze = new int[width*2+1][height*2+1];
+        for (int i = 0; i < width*2+1; ++i) {
+            for (int j = 0; j < height*2+1; ++j) {
+                genMaze[i][j] = 0;
+            }
+        }
+        List<Point> points = new ArrayList();
+        for (int i = 0; i < selectedEdges.size(); ++i) {
+            Edge c = selectedEdges.get(i);
+            genMaze[c.x1*2+1][c.y1*2+1] = 1;
+            genMaze[c.x2*2+1][c.y2*2+1] = 1;
+            genMaze[c.x1+c.x2+1][c.y1+c.y2+1] = 1;
+            points.add(new Point(c.x1*2+1,c.y1*2+1));
+            points.add(new Point(c.x2*2+1,c.y2*2+1));
+            points.add(new Point(c.x1+c.x2+1,c.y1+c.y2+1));
         }
         
+        // 6. Pick random spot for red dot.
         Collections.shuffle(points);
+        Point p = points.get(0);
+        this.redDotX = p.x*wallWidth+wallWidth/2;
+        this.redDotY = p.y*wallHeight+wallHeight/2;
+    }
+    
+    /**
+     *
+     * @return
+     */
+    public int getStartX() {
+        return ((int)wallWidth)/2*3;
+    }
+    
+    /**
+     *
+     * @return
+     */
+    public int getStartY() {
+        return ((int)wallHeight)/2*3;
+    }
+    
+    /**
+     * Checks if the position is within a wall or not.
+     * @param x
+     * @param y
+     * @param radius
+     * @return True if the position is in a path, false if in a wall.
+     */
+    public boolean positionGood(int x, int y, double radius) {
+        for (int i = 0; i < genMaze.length; ++i) {
+            for (int j = 0; j < genMaze[i].length; ++j) {
+                if (genMaze[i][j] == 0) {
+                    Rectangle rect = new Rectangle(i*wallWidth,j*wallHeight,wallWidth,wallHeight);
+                    if (checkCircleRectangleCollision(x,y,radius,rect)) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+    
+    /**
+     * Check to see if objective has been met
+     * @param x
+     * @param y
+     * @param radius
+     * @return
+     */
+    public boolean gotRedDot(double x, double y, double radius) {
+        double xDist = x - redDotX;
+        double yDist = y - redDotY;
+        double radii = radius + dotRadius;
+        return xDist*xDist+yDist*yDist < radii*radii;
+    }
+    
+    class Edge {
+        int x1;
+        int y1;
+        int x2;
+        int y2;
+    }
+    
+    class Point {
+        int x;
+        int y;
+        Point (int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+    }
+    
+    class Rectangle {
+        double x;
+        double y;
+        double w;
+        double h;
         
-        for (int i = 0; i < points.size(); ++i) {
-            Pair<Integer,Integer> p = points.get(i);
-            int x = p.getKey();
-            int y = p.getValue();
-            if (x == 0 && y == 0) {
-                connectProbalistic(false,true,false,true,x,y,grid);
-            }
-            else if (x == width-1 && y == height-1) {
-                connectProbalistic(true,false,true,false,x,y,grid);
-            }
-            else if (x == 0 && y == height -1) {
-                connectProbalistic(false,true,true,false,x,y,grid);
-            }
-            else if (x == width-1 && y == 0) {
-                connectProbalistic(true,false,false,true,x,y,grid);
-            }
-            else if (x == 0 && y < height-1 && y > 0) {
-                connectProbalistic(false,true,true,true,x,y,grid);
-            }
-            else if (y == 0 && x < width-1 && x > 0) {
-                connectProbalistic(true,true,false,true,x,y,grid);
-            }
-            else if (x == width-1 && y < height-1 && y > 0) {
-                connectProbalistic(true,false,true,true,x,y,grid);
-            }
-            else if (y == height-1 && x > 0 && x < width-1) {
-                connectProbalistic(true,true,true,false,x,y,grid);
-            }
-            else {
-                connectProbalistic(true,true,true,true,x,y,grid);
-            }
-        }
-        
-        maze = grid;
-    }
-    
-    private void connectProbalistic(
-            boolean left, 
-            boolean right, 
-            boolean down, 
-            boolean up,
-            int x,
-            int y,
-            List<List<Node>> grid) {
-        List<Pair<Integer,Integer>> points = new ArrayList();
-        if (left) {
-            points.add(new Pair(x-1,y));
-        }
-        if (right) {
-            points.add(new Pair(x+1,y));
-        }
-        if (down) {
-            points.add(new Pair(x,y-1));
-        }
-        if (up) {
-            points.add(new Pair(x,y+1));
-        }
-        Collections.shuffle(points);
-        for (int i = 0; i < points.size(); ++i) {
-            int connectX = points.get(i).getKey();
-            int connectY = points.get(i).getValue();
-            if (eligible(x,y,connectX,connectY,grid)) {
-                connectPoints(x,y,connectX,connectY,grid);
-                break;
-            }
+        public Rectangle(double x, double y, double w, double h) {
+            this.x = x;
+            this.y = y;
+            this.w = w;
+            this.h = h;
         }
     }
     
-    private boolean eligible(int x1, int y1, int x2, int y2, List<List<Node>> grid) {
-        return grid.get(x1).get(y1).getSetnum() != grid.get(x2).get(y2).getSetnum();
-    }
-    
-    private void connectPoints(int x1, int y1, int x2, int y2, List<List<Node>> grid) {
-        Node n = grid.get(x1).get(y1);
-        Node n2 = grid.get(x2).get(y2);
-        if (x2 > x1) {
-            n.setRight(true);
-            n2.setLeft(true);
+    private double clamp(double x, double low, double high) {
+        if (x < low) {
+            return low;
         }
-        else if (y2 > y1) {
-            n.setUp(true);
-            n2.setDown(true);
-        }
-        else if (x1 > x2) {
-            n.setLeft(true);
-            n2.setRight(true);
-        }
-        else if (y1 > y2) {
-            n.setDown(true);
-            n2.setUp(true);
+        else if (x > high) {
+            return high;
         }
         else {
-            return;
+            return x;
         }
-        mergeSets(n.getSetnum(), n2.getSetnum(), grid);
     }
     
-    private void mergeSets(int s1, int s2, List<List<Node>> grid) {
-        for (int i = 0; i < grid.size(); ++i) {
-            for (int j = 0; j < grid.get(i).size(); ++j) {
-                if (grid.get(i).get(j).getSetnum() == s1) {
-                    grid.get(i).get(j).setSetnum(s2);
-                }
-            }
-        }
+    private boolean checkCircleRectangleCollision
+        (double x, double y, double r, Rectangle rect) {
+        
+        double closestX = clamp(x,rect.x,rect.x+rect.w);
+        double closestY = clamp(y,rect.y,rect.y+rect.h);
+        
+        double xDist = x - closestX;
+        double yDist = y - closestY;
+        
+        double dist = Math.sqrt(xDist*xDist + yDist*yDist);
+        return dist < r;
     }
 }

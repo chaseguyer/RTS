@@ -26,20 +26,6 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.SnapshotArray;
 import java.util.ArrayList;
 
-/**
- *
- * @author chaseguyer
- */
-
-/*
-    -Highlight boxes when mouse is over them
-    -Create new kind of text button w/o box
-    -Text field font smaller***
-
-
-
-
-*/
 
 
 
@@ -972,7 +958,8 @@ public class MainMenu implements Screen {
             @Override
             public void changed (ChangeEvent event, Actor actor) {
                 //MainMenu.hide();
-                ((Game) Gdx.app.getApplicationListener()).setScreen(new MazeGame());
+                //((Game) Gdx.app.getApplicationListener()).setScreen(new MazeGame("","",""));
+                ((Game) Gdx.app.getApplicationListener()).setScreen(new PathTracingGame("","",""));
             }
         }); 
         
