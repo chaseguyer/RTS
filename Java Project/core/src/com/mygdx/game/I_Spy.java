@@ -51,7 +51,13 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
     ArrayList<Integer> statsWrong=new ArrayList<Integer>();
     float averageMisses, averageTime, counter;
     long roundTime, timer=System.currentTimeMillis();
-    String firstN="a", lastN="a", routine="a";
+    String firstN, lastN, routine;
+    
+    I_Spy(String fName, String lName, String routineName) {
+        firstN = fName;
+        lastN = lName;
+        routine = routineName;          
+    }
     
     //load the orientation of the board
     public void loadPlacement()
@@ -541,3 +547,4 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
         ((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenu());
     }
 }
+

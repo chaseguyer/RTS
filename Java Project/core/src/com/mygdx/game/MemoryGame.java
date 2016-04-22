@@ -61,9 +61,13 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
     float averageMissesUp, averageTimeUp, counterUp;
     float averageMissesSide, averageTimeSide, counterSide;
     long roundTime;
-    String firstN="a", lastN="a", routine="a";
+    String firstN, lastN, routine;
     
-
+    MemoryGame(String fName, String lName, String routineName) {
+        firstN = fName;
+        lastN = lName;
+        routine = routineName;        
+    }
     
     //load from a file and set up the placement of the board
     public void loadPlacement()
