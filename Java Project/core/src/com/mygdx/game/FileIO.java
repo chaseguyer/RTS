@@ -5,6 +5,8 @@
  */
 package com.mygdx.game;
 
+import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
 import java.io.*;
 import java.util.*;
 
@@ -130,4 +132,88 @@ public class FileIO {
         return false;
     }
     
+    public void addRoutine(String first, String last, String routineName, String routine) {
+        try {
+            // add patient to patient list
+            writer = new PrintWriter(new FileOutputStream(first + "_" + last + "_" + routineName + ".txt", true));
+            
+            File dir = new File(first + last + "/Data/" + routineName);
+            dir.mkdirs();
+            
+            if(routine.equals("ISPY")) {
+                writer.append("ISPY\n");
+                writer.close();
+
+                String file = first + last + "/Data/" + routineName + "/ISpyGameInfo.txt";
+                File f = new File(file);
+                writer = new PrintWriter(new FileOutputStream(f, true));
+                writer.append(MainMenu.area1.getText() + " " + 
+                                MainMenu.area2.getText() + " " + 
+                                MainMenu.area3.getText() + " " + 
+                                MainMenu.area4.getText() + " " + 
+                                MainMenu.area5.getText() + " " + 
+                                MainMenu.area6.getText() + " " + 
+                                MainMenu.area7.getText() + " " + 
+                                MainMenu.area8.getText() + " " + 
+                                MainMenu.area9.getText() + " " + 
+                                MainMenu.iSpyRoundsTillStats.getText() + " " +
+                                MainMenu.iSpyStripedBox.getText() + " "
+                );
+                writer.close();
+            }
+            
+            if (routine.equals("MEMORY")) {
+                writer.append("MEMORY\n");
+                writer.close();
+
+                int difficulty = 0;
+                if(MainMenu.easy.isChecked()) difficulty = 0;
+                if(MainMenu.med.isChecked()) difficulty = 1;
+                if(MainMenu.hard.isChecked()) difficulty = 2;
+                
+                String file = first + last + "/Data/" + routineName + "/MemoryGameInfo.txt";
+                File f = new File(file);
+                writer = new PrintWriter(new FileOutputStream(f, true));
+                writer.append(MainMenu.leftOrien.getText() + " " +
+                                MainMenu.dispPercent.getText() + " " +
+                                MainMenu.cardPairs.getText() + " " +
+                                MainMenu.memRoundsTillStats.getText() + " " +
+                                MainMenu.cardReveal.getText() + " " +
+                                difficulty + " " +
+                                MainMenu.memStripedBox.getText() + " "
+                );      
+                writer.close();
+            }
+            
+            
+            
+        } catch (FileNotFoundException e) {
+            System.out.println(e);
+        }
+        
+    }
+    
+    public void runRoutine(String first, String last, String routineName) {
+        ArrayList<String> routines = new ArrayList<String>(); 
+        
+        File f = new File(first + "_" + last + "_" + routineName + ".txt");
+        
+        try {
+            Scanner scan = new Scanner(f);
+            while(scan.hasNextLine()) {
+                String s = scan.next();
+                routines.add(s);
+            }
+            scan.close();
+        } catch (FileNotFoundException e) {}
+        
+        for(String name : routines) {
+            if(name.equals("ISPY")) {
+                ((Game) Gdx.app.getApplicationListener()).setScreen(new I_Spy(first, last, routineName));
+            }
+            else if(name.equals("MEMORY")) {
+                ((Game) Gdx.app.getApplicationListener()).setScreen(new MemoryGame(first, last, routineName));                
+            }
+        }                
+    }    
 }

@@ -20,7 +20,7 @@
   
   "com.badlogic.gdx.scenes.scene2d.ui.Skin$TintedDrawable": {
     "button_down": { "name": "button", "color": tb_down_color },
-    "checked_box": { "name": "button", "color": checked_box_color },
+    "checked_box": { "name": "button", "color": white-ish },
     "button_over": { "name": "button", "color": tb_over_color }
   },
   
@@ -43,7 +43,7 @@
   },
   
     "com.badlogic.gdx.scenes.scene2d.ui.CheckBox$CheckBoxStyle": {
-    "default": { "font": cgoth-reg, "checked": "checked_box", "up": "button" },
+    "default": { "font": cgoth-reg, "fontColor": tb_font_color, "checked": "checked_box", "up": "button" },
   },
   
     "com.badlogic.gdx.scenes.scene2d.ui.SelectBox$SelectBoxStyle": {

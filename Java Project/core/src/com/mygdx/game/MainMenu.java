@@ -82,13 +82,9 @@ import java.util.ArrayList;
 
     TODO
     1. Finish patient information page
-        -auto fill information if editing existing patient
-        -text box at the end
-        -file IO stuff involved
         -be able to add and keep track of dates for patient **
 
     2. Routine creation
-        -Be able to choose from the 4 games
         -Be able to customize parameters
         -Link the games via the routines
 
@@ -144,7 +140,7 @@ public class MainMenu implements Screen {
 
     private Table loginButtons = new Table();
     private Label loginError = new Label("Incorrect username or password", skin, "error");
-    private TextButton newTherapist = new TextButton("Create New Therapist Profile", skin); // i want normal underlined text for this
+    private TextButton newTherapist = new TextButton("Create New Therapist Profile", skin);
     private TextButton next = new TextButton("Next", skin);
     private TextButton exit = new TextButton("Exit", skin);
 
@@ -285,6 +281,12 @@ public class MainMenu implements Screen {
      *
      * CREATE ROUTINE
      */
+    private Table nameRoutineTable = new Table();
+    private Label nameRoutineLabel = new Label("Please name your routine:", skin);
+    private TextField nameRoutineTextField = new TextField("", skin);
+    private TextButton nameRoutineDone = new TextButton("Done", skin);
+    private TextButton nameRoutineBack = new TextButton("Back", skin);
+    
     private Table createRoutineTable = new Table();
     
     // title
@@ -301,17 +303,7 @@ public class MainMenu implements Screen {
     
     // The routine name table and the routine overview table will reside here
     private Table rightSide = new Table();
-    
-    // name routine
-    private Table nameRoutineTable = new Table();
-    private Label nameRoutineLabel = new Label("Please name your routine:", skin);
-    private TextField nameRoutineTextField = new TextField("", skin);
-    
-    // routine overview
-    private Table routineOverviewTable = new Table();
-    private Label routineOverviewLabel = new Label("Your routine:", skin);
-    private TextArea routineOverviewTextField = new TextArea("", skin);     // may need to find a better solution
-                                                                            // because this will be modifiable
+   
     // buttons
     private Table routineButtonsTable = new Table();
     private TextButton routineDone = new TextButton("Done", skin);
@@ -323,12 +315,39 @@ public class MainMenu implements Screen {
      *
      * ISPY ROUTINE CREATION
      */
+    private Table iSpyParentTable = new Table();
     private Table iSpyParamsTable = new Table();
     private Table iSpyParamsTitleTable = new Table();
     private Table iSpyParamsObjects = new Table();
     private Table iSpyParamsButtons = new Table();
+    private ScrollPane iSpyScroller = new ScrollPane(iSpyParamsTable, skin);
+
+    
     
     private Label iSpyTitleLabel = new Label("ISPY PARAMETERS", skin);
+    
+    // heres where the parameters go
+    private Table iSpyParams = new Table();
+    // param 1
+    private Label iSpyParam1Label = new Label("Please mark the area of the screen where the patient will need to search in", skin);
+    public static CheckBox area1 = new CheckBox("", skin);
+    public static CheckBox area2 = new CheckBox("", skin);
+    public static CheckBox area3 = new CheckBox("", skin);
+    public static CheckBox area4 = new CheckBox("", skin);
+    public static CheckBox area5 = new CheckBox("", skin);
+    public static CheckBox area6 = new CheckBox("", skin);
+    public static CheckBox area7 = new CheckBox("", skin);
+    public static CheckBox area8 = new CheckBox("", skin);
+    public static CheckBox area9 = new CheckBox("", skin);
+    // param 2
+    private Label iSpyParam2Label = new Label("How many rounds until statistics are shown?", skin);
+    public static TextField iSpyRoundsTillStats = new TextField("", skin);
+    //param 3
+    private Label iSpyParam3Label = new Label("Reshuffle the cards after each round?", skin);
+    public static CheckBox iSpyReshuffleBox = new CheckBox("", skin);
+    //param 4
+    private Label iSpyParam4Label = new Label("Activate the striped background?", skin);
+    public static CheckBox iSpyStripedBox = new CheckBox("", skin);
     
     private TextButton iSpyDone = new TextButton("Done", skin);
     private TextButton iSpyBack = new TextButton("Back", skin);
@@ -338,13 +357,41 @@ public class MainMenu implements Screen {
      *
      * MEMORY ROUTINE CREATION
      */
+    private Table memoryParamsParentTable = new Table();
     private Table memoryParamsTable = new Table();
     private Table memoryParamsTitleTable = new Table();
     private Table memoryParamsObjects = new Table();
     private Table memoryParamsButtons = new Table();
+    private ScrollPane memScroller = new ScrollPane(memoryParamsTable, skin);
+
     
     private Label memoryTitleLabel = new Label("MEMORY PARAMETERS", skin);
 
+    //param1
+    private Label memParam1Label = new Label("What would you like the card's orientation to be?", skin);
+    public static CheckBox leftOrien = new CheckBox("Left", skin);
+    private CheckBox rightOrien = new CheckBox("Right", skin);
+    //param2
+    private Label memParam2Label = new Label("What would you like the card's screen displacement percentage to be?", skin);
+    public static TextField dispPercent = new TextField("", skin);
+    //param3
+    private Label memParam3Label = new Label("How many pairs of cards? (2-12)", skin);
+    public static TextField cardPairs = new TextField("", skin);
+    //param4
+    private Label memParam4Label = new Label("How many rounds until statistics are shown?", skin);
+    public static TextField memRoundsTillStats = new TextField("", skin);
+    //param5
+    private Label memParam5Label = new Label("How many seconds would you like the card to be revealed for?", skin);
+    public static TextField cardReveal = new TextField("", skin);
+    //param6
+    private Label memParam6Label = new Label("What would you like the difficulty to be?", skin);
+    public static CheckBox easy = new CheckBox("Easy", skin);
+    public static CheckBox med = new CheckBox("Med", skin);
+    public static CheckBox hard = new CheckBox("Hard", skin);
+    //param7
+    private Label memParam7Label = new Label("Activate striped background?", skin);
+    public static CheckBox memStripedBox = new CheckBox("", skin);
+    
     private TextButton memoryDone = new TextButton("Done", skin);
     private TextButton memoryBack = new TextButton("Back", skin);
     
@@ -387,6 +434,25 @@ public class MainMenu implements Screen {
      *
      * LOAD ROUTINE
      */
+    private Table loadRoutineTable = new Table();
+    private Table loadRoutineValuesTable = new Table();
+    private Table loadRoutineButtonsTable = new Table();
+    
+    private Label loadRoutineTitle = new Label("Please enter the routine name:", skin);
+    private TextField loadRoutineTextField = new TextField("", skin);
+    
+    private TextButton loadRoutineRun = new TextButton("Run", skin);
+    private TextButton loadRoutineBack = new TextButton("Back", skin);
+    
+    
+    // please enter routine name, press run button (error saying routine doesnt exist)
+    // open fname_lname_routinename.txt and print each line to an arraylist
+    // for(String gameName : arraylist)
+        // if gameName == ISPY
+            // gdx.new(I_Spy(fname, lname, routinename));
+       
+        // else if gameName == memory
+            // ...
     
     
     
@@ -658,20 +724,24 @@ public class MainMenu implements Screen {
         *
         * CREATE ROUTINE
         */
+        // name routine (owns its own window)
+        nameRoutineTable.setFillParent(true);
+        nameRoutineTable.add(nameRoutineLabel).left().row();
+        nameRoutineTable.add(nameRoutineTextField).size(TB_WIDTH+250, TB_HEIGHT).padBottom(20).row();
+        nameRoutineLabel.setFontScale(LABEL_FS);
+        
+        nameRoutineTable.add(nameRoutineDone).size(TB_WIDTH, TB_HEIGHT).center().row();
+        nameRoutineTable.add(nameRoutineBack).size(TB_WIDTH, TB_HEIGHT).center().row();
+        nameRoutineDone.getLabel().setFontScale(LABEL_FS);
+        nameRoutineBack.getLabel().setFontScale(LABEL_FS);
+        
+        
+        // create routine
         createRoutineTable.setFillParent(true);
-        createRoutineTable.add(createRoutineTitleTable).padBottom(30).center().row();
+        createRoutineTable.add(createRoutineTitleTable).padBottom(30).center().row();        
+        createRoutineTable.add(gameTable).center().padBottom(20).row();
+        createRoutineTable.add(routineButtonsTable).padBottom(20).row();
         
-        // this is for formatting's sake
-        Table twoInOne = new Table();
-        twoInOne.add(gameTable).padRight(200);
-        twoInOne.add(rightSide);
-        
-        createRoutineTable.add(twoInOne).padBottom(50).row();
-        createRoutineTable.add(routineButtonsTable).center().row();
-        
-        // right side of the menu
-        rightSide.add(nameRoutineTable).left().row();
-        rightSide.add(routineOverviewTable).left();
         
         // Title
         createRoutineTitleTable.add(createRoutineTitle);
@@ -694,17 +764,6 @@ public class MainMenu implements Screen {
         pathTraceBt.getLabel().setFontScale(LABEL_FS);
         pathTraceBt.getLabel().setAlignment(Align.left);
         
-        // name routine
-        nameRoutineTable.add(nameRoutineLabel).left().row();
-        nameRoutineTable.add(nameRoutineTextField).size(TB_WIDTH+250, TB_HEIGHT).padBottom(20).row();
-        nameRoutineLabel.setFontScale(LABEL_FS);
-        
-        // routine overview
-        routineOverviewTable.add(routineOverviewLabel).left().row();
-        routineOverviewTable.add(routineOverviewTextField).left().size(TB_WIDTH+250, 300).row();
-        routineOverviewLabel.setFontScale(LABEL_FS);
-
-        
         // buttons
         routineButtonsTable.add(routineDone).size(TB_WIDTH, TB_HEIGHT).row();
         routineButtonsTable.add(routineBack).size(TB_WIDTH, TB_HEIGHT).row();
@@ -718,40 +777,117 @@ public class MainMenu implements Screen {
         *
         * ISPY PARAMETERS
         */
-        iSpyParamsTable.setFillParent(true);
-        iSpyParamsTable.add(iSpyParamsTitleTable).center().row();
-        iSpyParamsTable.add(iSpyParamsObjects).left().row();
-        iSpyParamsTable.add(iSpyParamsButtons).center().row();
+        iSpyParentTable.setFillParent(true);
+        iSpyParentTable.add(iSpyScroller);
+        iSpyParamsTable.add(iSpyParamsTitleTable).center().padTop(50).padBottom(30).row();
+        iSpyParamsTable.add(iSpyParamsObjects).row();
+        iSpyParamsTable.add(iSpyParamsButtons).center().padTop(30).padBottom(20).row();
         
         // title
         iSpyParamsTitleTable.add(iSpyTitleLabel);
         iSpyTitleLabel.setFontScale(0.9f);
         
         // parameters
+        iSpyParamsObjects.add(iSpyParam1Label).left().row();
+        Table regions = new Table();
+        regions.add(area1).size(75, 75);
+        regions.add(area2).size(75, 75);
+        regions.add(area3).size(75, 75).row();
+        regions.add(area4).size(75, 75);
+        regions.add(area5).size(75, 75);
+        regions.add(area6).size(75, 75).row();
+        regions.add(area7).size(75, 75);
+        regions.add(area8).size(75, 75);
+        regions.add(area9).size(75, 75).row();
+        iSpyParamsObjects.add(regions).left().padBottom(30).row();
+
+        iSpyParamsObjects.add(iSpyParam2Label).left().row();
+        iSpyParamsObjects.add(iSpyRoundsTillStats).left().size(TB_WIDTH, TB_HEIGHT).padBottom(20).row();
+        
+        iSpyParamsObjects.add(iSpyParam3Label).left().row();
+        Table iSpyShuffleYesOrNo = new Table();
+        iSpyShuffleYesOrNo.add(iSpyReshuffleBox).size(150, 150);
+        iSpyParamsObjects.add(iSpyShuffleYesOrNo).padBottom(30).left().row();
+                
+        iSpyParamsObjects.add(iSpyParam4Label).left().row();
+        Table iSpyStripedYesOrNo = new Table();
+        iSpyStripedYesOrNo.add(iSpyStripedBox).size(150, 150);
+        iSpyParamsObjects.add(iSpyStripedYesOrNo).padBottom(30).left().row();
+        
+        iSpyParam1Label.setFontScale(LABEL_FS);
+        iSpyParam2Label.setFontScale(LABEL_FS);
+        iSpyParam3Label.setFontScale(LABEL_FS);
+        iSpyParam4Label.setFontScale(LABEL_FS);
+        
         
         // buttons 
         iSpyParamsButtons.add(iSpyDone).size(TB_WIDTH, TB_HEIGHT).row();
         iSpyParamsButtons.add(iSpyBack).size(TB_WIDTH, TB_HEIGHT).row();
+        iSpyDone.getLabel().setFontScale(LABEL_FS);
+        iSpyBack.getLabel().setFontScale(LABEL_FS);
         
         
         /*
          *
          * MEMORY PARAMETERS
          */
-        memoryParamsTable.setFillParent(true);
+        memoryParamsParentTable.setFillParent(true);
+        memoryParamsParentTable.add(memScroller);
         memoryParamsTable.add(memoryParamsTitleTable).center().row();
         memoryParamsTable.add(memoryParamsObjects).left().row();
         memoryParamsTable.add(memoryParamsButtons).center().row();
         
         // title
-        memoryParamsTitleTable.add(memoryTitleLabel);
+        memoryParamsTitleTable.add(memoryTitleLabel).center().padTop(50).padBottom(30).row();;
         memoryTitleLabel.setFontScale(0.9f);
         
         // parameters
+        memoryParamsObjects.add(memParam1Label).left().row();
+        Table orienTable = new Table();
+        orienTable.add(leftOrien).size(200, 150);
+        orienTable.add(rightOrien).size(200, 150);
+        memoryParamsObjects.add(orienTable).left().padBottom(30).row();
+        
+        memoryParamsObjects.add(memParam2Label).left().row();
+        memoryParamsObjects.add(dispPercent).size(TB_WIDTH, TB_HEIGHT).left().padBottom(30).row();
+        
+        memoryParamsObjects.add(memParam3Label).left().row();
+        memoryParamsObjects.add(cardPairs).size(TB_WIDTH, TB_HEIGHT).left().padBottom(30).row();
+        
+        memoryParamsObjects.add(memParam4Label).left().row();
+        memoryParamsObjects.add(memRoundsTillStats).size(TB_WIDTH, TB_HEIGHT).left().padBottom(30).row();
+        
+        memoryParamsObjects.add(memParam5Label).left().row();
+        memoryParamsObjects.add(cardReveal).size(TB_WIDTH, TB_HEIGHT).left().padBottom(30).row();
+        
+        memoryParamsObjects.add(memParam6Label).left().row();
+        Table difficulty = new Table();
+        difficulty.add(easy).size(200, 150);
+        difficulty.add(med).size(200, 150);
+        difficulty.add(hard).size(200, 150);
+        memoryParamsObjects.add(difficulty).left().padBottom(30).row();
+                
+        memoryParamsObjects.add(memParam7Label).left().row();
+        Table memStripedYesOrNo = new Table();
+        memStripedYesOrNo.add(memStripedBox).size(200, 150);
+        memoryParamsObjects.add(memStripedYesOrNo).left().padBottom(30).row();
+
+        memParam1Label.setFontScale(LABEL_FS);
+        memParam2Label.setFontScale(LABEL_FS);
+        memParam3Label.setFontScale(LABEL_FS);
+        memParam4Label.setFontScale(LABEL_FS);
+        memParam5Label.setFontScale(LABEL_FS);
+        memParam6Label.setFontScale(LABEL_FS);
+        memParam7Label.setFontScale(LABEL_FS);
+        
+        
         
         // buttons 
         memoryParamsButtons.add(memoryDone).size(TB_WIDTH, TB_HEIGHT).row();
         memoryParamsButtons.add(memoryBack).size(TB_WIDTH, TB_HEIGHT).row();
+        memoryDone.getLabel().setFontScale(LABEL_FS);
+        memoryBack.getLabel().setFontScale(LABEL_FS);
+        
         
         
         /*
@@ -795,8 +931,22 @@ public class MainMenu implements Screen {
         
         
         
+        /*
+         *
+         * LOAD ROUTINE
+         */
+        loadRoutineTable.setFillParent(true);
+        loadRoutineTable.add(loadRoutineValuesTable).padTop(50).center().row();
+        loadRoutineTable.add(loadRoutineButtonsTable).padTop(30).padBottom(30).center().row();
         
+        loadRoutineValuesTable.add(loadRoutineTitle).left().row();
+        loadRoutineValuesTable.add(loadRoutineTextField).size(TB_WIDTH, TB_HEIGHT).center().row();
+        loadRoutineTitle.setFontScale(LABEL_FS);
         
+        loadRoutineButtonsTable.add(loadRoutineRun).size(TB_WIDTH, TB_HEIGHT);
+        loadRoutineButtonsTable.add(loadRoutineBack).size(TB_WIDTH, TB_HEIGHT);
+        loadRoutineRun.getLabel().setFontScale(LABEL_FS);
+        loadRoutineBack.getLabel().setFontScale(LABEL_FS);
     }
     
     public void createListeners() {
@@ -1129,7 +1279,7 @@ public class MainMenu implements Screen {
             @Override
             public void changed (ChangeEvent event, Actor actor) {
                 stage.clear();
-                stage.addActor(createRoutineTable);
+                stage.addActor(nameRoutineTable);
                 
            } 
         });
@@ -1162,6 +1312,15 @@ public class MainMenu implements Screen {
             }
         });  
         
+        loadR.addListener(new ChangeListener() {
+            @Override
+            public void changed (ChangeEvent event, Actor actor) {
+                stage.clear();
+                stage.addActor(loadRoutineTable);
+            }
+        });     
+        
+        
         // Logout Patient
         logP.addListener(new ChangeListener() {
             @Override
@@ -1188,13 +1347,40 @@ public class MainMenu implements Screen {
         *
         * CREATE ROUTINE
         */
+        // name routine
+        nameRoutineDone.addListener(new ChangeListener() {
+            @Override
+            public void changed (ChangeEvent event, Actor actor) {
+                // make file with this as its name
+                routineName = nameRoutineTextField.getText();
+                
+                stage.clear();
+                stage.addActor(createRoutineTable);
+            }
+        });
+        
+        nameRoutineBack.addListener(new ChangeListener() {
+            @Override
+            public void changed (ChangeEvent event, Actor actor) {
+                nameRoutineTextField.setText("");
+                
+                stage.clear();
+                stage.addActor(patientMenuTitleTable);
+                //((Game) Gdx.app.getApplicationListener()).setScreen(new I_Spy());
+            }
+        });
+        
+        
+        
+        
+        
         // I Spy
         ispyBt.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {
-                stage.clear();
-                stage.addActor(iSpyParamsTable);
-                //((Game) Gdx.app.getApplicationListener()).setScreen(new I_Spy());
+                //stage.clear();
+                //stage.addActor(iSpyParentTable);
+                ((Game) Gdx.app.getApplicationListener()).setScreen(new I_Spy("a", "a", "a"));
             }
         });    
         
@@ -1202,9 +1388,9 @@ public class MainMenu implements Screen {
         memoryBt.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {
-                stage.clear();
-                stage.addActor(memoryParamsTable);
-                //((Game) Gdx.app.getApplicationListener()).setScreen(new MemoryGame("a", "a"));
+                //stage.clear();
+                //stage.addActor(memoryParamsParentTable);
+                ((Game) Gdx.app.getApplicationListener()).setScreen(new MemoryGame("a", "a", "a"));
             }
         });    
         
@@ -1212,9 +1398,9 @@ public class MainMenu implements Screen {
         mazeBt.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {
-                stage.clear();
-                stage.addActor(mazeParamsTable);
-                //((Game) Gdx.app.getApplicationListener()).setScreen(new MazeGame());
+                //stage.clear();
+                //stage.addActor(mazeParamsTable);
+                ((Game) Gdx.app.getApplicationListener()).setScreen(new MazeGame());
             }
         }); 
         
@@ -1228,6 +1414,7 @@ public class MainMenu implements Screen {
             }
         });
         
+        
         // Done
             // save routine name
             // routine info?
@@ -1237,8 +1424,6 @@ public class MainMenu implements Screen {
         routineBack.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {    
-                routineOverviewTextField.setText("");
-                nameRoutineTextField.setText("");
                 
                 stage.clear();
                 stage.addActor(patientMenuTitleTable);
@@ -1253,7 +1438,18 @@ public class MainMenu implements Screen {
          */
         iSpyDone.addListener(new ChangeListener() {
             @Override
-            public void changed (ChangeEvent event, Actor actor) {                
+            public void changed (ChangeEvent event, Actor actor) {
+                file.addRoutine(pFirst, pLast, routineName, "ISPY");
+                
+                // open fname_lName_routineName.txt
+                // printf ISPY
+                
+                // open fnamelname/Data/routineName
+                // create ISpyGameInfo.txt
+                // print all parameters
+                
+                
+                
                 stage.clear();
                 stage.addActor(createRoutineTable);
             }
@@ -1275,6 +1471,7 @@ public class MainMenu implements Screen {
         memoryDone.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {                
+                file.addRoutine(pFirst, pLast, routineName, "MEMORY");                
                 stage.clear();
                 stage.addActor(createRoutineTable);
             }
@@ -1332,7 +1529,31 @@ public class MainMenu implements Screen {
             }
         });
         
+
+        /*
+         *
+         * LOAD ROUTINE
+         */
+        loadRoutineRun.addListener(new ChangeListener() {
+            @Override
+            public void changed (ChangeEvent event, Actor actor) {                
+                stage.clear();
+                
+                routineName = loadRoutineTextField.getText();
+                
+                file.runRoutine(pFirst, pLast, routineName);
+                
+                stage.addActor(patientMenuTitleTable);
+            }
+        });
         
+        loadRoutineBack.addListener(new ChangeListener() {
+            @Override
+            public void changed (ChangeEvent event, Actor actor) {                
+                stage.clear();
+                stage.addActor(patientMenuTitleTable);
+            }
+        });
         
         
         
