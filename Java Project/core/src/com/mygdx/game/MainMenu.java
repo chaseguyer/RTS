@@ -88,6 +88,7 @@ import java.util.ArrayList;
     
     -do kenny's games parameters
     -figure out how to link games together
+    -add errors for all routine creation
 
 
     Misc (less important things)
@@ -427,8 +428,6 @@ public class MainMenu implements Screen {
     private TextButton pathTraceBack = new TextButton("Back", skin);
     
     
-    
-    
     /*
      *
      * LOAD ROUTINE
@@ -443,20 +442,6 @@ public class MainMenu implements Screen {
     private TextButton loadRoutineRun = new TextButton("Run", skin);
     private TextButton loadRoutineBack = new TextButton("Back", skin);
     
-    
-    // please enter routine name, press run button (error saying routine doesnt exist)
-    // open fname_lname_routinename.txt and print each line to an arraylist
-    // for(String gameName : arraylist)
-        // if gameName == ISPY
-            // gdx.new(I_Spy(fname, lname, routinename));
-       
-        // else if gameName == memory
-            // ...
-    
-    
-    
-
-
     @Override
     public void show() {
         Gdx.input.setInputProcessor(stage);   

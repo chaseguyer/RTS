@@ -157,6 +157,7 @@ public class FileIO {
                                 MainMenu.area8.isChecked() + " " + 
                                 MainMenu.area9.isChecked() + " " + 
                                 MainMenu.iSpyRoundsTillStats.getText() + " " +
+                                MainMenu.iSpyReshuffleBox.isChecked() + " " +
                                 MainMenu.iSpyStripedBox.isChecked() + " "
                 );
                 writer.close();
@@ -205,7 +206,6 @@ public class FileIO {
             Scanner scan = new Scanner(f);
             while(scan.hasNextLine()) {
                 String s = scan.nextLine();
-                System.out.println("printing new routines item: " + s);
                 routines.add(s);
             }
             scan.close();
