@@ -147,17 +147,17 @@ public class FileIO {
                 String file = first + last + "/Data/" + routineName + "/ISpyGameInfo.txt";
                 File f = new File(file);
                 writer = new PrintWriter(new FileOutputStream(f, true));
-                writer.append(MainMenu.area1.getText() + " " + 
-                                MainMenu.area2.getText() + " " + 
-                                MainMenu.area3.getText() + " " + 
-                                MainMenu.area4.getText() + " " + 
-                                MainMenu.area5.getText() + " " + 
-                                MainMenu.area6.getText() + " " + 
-                                MainMenu.area7.getText() + " " + 
-                                MainMenu.area8.getText() + " " + 
-                                MainMenu.area9.getText() + " " + 
+                writer.append(MainMenu.area1.isChecked() + " " + 
+                                MainMenu.area2.isChecked() + " " + 
+                                MainMenu.area3.isChecked() + " " + 
+                                MainMenu.area4.isChecked() + " " + 
+                                MainMenu.area5.isChecked() + " " + 
+                                MainMenu.area6.isChecked() + " " + 
+                                MainMenu.area7.isChecked() + " " + 
+                                MainMenu.area8.isChecked() + " " + 
+                                MainMenu.area9.isChecked() + " " + 
                                 MainMenu.iSpyRoundsTillStats.getText() + " " +
-                                MainMenu.iSpyStripedBox.getText() + " "
+                                MainMenu.iSpyStripedBox.isChecked() + " "
                 );
                 writer.close();
             }
@@ -171,16 +171,19 @@ public class FileIO {
                 if(MainMenu.med.isChecked()) difficulty = 1;
                 if(MainMenu.hard.isChecked()) difficulty = 2;
                 
+                boolean orientation = false;
+                if(MainMenu.leftOrien.isChecked()) orientation = true;
+                
                 String file = first + last + "/Data/" + routineName + "/MemoryGameInfo.txt";
                 File f = new File(file);
                 writer = new PrintWriter(new FileOutputStream(f, true));
-                writer.append(MainMenu.leftOrien.getText() + " " +
+                writer.append(orientation + " " +
                                 MainMenu.dispPercent.getText() + " " +
                                 MainMenu.cardPairs.getText() + " " +
                                 MainMenu.memRoundsTillStats.getText() + " " +
                                 MainMenu.cardReveal.getText() + " " +
                                 difficulty + " " +
-                                MainMenu.memStripedBox.getText() + " "
+                                MainMenu.memStripedBox.isChecked() + " "
                 );      
                 writer.close();
             }
@@ -201,19 +204,24 @@ public class FileIO {
         try {
             Scanner scan = new Scanner(f);
             while(scan.hasNextLine()) {
-                String s = scan.next();
+                String s = scan.nextLine();
+                System.out.println("printing new routines item: " + s);
                 routines.add(s);
             }
             scan.close();
         } catch (FileNotFoundException e) {}
         
+        //RTS.menu.hide();        
         for(String name : routines) {
             if(name.equals("ISPY")) {
-                ((Game) Gdx.app.getApplicationListener()).setScreen(new I_Spy(first, last, routineName));
+                ((Game) Gdx.app.getApplicationListener()).setScreen(new I_Spy(first, last, routineName));    
             }
             else if(name.equals("MEMORY")) {
                 ((Game) Gdx.app.getApplicationListener()).setScreen(new MemoryGame(first, last, routineName));                
             }
-        }                
+        }
+        
+        
+        //RTS.menu.show();
     }    
 }
