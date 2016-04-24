@@ -77,27 +77,24 @@ import java.util.ArrayList;
 
 /*
 
-    **Things marked with a ** are of less importance and can be skipped
+    Meeting notes:
+    -Change label placing for some of the routines to scale well with smaller screen size
+    -Reword some of the parameters labels
+    -Add option for quitting routine and for quitting game (just handle return value)
+    -routines vs repetitions (add to parameters and reword other parameters)
+    -create patient folder upon patient creation
+    -add patient info  into patient folder
+    -CheckBox color to be the same as white-ish font color
+    
+    -do kenny's games parameters
+    -figure out how to link games together
 
 
-    TODO
-    1. Finish patient information page
-        -be able to add and keep track of dates for patient **
-
-    2. Routine creation
-        -Be able to customize parameters
-        -Link the games via the routines
-
-    3. Routine editing and deletion
-
-
-    4. Misc
-        -Password hiding
-        -Patient/Therapist deletion **
+    Misc (less important things)
+        -additional notes file 
         -patient info scrolling back to top **
-        -patient info going to the right place when "back" is pressed
         -allowing for a null patient to be created **
-        -cursor in text fields
+        -cursor in text fields **
         -duplicate patient/therapist names **
         -upon quitting a game, set screen back to patient menu **
 */
@@ -111,8 +108,8 @@ public class MainMenu implements Screen {
     public static int CB_SIDE = 80;
     
     // Set up the stage and ready the skins
-    public static Stage stage = new Stage();
-    public static Skin skin = new Skin(Gdx.files.internal("skins/skins.json"), new TextureAtlas(Gdx.files.internal("skins/test.pack")));
+    Stage stage = new Stage();
+    static Skin skin = new Skin(Gdx.files.internal("skins/skins.json"), new TextureAtlas(Gdx.files.internal("skins/test.pack")));
 
     // Misc - mostly things for IO
     FileIO file = new FileIO(); // file I/O for db stuff
@@ -123,6 +120,8 @@ public class MainMenu implements Screen {
     
     public String routineName;
     
+    // if true, continue the routine; if false, quit to menu
+    public boolean continueRoutine = false;
     
     
     /*
@@ -490,6 +489,7 @@ public class MainMenu implements Screen {
         loginTable.add(pwLabel).right();
         pwLabel.setFontScale(LABEL_FS);
         loginTable.add(pwText).width(TB_WIDTH).height(TB_HEIGHT).row();
+        pwText.setPasswordMode(true);
         pwText.setPasswordCharacter('*'); // makes text in pwText a '*'
         pwText.setMaxLength(40);
 
@@ -526,6 +526,7 @@ public class MainMenu implements Screen {
         newTherapistInfo.add(thPwLabel).left();
         thPwLabel.setFontScale(LABEL_FS);
         newTherapistInfo.add(thPw).width(TB_WIDTH).height(TB_HEIGHT).row();
+        thPw.setPasswordMode(true);
         thPw.setPasswordCharacter('*');
         thPw.setMaxLength(40);
         
@@ -533,6 +534,7 @@ public class MainMenu implements Screen {
         newTherapistInfo.add(thConPwLabel).left();     
         thConPwLabel.setFontScale(LABEL_FS);
         newTherapistInfo.add(thConPw).width(TB_WIDTH).height(TB_HEIGHT).row();
+        thConPw.setPasswordMode(true);
         thConPw.setPasswordCharacter('*');
         thConPw.setMaxLength(40);
         
@@ -838,7 +840,7 @@ public class MainMenu implements Screen {
         memoryParamsTable.add(memoryParamsButtons).center().row();
         
         // title
-        memoryParamsTitleTable.add(memoryTitleLabel).center().padTop(50).padBottom(30).row();;
+        memoryParamsTitleTable.add(memoryTitleLabel).center().padTop(50).padBottom(30).row();
         memoryTitleLabel.setFontScale(0.9f);
         
         // parameters
@@ -1378,9 +1380,9 @@ public class MainMenu implements Screen {
         ispyBt.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {
-                //stage.clear();
-                //stage.addActor(iSpyParentTable);
-                ((Game) Gdx.app.getApplicationListener()).setScreen(new I_Spy("a", "a", "a"));
+                stage.clear();
+                stage.addActor(iSpyParentTable);
+                //((Game) Gdx.app.getApplicationListener()).setScreen(new I_Spy("a", "a", "a"));
             }
         });    
         
@@ -1388,9 +1390,10 @@ public class MainMenu implements Screen {
         memoryBt.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {
-                //stage.clear();
-                //stage.addActor(memoryParamsParentTable);
-                ((Game) Gdx.app.getApplicationListener()).setScreen(new MemoryGame("a", "a", "a"));
+                stage.clear();
+                stage.addActor(memoryParamsParentTable);
+                                
+                //((Game) Gdx.app.getApplicationListener()).setScreen(new MemoryGame("a", "a", "a"));
             }
         });    
         
@@ -1398,9 +1401,9 @@ public class MainMenu implements Screen {
         mazeBt.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {
-                //stage.clear();
-                //stage.addActor(mazeParamsTable);
-                ((Game) Gdx.app.getApplicationListener()).setScreen(new MazeGame());
+                stage.clear();
+                stage.addActor(mazeParamsTable);
+                //((Game) Gdx.app.getApplicationListener()).setScreen(new MazeGame());
             }
         }); 
         
@@ -1440,16 +1443,6 @@ public class MainMenu implements Screen {
             @Override
             public void changed (ChangeEvent event, Actor actor) {
                 file.addRoutine(pFirst, pLast, routineName, "ISPY");
-                
-                // open fname_lName_routineName.txt
-                // printf ISPY
-                
-                // open fnamelname/Data/routineName
-                // create ISpyGameInfo.txt
-                // print all parameters
-                
-                
-                
                 stage.clear();
                 stage.addActor(createRoutineTable);
             }
