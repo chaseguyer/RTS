@@ -12,7 +12,7 @@
     "tb_font_color": { "a": 1, "r": 0.2471, "g": 0.5255, "b": 0.5961 },
     "tb_down_color": { "a": 1, "r": 0.5039, "g": 0.6059, "b": 0.7500 },    
     "tb_over_color": { "a": 1, "r": 0.5039, "g": 0.6059, "b": 0.7500 },
-    "checked_box_color": { "a": 1, "r": 0.3, "g": 0.4, "b": 0.5 },
+    "checked_box_color": { "a": 1, "r": 0.4, "g": 0.5, "b": 0.6 },
     "tf_color": { "a": 1, "r": 0.2039, "g": 0.3059, "b": 0.4500 },
     "white-ish": { "a": 1, "r": 0.8, "g": 0.8, "b": 0.8 },
     "red": { "a": 1, "r": 0.90, "g": 0.2, "b": 0.2}
@@ -20,7 +20,7 @@
   
   "com.badlogic.gdx.scenes.scene2d.ui.Skin$TintedDrawable": {
     "button_down": { "name": "button", "color": tb_down_color },
-    "checked_box": { "name": "button", "color": white-ish },
+    "checked_box": { "name": "button", "color": checked_box_color },
     "button_over": { "name": "button", "color": tb_over_color }
   },
   
