@@ -26,7 +26,6 @@ import java.util.Date;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -179,9 +178,10 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
     }
     
     /**
-     * draw end of game stats
+     * draw end of game stats and return the game condition. 0 is waiting, 1 is quit, 2 is continue
+     * @return 
      */
-    public void quitStats()
+    public int quitStats()
     {
         Gdx.gl.glClearColor(0,0,0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
@@ -194,6 +194,11 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
             font.draw(batch, statsWrong.get(i)+"      "+( statsTime.get(i)  ), Gdx.graphics.getWidth()*.45f, Gdx.graphics.getHeight()*.75f-i*25);
             //batch.write(stats[i].misses+" "+( (System.currentTimeMillis()-stats[i].time)*1000  )+dateFormat.format(date));// time is *1000 so that it displays in seconds
         batch.end();
+        if(Gdx.input.isKeyJustPressed(Keys.Q))
+            return 1;
+        else if(Gdx.input.isKeyJustPressed(Keys.N))
+            return 2;
+        return 0;
     }
     
     /**
@@ -279,7 +284,9 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
         }   
     }
 
-    //create the game
+    /**
+    *    create the game
+    */
     public void makeGame()
     {
         //set mouse to center screen
@@ -470,8 +477,9 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
         
         return new Item(image, x, y, name);
     }
-    
-    //perform the ispy logic
+    /**
+    *   perform the ispy logic
+    */
     public void ISpy()
     {
         Sprite s=new Sprite(new Texture(Gdx.files.internal("Items/stripped.png")));
@@ -581,7 +589,15 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
     {
         saveClient();
         loadAverage();
+        int choice=0;
+        while(choice==0)
+            choice=quitStats();
         drawStats=true;
+        if(choice==1)
+            MainMenu.continueRoutine=false;//quit to next game
+        else 
+            MainMenu.continueRoutine=true;//continue to next game
+        ((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenu());
     }
     
     /**
@@ -589,6 +605,7 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
      */
     public void endGame()
     {
+        MainMenu.continueRoutine=true;//continue to next game
         ((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenu());
     }
 }
