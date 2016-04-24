@@ -1,2 +1,0 @@
-therapist,therapist
-aa,aa
