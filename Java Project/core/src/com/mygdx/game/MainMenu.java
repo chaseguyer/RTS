@@ -109,7 +109,7 @@ public class MainMenu implements Screen {
     
     // Set up the stage and ready the skins
     Stage stage = new Stage();
-    static      Skin skin = new Skin(Gdx.files.internal("skins/skins.json"), new TextureAtlas(Gdx.files.internal("skins/test.pack")));
+    static Skin skin = new Skin(Gdx.files.internal("skins/skins.json"), new TextureAtlas(Gdx.files.internal("skins/test.pack")));
 
     // Misc - mostly things for IO
     FileIO file = new FileIO(); // file I/O for db stuff
@@ -120,6 +120,8 @@ public class MainMenu implements Screen {
     
     public String routineName;
     
+    // if true, continue the routine; if false, quit to menu
+    public boolean continueRoutine = false;
     
     
     /*
