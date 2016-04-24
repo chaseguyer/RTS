@@ -83,7 +83,10 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
             reshuffle=scan.nextBoolean();
             //boolean should the background be stripped 
             stripped=scan.nextBoolean();
-            waves=scan.nextInt();
+            if(scan.hasNextInt())
+                waves=scan.nextInt();
+            else 
+                waves=3;
             scan.close();
         } 
         catch (FileNotFoundException ex) 
@@ -97,6 +100,7 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
     */
     public void loadAverage()
     {
+        System.out.println("open");
         //emter the patient file
         String fileName=firstN+lastN+"/Data/"+routine+"/ISpyStatistics.txt";
         File file=new File(fileName);
@@ -130,6 +134,7 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
         {
             Logger.getLogger(MemoryGame.class.getName()).log(Level.SEVERE, null, ex);
         }
+        System.out.println("close");
     }
     
     /**
@@ -152,6 +157,7 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
                 bw.append(stripped+" "+statsWrong.get(i)+" "+(statsTime.get(i))+" "+dateFormat.format(date)+"\n");// time is *1000 so that it displays in seconds
                 bw.flush();
             }
+            bw.close();
         } 
         catch (IOException ex) 
         {
@@ -195,9 +201,15 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
             //batch.write(stats[i].misses+" "+( (System.currentTimeMillis()-stats[i].time)*1000  )+dateFormat.format(date));// time is *1000 so that it displays in seconds
         batch.end();
         if(Gdx.input.isKeyJustPressed(Keys.Q))
+        {
+            System.out.println("1");
             return 1;
+        }
         else if(Gdx.input.isKeyJustPressed(Keys.N))
+        {
+            System.out.println("2");
             return 2;
+        }
         return 0;
     }
     
@@ -232,56 +244,64 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
     {
         Gdx.gl.glClearColor(0,0,0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-        if(first)//recreate the board?
+        if(!quitEarly)
         {
-            //load patient file for how to create the board
-            loadPlacement();
-            if(reshuffle || one)//randomize the board
-                makeGame(); 
-            //make a random target
-            marked=rand.nextInt(imageCount);
-            roundTime=System.currentTimeMillis();
-            wrong=0;
-            first=false;
-        }
-        if(drawPreRound)//draw the target of the round until time passes
-        {
-            displayPreRoundInfo();//draw the target
-            if(TimeUtils.timeSinceMillis(timer)/1000>roundTimer)//if(Gdx.input.isKeyJustPressed(Keys.ANY_KEY))
+            if(first)//recreate the board?
             {
-                drawPreRound=false;
-                //move mouse to center screen for testing
-                Gdx.input.setCursorPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);
+                //load patient file for how to create the board
+                loadPlacement();
+                if(reshuffle || one)//randomize the board
+                    makeGame(); 
+                //make a random target
+                marked=rand.nextInt(imageCount);
+                roundTime=System.currentTimeMillis();
+                wrong=0;
+                first=false;
+            }
+            if(drawPreRound)//draw the target of the round until time passes
+            {
+                displayPreRoundInfo();//draw the target
+                if(TimeUtils.timeSinceMillis(timer)/1000>roundTimer)//if(Gdx.input.isKeyJustPressed(Keys.ANY_KEY))
+                {
+                    drawPreRound=false;
+                    //move mouse to center screen for testing
+                    Gdx.input.setCursorPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);
+                }
+            }
+            else if(drawStats)
+            {
+                displayBlockInfo();//draw block info unill a button is hit
+                if(Gdx.input.isKeyJustPressed(Keys.ANY_KEY))
+                {
+                    if(wave>=waves)
+                        endGame();
+
+                    drawPreRound=true;
+                    timer=System.currentTimeMillis();
+                    drawStats=false;
+                    //clean out the patient info for the block
+                    statsWrong.clear();
+                    statsTime.clear();
+
+                }
+            }
+            else
+            {
+                batch.begin();
+                ISpy();
+                batch.end();
+            }
+            //close the game and return to the main menu
+            if(Gdx.input.isKeyJustPressed(Keys.ESCAPE)) 
+            {
+                quitEarly=true;
+                quit();
             }
         }
-        else if(drawStats)
-        {
-            displayBlockInfo();//draw block info unill a button is hit
-            if(Gdx.input.isKeyJustPressed(Keys.ANY_KEY))
+           else
             {
-                if(waves==wave)
-                    endGame();
-                wave++;
-                drawPreRound=true;
-                timer=System.currentTimeMillis();
-                drawStats=false;
-                //clean out the patient info for the block
-                statsWrong.clear();
-                statsTime.clear();
+                quitStats();
             }
-        }
-        else
-        {
-            batch.begin();
-            ISpy();
-            batch.end();
-        }
-        //close the game and return to the main menu
-        if(Gdx.input.isKeyJustPressed(Keys.ESCAPE)) 
-        {
-            quitEarly=true;
-            endGame();
-        }   
     }
 
     /**
@@ -509,7 +529,10 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
                     {
                         saveClient();
                         loadAverage();
+                        score=-1;
                         drawStats=true;
+                        wave++;
+                        System.out.println(wave+" "+waves);
                     }
                     else
                     {
@@ -537,6 +560,14 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
 
     @Override
     public boolean keyTyped(char c) {
+        if(!quitEarly)
+            return false;
+        if(Gdx.input.isKeyJustPressed(Keys.Q))
+            MainMenu.continueRoutine=false;//quit to next game
+        else if(Gdx.input.isKeyJustPressed(Keys.N))
+            MainMenu.continueRoutine=true;//continue to next game
+        System.out.println("dye");
+        ((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenu());
         return false;
     }
 
@@ -587,17 +618,21 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
     
     public void quit()
     {
+        System.out.println("end game");
         saveClient();
         loadAverage();
-        int choice=0;
-        while(choice==0)
-            choice=quitStats();
-        drawStats=true;
-        if(choice==1)
-            MainMenu.continueRoutine=false;//quit to next game
-        else 
-            MainMenu.continueRoutine=true;//continue to next game
-        ((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenu());
+//        int choice=0;
+//        while(choice==0)
+//        {
+//            choice=quitStats();
+//            System.out.println(choice+" ");
+//        }
+//        if(choice==1)
+//            MainMenu.continueRoutine=false;//quit to next game
+//        else 
+//            MainMenu.continueRoutine=true;//continue to next game
+//        System.out.println("dye");
+//        ((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenu());
     }
     
     /**
@@ -605,6 +640,7 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
      */
     public void endGame()
     {
+        System.out.println("end normal and continue");
         MainMenu.continueRoutine=true;//continue to next game
         ((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenu());
     }
