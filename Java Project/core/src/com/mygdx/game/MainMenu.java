@@ -88,6 +88,7 @@ import java.util.ArrayList;
     
     -do kenny's games parameters
     -figure out how to link games together
+    -add errors for all routine creation
 
 
     Misc (less important things)
