@@ -46,7 +46,6 @@
 
 package com.mygdx.game;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
@@ -58,16 +57,12 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
-import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
 import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent;
 import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.SnapshotArray;
-import java.util.ArrayList;
 
 /**
  *
@@ -89,6 +84,10 @@ import java.util.ArrayList;
     -do kenny's games parameters
     -figure out how to link games together
     -add errors for all routine creation
+    -write instead of append for game info files
+    -add checks for routine creation
+    -add checks for load routine
+
 
 
     Misc (less important things)
@@ -329,7 +328,7 @@ public class MainMenu implements Screen {
     // heres where the parameters go
     private Table iSpyParams = new Table();
     // param 1
-    private Label iSpyParam1Label = new Label("Please mark the area of the screen where the patient will need to search in", skin);
+    private Label iSpyParam1Label = new Label("Please mark the area of the screen where the \npatient will need to search in", skin);
     public static CheckBox area1 = new CheckBox("", skin);
     public static CheckBox area2 = new CheckBox("", skin);
     public static CheckBox area3 = new CheckBox("", skin);
@@ -348,6 +347,10 @@ public class MainMenu implements Screen {
     //param 4
     private Label iSpyParam4Label = new Label("Activate the striped background?", skin);
     public static CheckBox iSpyStripedBox = new CheckBox("", skin);
+    //param 5
+    private Label iSpyParam5Label = new Label("How many repetitions?(sets of rounds till statistics)", skin);
+    public static TextField iSpyRepetitions = new TextField("", skin);
+    
     
     private TextButton iSpyDone = new TextButton("Done", skin);
     private TextButton iSpyBack = new TextButton("Back", skin);
@@ -372,7 +375,7 @@ public class MainMenu implements Screen {
     public static CheckBox leftOrien = new CheckBox("Left", skin);
     private CheckBox rightOrien = new CheckBox("Right", skin);
     //param2
-    private Label memParam2Label = new Label("What would you like the card's screen displacement percentage to be?", skin);
+    private Label memParam2Label = new Label("What would you like the card's screen displacement \npercentage to be?", skin);
     public static TextField dispPercent = new TextField("", skin);
     //param3
     private Label memParam3Label = new Label("How many pairs of cards? (2-12)", skin);
@@ -381,7 +384,7 @@ public class MainMenu implements Screen {
     private Label memParam4Label = new Label("How many rounds until statistics are shown?", skin);
     public static TextField memRoundsTillStats = new TextField("", skin);
     //param5
-    private Label memParam5Label = new Label("How many seconds would you like the card to be revealed for?", skin);
+    private Label memParam5Label = new Label("How many seconds would you like the card \nto be revealed for?", skin);
     public static TextField cardReveal = new TextField("", skin);
     //param6
     private Label memParam6Label = new Label("What would you like the difficulty to be?", skin);
@@ -391,6 +394,9 @@ public class MainMenu implements Screen {
     //param7
     private Label memParam7Label = new Label("Activate striped background?", skin);
     public static CheckBox memStripedBox = new CheckBox("", skin);
+    //param 8
+    private Label memParam8Label = new Label("How many repetitions?(sets of rounds till statistics)", skin);
+    public static TextField memRepetitions = new TextField("", skin);
     
     private TextButton memoryDone = new TextButton("Done", skin);
     private TextButton memoryBack = new TextButton("Back", skin);
@@ -767,7 +773,7 @@ public class MainMenu implements Screen {
         iSpyParentTable.setFillParent(true);
         iSpyParentTable.add(iSpyScroller);
         iSpyParamsTable.add(iSpyParamsTitleTable).center().padTop(50).padBottom(30).row();
-        iSpyParamsTable.add(iSpyParamsObjects).row();
+        iSpyParamsTable.add(iSpyParamsObjects).padLeft(20).padRight(400).row();
         iSpyParamsTable.add(iSpyParamsButtons).center().padTop(30).padBottom(20).row();
         
         // title
@@ -800,12 +806,14 @@ public class MainMenu implements Screen {
         Table iSpyStripedYesOrNo = new Table();
         iSpyStripedYesOrNo.add(iSpyStripedBox).size(150, 150);
         iSpyParamsObjects.add(iSpyStripedYesOrNo).padBottom(30).left().row();
+        iSpyParamsObjects.add(iSpyParam5Label).left().row();
+        iSpyParamsObjects.add(iSpyRepetitions).size(TB_WIDTH, TB_HEIGHT).padBottom(30).left().row();
         
         iSpyParam1Label.setFontScale(LABEL_FS);
         iSpyParam2Label.setFontScale(LABEL_FS);
         iSpyParam3Label.setFontScale(LABEL_FS);
         iSpyParam4Label.setFontScale(LABEL_FS);
-        
+        iSpyParam5Label.setFontScale(LABEL_FS);
         
         // buttons 
         iSpyParamsButtons.add(iSpyDone).size(TB_WIDTH, TB_HEIGHT).row();
@@ -821,8 +829,8 @@ public class MainMenu implements Screen {
         memoryParamsParentTable.setFillParent(true);
         memoryParamsParentTable.add(memScroller);
         memoryParamsTable.add(memoryParamsTitleTable).center().row();
-        memoryParamsTable.add(memoryParamsObjects).left().row();
-        memoryParamsTable.add(memoryParamsButtons).center().row();
+        memoryParamsTable.add(memoryParamsObjects).left().padLeft(20).padRight(400).row();
+        memoryParamsTable.add(memoryParamsButtons).center().padBottom(20).row();
         
         // title
         memoryParamsTitleTable.add(memoryTitleLabel).center().padTop(50).padBottom(30).row();
@@ -858,6 +866,8 @@ public class MainMenu implements Screen {
         Table memStripedYesOrNo = new Table();
         memStripedYesOrNo.add(memStripedBox).size(200, 150);
         memoryParamsObjects.add(memStripedYesOrNo).left().padBottom(30).row();
+        memoryParamsObjects.add(memParam8Label).left().row();
+        memoryParamsObjects.add(memRepetitions).size(TB_WIDTH, TB_HEIGHT).padBottom(30).left().row();
 
         memParam1Label.setFontScale(LABEL_FS);
         memParam2Label.setFontScale(LABEL_FS);
@@ -866,8 +876,7 @@ public class MainMenu implements Screen {
         memParam5Label.setFontScale(LABEL_FS);
         memParam6Label.setFontScale(LABEL_FS);
         memParam7Label.setFontScale(LABEL_FS);
-        
-        
+        memParam8Label.setFontScale(LABEL_FS);
         
         // buttons 
         memoryParamsButtons.add(memoryDone).size(TB_WIDTH, TB_HEIGHT).row();
