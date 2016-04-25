@@ -158,7 +158,8 @@ public class FileIO {
                                 MainMenu.area9.isChecked() + " " + 
                                 MainMenu.iSpyRoundsTillStats.getText() + " " +
                                 MainMenu.iSpyReshuffleBox.isChecked() + " " +
-                                MainMenu.iSpyStripedBox.isChecked() + " "
+                                MainMenu.iSpyStripedBox.isChecked() + " " +
+                                MainMenu.iSpyRepetitions.getText()
                 );
                 writer.close();
             }
@@ -184,7 +185,8 @@ public class FileIO {
                                 MainMenu.memRoundsTillStats.getText() + " " +
                                 MainMenu.cardReveal.getText() + " " +
                                 difficulty + " " +
-                                MainMenu.memStripedBox.isChecked() + " "
+                                MainMenu.memStripedBox.isChecked() + " " + 
+                                MainMenu.memRepetitions.getText()
                 );      
                 writer.close();
             }
