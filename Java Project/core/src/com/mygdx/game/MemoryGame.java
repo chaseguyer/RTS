@@ -30,10 +30,20 @@ import java.util.logging.Logger;
 /**
  *
  * @author muel2767
- * leave cards flipped for 1-5 seconds
- * vertical/horizontal/diagonal 
- * background solid or designed
- * max of 12 card pairs, min of 2
+ * Requirements:
+ *      1: leave cards flipped for 1-5 seconds
+ *      2: Chose card layout vertical/horizontal
+ *      3: background solid or designed
+ *      4: max of 12 card pairs, min of 2
+ *      5: Allow for the cards to be placed onto the screen at different distances
+ *      6: Time the user to match all of the cards
+ *      7: Record the missed matches
+ *      8: Terminate when the user hits the escape key, for this, it must: 
+ *          A: Save the game
+ *          B: Find the patients averages
+ *          C: Show the statistics
+ *          D: Quit to main menu or skip to next game
+ *      9: Play N waves of rounds and quit automatticly
  */
 public class MemoryGame extends ApplicationAdapter implements Screen, InputProcessor
 {
@@ -52,7 +62,7 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
     int difficulty=-1, round=0;
     boolean stripped=false; 
     boolean orientation, displayStats=false;
-    int cardsPerRound, roundsTillStats;
+    int cardsPerRound, roundsTillStats,waves, wave;
     float displacement, revealTime;
     int failedAttempts=0;
     ArrayList<Float> statsTime=new ArrayList<Float>();
@@ -62,15 +72,19 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
     float averageMissesSide, averageTimeSide, counterSide;
     long roundTime;
     String firstN, lastN, routine;
+    boolean quitEarly=false;
     
     MemoryGame(String fName, String lName, String routineName) {
         firstN = fName;
         lastN = lName;
-        routine = routineName;        
+        routine = routineName; 
+        wave=0;
     }
     
-    //load from a file and set up the placement of the board
-    public void loadPlacement()
+    /**
+     * load from a file and set up the placement of the board
+     */
+        public void loadPlacement()
     {
         String f=firstN+lastN+"/Data/"+routine+"/MemoryGameInfo.txt";
         File file=new File(f);
@@ -91,6 +105,10 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
             difficulty=scan.nextInt();
             //is the background stripped?
             stripped=scan.nextBoolean();
+            if(scan.hasNextInt())
+                waves=scan.nextInt();
+            else 
+                waves=3;
             scan.close();
             //client wants minimum of 2 pairs
             if(cardPairs<2) cardPairs=2;
@@ -104,9 +122,10 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
                 displacement=(9.0f*(displacement/100.0f));
             else
                 displacement=(12.0f*(displacement/100.0f));
-            //statsTime=new float[roundsTillStats];
-            //statsWrong=new int[roundsTillStats];
-            
+            if(roundsTillStats<0)
+                roundsTillStats=1;
+            if(waves<0)
+                waves=1;
         } 
         catch (FileNotFoundException ex) 
         {
@@ -114,8 +133,10 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
         }
     }
     
-    //load the averages of a patient
-    public void loadAverage()
+    /**
+     * load the averages of a patient
+     */
+        public void loadAverage()
     {
         //concatinate to create the string of the file
         String fileName=firstN+lastN+"/Data/"+routine+"/MemoryGameStatistics.txt";
@@ -163,9 +184,11 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
             Logger.getLogger(MemoryGame.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    //save the info of the player(client) into their first and last name folder and into a data file
-    public void saveClient()
+
+    /**
+     * save the info of the player(client) into their first and last name folder and into a data file
+     */
+        public void saveClient()
     {
         //make the string for the file to be saved into
         String file=firstN+lastN+"/Data/"+routine+"/MemoryGameStatistics.txt";
@@ -175,7 +198,7 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
         try 
         {
             BufferedWriter bw = new BufferedWriter(new FileWriter(file, true));
-            for(int i=0; i<roundsTillStats; ++i)
+            for(int i=0; i<statsWrong.size(); ++i)
             {
                 //save background(boolean), orientation(boolean), wrong(int), time(float) and the date int, string, int
                 bw.append(stripped+" "+orientation+" "+ statsWrong.get(i)+" "+(statsTime.get(i))+" "+dateFormat.format(date)+"\n");// time is *1000 so that it displays in seconds
@@ -188,6 +211,9 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
         }
     }
     
+    /**
+     * setup the input processor and 
+     */
     @Override
     public void show ()
     {
@@ -200,56 +226,102 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
     @Override
     public void render (float f) 
     {
-        //not drawing game stats
-        if(!displayStats)
+        if(!quitEarly)
         {
-            if(first)//does it need to create the game? 
+            //not drawing game stats
+            if(!displayStats)
             {
-                first=false;
-                loadPlacement();
-                cardGame(cardPairs);
-                roundTime=System.currentTimeMillis();
-                failedAttempts=0;
-            }
-            memoryGameLogic(cardPairs);//place the board
-            //is the game still going?
-            if(running(cardPairs)==false)
-            {
-                first=true;
-                statsTime.add((System.currentTimeMillis()-roundTime)/1000.0f);
-                statsWrong.add(failedAttempts);
-                //is the player done with a block round
-                if(round==roundsTillStats-1)//-1 to roundsTillStats because i start round at 0
+                if(first)//does it need to create the game? 
                 {
-                    //save the block averages
-                    saveClient();
-                    round=0;
-                    displayStats=true;
-                    //load the averages to be displayed in the displayBlockInfo()
-                    loadAverage();
+                    first=false;
+                    loadPlacement();
+                    cardGame(cardPairs);
+                    roundTime=System.currentTimeMillis();
+                    failedAttempts=0;
                 }
-                else
-                    round++;
+                memoryGameLogic(cardPairs);//place the board
+                //is the game still going?
+                if(running(cardPairs)==false)
+                {
+                    first=true;
+                    statsTime.add((System.currentTimeMillis()-roundTime)/1000.0f);
+                    statsWrong.add(failedAttempts);
+                    //is the player done with a block round
+                    if(round==roundsTillStats-1)//-1 to roundsTillStats because i start round at 0
+                    {
+                        //save the block averages
+                        saveClient();
+                        round=0;
+                        displayStats=true;
+                        //load the averages to be displayed in the displayBlockInfo()
+                        loadAverage();
+                    }
+                    else
+                    {
+                        round++;
+                    }
+                }
+            }
+            else
+            {
+                //draw the block info until the player hits a key
+                displayBlockInfo();
+                if(Gdx.input.isKeyJustPressed(Keys.ANY_KEY)) 
+                {
+                    if(wave>=waves)
+                        endGame();
+                    //flip the draw stats status 
+                    displayStats=!displayStats;
+                    //clear the stats holders
+                    statsTime.clear();
+                    statsWrong.clear();
+                }
             }
         }
         else
         {
-            //draw the block info until the player hits a key
-            displayBlockInfo();
-            if(Gdx.input.isKeyJustPressed(Keys.ANY_KEY)) 
-            {
-                endGame();
-                //flip the draw stats status 
-                displayStats=!displayStats;
-                //clear the stats holders
-                statsTime.clear();
-                statsWrong.clear();
-            }
+            quitStats();
         }
     }
     
-    //draw the post block round info
-    public void displayBlockInfo()
+    /**
+     * draw end of game stats and return the game condition. 0 is waiting, 1 is quit, 2 is continue
+     * @return 
+     */
+    public int quitStats()
+    {
+        Gdx.gl.glClearColor(0,0,0, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+        Gdx.gl.glClearColor(0,0,0, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+        batch.begin();
+        //display averages by orientation
+        font.draw(batch, "PRESS N TO CONTINUE TO NEXT GAME OR Q TO QUIT", (int)(Gdx.graphics.getWidth()*.4f), (int)(Gdx.graphics.getHeight()*.1f));
+        font.draw(batch, "Vertical Averages", Gdx.graphics.getWidth()*.25f, Gdx.graphics.getHeight()*.95f);//was horizontal
+        font.draw(batch, "Missed: "+averageMissesSide+"     "+"Time: "+averageTimeSide, Gdx.graphics.getWidth()*.25f, Gdx.graphics.getHeight()*.85f);
+        font.draw(batch, "Horizontal Average", Gdx.graphics.getWidth()*.75f, Gdx.graphics.getHeight()*.95f);//was vertical
+        font.draw(batch, "Missed: "+averageMissesUp+"     "+"Time: "+averageTimeUp, Gdx.graphics.getWidth()*.75f, Gdx.graphics.getHeight()*.85f);
+        //display the stats of the last block of rounds
+        for(int i=0; i<statsWrong.size(); ++i)
+        {
+            font.draw(batch, statsWrong.get(i)+" "+( statsTime.get(i)  ), Gdx.graphics.getWidth()*.45f, Gdx.graphics.getHeight()*.75f-i*25);
+        }
+        batch.end();
+        if(Gdx.input.isKeyJustPressed(Keys.Q))
+        {
+            return 1;
+        }
+        else if(Gdx.input.isKeyJustPressed(Keys.N))
+        {
+            return 2;
+        }
+        return 0;
+    }
+    
+    /**
+     * draw the post block round info
+     */
+        public void displayBlockInfo()
     {
         Gdx.gl.glClearColor(0,0,0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
@@ -261,13 +333,17 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
         font.draw(batch, "Horizontal Average", Gdx.graphics.getWidth()*.75f, Gdx.graphics.getHeight()*.95f);//was vertical
         font.draw(batch, "Missed: "+averageMissesUp+"     "+"Time: "+averageTimeUp, Gdx.graphics.getWidth()*.75f, Gdx.graphics.getHeight()*.85f);
         //display the stats of the last block of rounds
-        for(int i=0; i<roundsTillStats; ++i)
+        for(int i=0; i<statsWrong.size(); ++i)
             font.draw(batch, statsWrong.get(i)+" "+( statsTime.get(i)  ), Gdx.graphics.getWidth()*.45f, Gdx.graphics.getHeight()*.75f-i*25);
         batch.end();
     }
 
-    //is the deck emptied out or is the player still looking?
-    public boolean running(int cardPairs)
+    /**
+     * is the deck emptied out or is the player still looking?
+     * @param cardPairs
+     * @return
+     */
+        public boolean running(int cardPairs)
     {
         for(int x=0; x<cardPairs; ++x)
             for(int y=0; y<numRow; ++y)
@@ -276,8 +352,11 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
         return false;
     }
     
-    //make the game board
-    public void cardGame(double cardPairs)
+    /**
+     * make the game board
+     * @param cardPairs
+     */
+        public void cardGame(double cardPairs)
     {
         //all of the sprites. This portion could be optimized but there is no need for this small of a program
         Sprite one=new Sprite(new Texture(Gdx.files.internal("Items/NumbersLetters/one.png")));
@@ -463,7 +542,10 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
             }
     }
     
-    //draws the screen and performs the logic for card deletion
+    /**
+     * draws the screen and performs the logic for card deletion
+     * @param cardPairs
+     */
     public void memoryGameLogic(int cardPairs)
     {
         Gdx.gl.glClearColor(0,0,0, 1);
@@ -527,8 +609,10 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
         batch.end();
         
         //quit the game and return to game menu screen
-        if(Gdx.input.isKeyJustPressed(Keys.ESCAPE)) {
-            endGame();
+        if(Gdx.input.isKeyJustPressed(Keys.ESCAPE)) 
+        {
+            quitEarly=true;
+            quit();
         }
         
         //player has clicked and they are not waiting 
@@ -536,7 +620,9 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
         {
             for(int x=0; x<cardPairs; ++x)//N cardpairs
                 for(int y=0; y<numRow; ++y)//with 2 rows
+                {
                     if(deck[x][y]!=null) // is the card null? 
+                    {
                         if(deck[x][y].click(Gdx.input.getX(), Gdx.graphics.getHeight()-Gdx.input.getY()))//did the player click on a card
                         {
                             if( same(x,y)==false && one.x!=-1)//x and y do not match card one and one is not "null" IE -1
@@ -556,10 +642,17 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
                                 mark=deck[x][y].getMark();
                             }
                         }
+                    }
+                }
         }
     }
     
-    //do the two sets of cards match
+    /**
+     * do the two sets of cards match
+     * @param x
+     * @param y
+     * @return 
+     */
     boolean same(int x, int y)
     {
         //if the x's are the same but different y's
@@ -585,9 +678,30 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
         return false;
     }
 
+    /**
+     * used to check if the player is trying to quit early
+     * @param c
+     * @return
+     */
     @Override
     public boolean keyTyped(char c) {
+        if(!quitEarly)
+            return false;
+        if(Gdx.input.isKeyJustPressed(Keys.Q))
+            MainMenu.continueRoutine=false;//quit to next game
+        else if(Gdx.input.isKeyJustPressed(Keys.N))
+            MainMenu.continueRoutine=true;//continue to next game
+        ((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenu());
         return false;
+    }
+    
+    /**
+     * Save to close the application and load the averages
+     */
+    public void quit()
+    {
+        saveClient();
+        loadAverage();
     }
 
     @Override
@@ -619,8 +733,12 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
     public void hide() {
     }
     
+    /**
+     * The game has ended normally
+     */
     public void endGame()
     {
+        MainMenu.continueRoutine=true;//continue to next game
         ((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenu());
     }
 }

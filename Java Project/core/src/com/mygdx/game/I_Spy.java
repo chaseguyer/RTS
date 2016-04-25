@@ -26,7 +26,6 @@ import java.util.Date;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -34,7 +33,19 @@ import java.util.logging.Logger;
  */
 
 /**
- *
+ * This is the I_Spy game. It is to do the following
+ *  1: Terminate when the user hits the escape key, for this, it must: 
+ *      A: Save the game
+ *      B: Find the patients averages
+ *      C: Show the statistics
+ *      D: Quit to main menu or skip to next game
+ *  2: The game must record the time it takes for a player to find the target card
+ *  3: Record the number of miss-clicks 
+ *  4: Changeable options for each patient that can do:
+ *      A: Allow for changing the board uppon each object found
+ *      B: Allow for a change in the background
+ *      C: Allow for a change in the placement of objects
+ *  5: Play N waves of rounds and quit automatticly
  * @author muel2767
  */
 public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor 
@@ -43,7 +54,7 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
     SpriteBatch batch;
     boolean first=true, stripped=false, reshuffle, one=true, drawStats=false, drawPreRound=true;
     ArrayList<Item> board=new ArrayList<Item>();
-    int score=0, marked, imageCount=27, roundsTillStats, placeCounter=0, placeMax, wrong=0, roundTimer=3;
+    int score=0, marked, imageCount=27, roundsTillStats, placeCounter=0, placeMax, wrong=0, roundTimer=3, waves, wave;
     Random rand=new Random();
     BitmapFont font;
     boolean displacement[]=new boolean[9];
@@ -52,14 +63,17 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
     float averageMisses, averageTime, counter;
     long roundTime, timer=System.currentTimeMillis();
     String firstN, lastN, routine;
-    
+    boolean quitEarly=false;
     I_Spy(String fName, String lName, String routineName) {
         firstN = fName;
         lastN = lName;
-        routine = routineName;          
+        routine = routineName;         
+        wave=0;
     }
     
-    //load the orientation of the board
+    /**
+     *  load the orientation of the board
+    */
     public void loadPlacement()
     {
         //create a string fro the patient folder/data folder/ispygameinfo.txt
@@ -81,7 +95,16 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
             reshuffle=scan.nextBoolean();
             //boolean should the background be stripped 
             stripped=scan.nextBoolean();
+            if(scan.hasNextInt())
+                waves=scan.nextInt();
+            else 
+                waves=3;
             scan.close();
+            //check for invalid input
+            if(roundsTillStats<0)
+                roundsTillStats=1;
+            if(waves<0)
+                waves=1;
         } 
         catch (FileNotFoundException ex) 
         {
@@ -89,9 +112,12 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
         }
     }
     
-    //find the patients averages
+    /**
+    *   find the patients averages
+    */
     public void loadAverage()
     {
+        //System.out.println("open");
         //emter the patient file
         String fileName=firstN+lastN+"/Data/"+routine+"/ISpyStatistics.txt";
         File file=new File(fileName);
@@ -125,9 +151,12 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
         {
             Logger.getLogger(MemoryGame.class.getName()).log(Level.SEVERE, null, ex);
         }
+        //System.out.println("close");
     }
     
-    //save the patient data
+    /**
+    *   save the patient data
+    */
     public void saveClient()
     {
         //enter the patient data file
@@ -139,12 +168,13 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
         {
             //System.out.println(roundsTillStats+" "+statsWrong.size());
             BufferedWriter bw = new BufferedWriter(new FileWriter(file, true));
-            for(int i=0; i<roundsTillStats; ++i)
+            for(int i=0; i<statsWrong.size(); ++i)
             {
                 //loop and save that data
                 bw.append(stripped+" "+statsWrong.get(i)+" "+(statsTime.get(i))+" "+dateFormat.format(date)+"\n");// time is *1000 so that it displays in seconds
                 bw.flush();
             }
+            bw.close();
         } 
         catch (IOException ex) 
         {
@@ -152,7 +182,9 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
         }
     }
     
-    //display the patient info
+    /**
+    *   display the patient info during game
+    */
     public void displayBlockInfo()
     {
         Gdx.gl.glClearColor(0,0,0, 1);
@@ -162,15 +194,48 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
         font.draw(batch, "PRESS ANY KEY TO CONTINUE", (int)(Gdx.graphics.getWidth()*.4f), (int)(Gdx.graphics.getHeight()*.1f));
         font.draw(batch, "Averages", Gdx.graphics.getWidth()*.25f, Gdx.graphics.getHeight()*.95f);
         font.draw(batch, "Missed: "+averageMisses+"     "+"Time: "+averageTime, Gdx.graphics.getWidth()*.25f, Gdx.graphics.getHeight()*.85f);
-        for(int i=0; i<roundsTillStats; ++i)
+        for(int i=0; i<statsWrong.size(); ++i)
             font.draw(batch, statsWrong.get(i)+"      "+( statsTime.get(i)  ), Gdx.graphics.getWidth()*.45f, Gdx.graphics.getHeight()*.75f-i*25);
             //batch.write(stats[i].misses+" "+( (System.currentTimeMillis()-stats[i].time)*1000  )+dateFormat.format(date));// time is *1000 so that it displays in seconds
         batch.end();
     }
     
-    //display the target if the round
+    /**
+     * draw end of game stats and return the game condition. 0 is waiting, 1 is quit, 2 is continue
+     * @return 
+     */
+    public int quitStats()
+    {
+        Gdx.gl.glClearColor(0,0,0, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+        batch.begin();
+        //display averages up/side
+        font.draw(batch, "PRESS N TO CONTINUE TO NEXT GAME OR Q TO QUIT", (int)(Gdx.graphics.getWidth()*.4f), (int)(Gdx.graphics.getHeight()*.1f));
+        font.draw(batch, "Averages", Gdx.graphics.getWidth()*.25f, Gdx.graphics.getHeight()*.95f);
+        font.draw(batch, "Missed: "+averageMisses+"     "+"Time: "+averageTime, Gdx.graphics.getWidth()*.25f, Gdx.graphics.getHeight()*.85f);
+        for(int i=0; i<statsWrong.size(); ++i)
+            font.draw(batch, statsWrong.get(i)+"      "+( statsTime.get(i)  ), Gdx.graphics.getWidth()*.45f, Gdx.graphics.getHeight()*.75f-i*25);
+            //batch.write(stats[i].misses+" "+( (System.currentTimeMillis()-stats[i].time)*1000  )+dateFormat.format(date));// time is *1000 so that it displays in seconds
+        batch.end();
+        if(Gdx.input.isKeyJustPressed(Keys.Q))
+        {
+            //System.out.println("1");
+            return 1;
+        }
+        else if(Gdx.input.isKeyJustPressed(Keys.N))
+        {
+            //System.out.println("2");
+            return 2;
+        }
+        return 0;
+    }
+    
+    /**
+    *   display the target of the round
+    */
     public void displayPreRoundInfo()
     {
+       
         Gdx.gl.glClearColor(0,0,0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         batch.begin();
@@ -196,55 +261,69 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
     {
         Gdx.gl.glClearColor(0,0,0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-        if(first)//recreate the board?
+        if(!quitEarly)
         {
-            //load patient file for how to create the board
-            loadPlacement();
-            if(reshuffle || one)//randomize the board
-                makeGame(); 
-            //make a random target
-            marked=rand.nextInt(imageCount);
-            roundTime=System.currentTimeMillis();
-            wrong=0;
-            first=false;
-        }
-        if(drawPreRound)//draw the target of the round until time passes
-        {
-            displayPreRoundInfo();//draw the target
-            if(TimeUtils.timeSinceMillis(timer)/1000>roundTimer)//if(Gdx.input.isKeyJustPressed(Keys.ANY_KEY))
+            if(first)//recreate the board?
             {
-                drawPreRound=false;
-                //move mouse to center screen for testing
-                Gdx.input.setCursorPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);
+                //load patient file for how to create the board
+                loadPlacement();
+                if(reshuffle || one)//randomize the board
+                    makeGame(); 
+                //make a random target
+                marked=rand.nextInt(imageCount);
+                roundTime=System.currentTimeMillis();
+                wrong=0;
+                first=false;
             }
-        }
-        else if(drawStats)
-        {
-            displayBlockInfo();//draw block info unill a button is hit
-            if(Gdx.input.isKeyJustPressed(Keys.ANY_KEY))
+            if(drawPreRound)//draw the target of the round until time passes
             {
-                endGame();
-                drawPreRound=true;
-                timer=System.currentTimeMillis();
-                drawStats=false;
-                //clean out the patient info for the block
-                statsWrong.clear();
-                statsTime.clear();
+                displayPreRoundInfo();//draw the target
+                if(TimeUtils.timeSinceMillis(timer)/1000>roundTimer)//if(Gdx.input.isKeyJustPressed(Keys.ANY_KEY))
+                {
+                    drawPreRound=false;
+                    //move mouse to center screen for testing
+                    Gdx.input.setCursorPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);
+                }
+            }
+            else if(drawStats)
+            {
+                displayBlockInfo();//draw block info unill a button is hit
+                if(Gdx.input.isKeyJustPressed(Keys.ANY_KEY))
+                {
+                    if(wave>=waves)
+                        endGame();
+
+                    drawPreRound=true;
+                    timer=System.currentTimeMillis();
+                    drawStats=false;
+                    //clean out the patient info for the block
+                    statsWrong.clear();
+                    statsTime.clear();
+
+                }
+            }
+            else
+            {
+                batch.begin();
+                ISpy();
+                batch.end();
+            }
+            //close the game and return to the main menu
+            if(Gdx.input.isKeyJustPressed(Keys.ESCAPE)) 
+            {
+                quitEarly=true;
+                quit();
             }
         }
         else
         {
-            batch.begin();
-            ISpy();
-            batch.end();
+            quitStats();
         }
-        //close the game and return to the main menu
-        if(Gdx.input.isKeyJustPressed(Keys.ESCAPE)) {
-            endGame();
-        }   
     }
 
-    //create the game
+    /**
+    *    create the game
+    */
     public void makeGame()
     {
         //set mouse to center screen
@@ -305,7 +384,6 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
         }
         first=false;
     }
-
     //make the item to be placed on the board
     Item getItem(int count, int x, int y)
     {
@@ -436,7 +514,9 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
         return new Item(image, x, y, name);
     }
     
-    //perform the ispy logic
+    /**
+    *   perform the ispy logic
+    */
     public void ISpy()
     {
         Sprite s=new Sprite(new Texture(Gdx.files.internal("Items/stripped.png")));
@@ -466,7 +546,10 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
                     {
                         saveClient();
                         loadAverage();
+                        score=-1;
                         drawStats=true;
+                        wave++;
+                        //System.out.println(wave+" "+waves);
                     }
                     else
                     {
@@ -479,7 +562,7 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
             if(!got)//patient did not get the targetm increase the wrong
                 wrong++;
         }
-        font.draw(batch, board.get(marked).name, Gdx.graphics.getWidth()*.43f, Gdx.graphics.getHeight()*.99f);
+        //font.draw(batch, board.get(marked).name, Gdx.graphics.getWidth()*.43f, Gdx.graphics.getHeight()*.99f);
     }
     
     @Override
@@ -492,8 +575,21 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
         return false;
     }
 
+    /**
+     * used to check if the player is trying to quit early
+     * @param c
+     * @return
+     */
     @Override
     public boolean keyTyped(char c) {
+        if(!quitEarly)
+            return false;
+        if(Gdx.input.isKeyJustPressed(Keys.Q))
+            MainMenu.continueRoutine=false;//quit to next game
+        else if(Gdx.input.isKeyJustPressed(Keys.N))
+            MainMenu.continueRoutine=true;//continue to next game
+        //System.out.println("dye");
+        ((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenu());
         return false;
     }
 
@@ -542,8 +638,21 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
     public void dispose() {  
     }  
     
+    /**
+     * Save to close the application and load the averages 
+     */
+    public void quit()
+    {
+        saveClient();
+        loadAverage();
+    }
+    
+    /**
+     * The game has ended normally
+     */
     public void endGame()
     {
+        MainMenu.continueRoutine=true;//continue to next game
         ((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenu());
     }
 }

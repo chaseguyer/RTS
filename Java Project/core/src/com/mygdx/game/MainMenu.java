@@ -122,7 +122,7 @@ public class MainMenu implements Screen {
     public String routineName;
     
     // if true, continue the routine; if false, quit to menu
-    public boolean continueRoutine = false;
+    static public boolean continueRoutine = false;
     
     
     /*
