@@ -33,7 +33,19 @@ import java.util.logging.Logger;
  */
 
 /**
- *
+ * This is the I_Spy game. It is to do the following
+ *  1: Terminate when the user hits the escape key, for this, it must: 
+ *      A: Save the game
+ *      B: Find the patients averages
+ *      C: Show the statistics
+ *      D: Quit to main menu or skip to next game
+ *  2: The game must record the time it takes for a player to find the target card
+ *  3: Record the number of miss-clicks 
+ *  4: Changeable options for each patient that can do:
+ *      A: Allow for changing the board uppon each object found
+ *      B: Allow for a change in the background
+ *      C: Allow for a change in the placement of objects
+ *  5: Play N waves of rounds and quit automatticly
  * @author muel2767
  */
 public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor 
@@ -88,6 +100,11 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
             else 
                 waves=3;
             scan.close();
+            //check for invalid input
+            if(roundsTillStats<0)
+                roundsTillStats=1;
+            if(waves<0)
+                waves=1;
         } 
         catch (FileNotFoundException ex) 
         {
@@ -100,7 +117,7 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
     */
     public void loadAverage()
     {
-        System.out.println("open");
+        //System.out.println("open");
         //emter the patient file
         String fileName=firstN+lastN+"/Data/"+routine+"/ISpyStatistics.txt";
         File file=new File(fileName);
@@ -134,7 +151,7 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
         {
             Logger.getLogger(MemoryGame.class.getName()).log(Level.SEVERE, null, ex);
         }
-        System.out.println("close");
+        //System.out.println("close");
     }
     
     /**
@@ -202,12 +219,12 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
         batch.end();
         if(Gdx.input.isKeyJustPressed(Keys.Q))
         {
-            System.out.println("1");
+            //System.out.println("1");
             return 1;
         }
         else if(Gdx.input.isKeyJustPressed(Keys.N))
         {
-            System.out.println("2");
+            //System.out.println("2");
             return 2;
         }
         return 0;
@@ -298,10 +315,10 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
                 quit();
             }
         }
-           else
-            {
-                quitStats();
-            }
+        else
+        {
+            quitStats();
+        }
     }
 
     /**
@@ -367,7 +384,6 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
         }
         first=false;
     }
-
     //make the item to be placed on the board
     Item getItem(int count, int x, int y)
     {
@@ -497,6 +513,7 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
         
         return new Item(image, x, y, name);
     }
+    
     /**
     *   perform the ispy logic
     */
@@ -532,7 +549,7 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
                         score=-1;
                         drawStats=true;
                         wave++;
-                        System.out.println(wave+" "+waves);
+                        //System.out.println(wave+" "+waves);
                     }
                     else
                     {
@@ -545,7 +562,7 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
             if(!got)//patient did not get the targetm increase the wrong
                 wrong++;
         }
-        font.draw(batch, board.get(marked).name, Gdx.graphics.getWidth()*.43f, Gdx.graphics.getHeight()*.99f);
+        //font.draw(batch, board.get(marked).name, Gdx.graphics.getWidth()*.43f, Gdx.graphics.getHeight()*.99f);
     }
     
     @Override
@@ -558,6 +575,11 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
         return false;
     }
 
+    /**
+     * used to check if the player is trying to quit early
+     * @param c
+     * @return
+     */
     @Override
     public boolean keyTyped(char c) {
         if(!quitEarly)
@@ -566,7 +588,7 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
             MainMenu.continueRoutine=false;//quit to next game
         else if(Gdx.input.isKeyJustPressed(Keys.N))
             MainMenu.continueRoutine=true;//continue to next game
-        System.out.println("dye");
+        //System.out.println("dye");
         ((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenu());
         return false;
     }
@@ -616,23 +638,13 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
     public void dispose() {  
     }  
     
+    /**
+     * Save to close the application and load the averages 
+     */
     public void quit()
     {
-        System.out.println("end game");
         saveClient();
         loadAverage();
-//        int choice=0;
-//        while(choice==0)
-//        {
-//            choice=quitStats();
-//            System.out.println(choice+" ");
-//        }
-//        if(choice==1)
-//            MainMenu.continueRoutine=false;//quit to next game
-//        else 
-//            MainMenu.continueRoutine=true;//continue to next game
-//        System.out.println("dye");
-//        ((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenu());
     }
     
     /**
@@ -640,7 +652,6 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
      */
     public void endGame()
     {
-        System.out.println("end normal and continue");
         MainMenu.continueRoutine=true;//continue to next game
         ((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenu());
     }
