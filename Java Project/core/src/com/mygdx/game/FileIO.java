@@ -219,6 +219,9 @@ public class FileIO {
             else if(name.equals("MEMORY")) {
                 ((Game) Gdx.app.getApplicationListener()).setScreen(new MemoryGame(first, last, routineName));                
             }
+            
+            if(MainMenu.continueRoutine) {}
+            
         }
         
         
