@@ -585,7 +585,7 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
         if(!quitEarly)
             return false;
         if(Gdx.input.isKeyJustPressed(Keys.Q))
-            MainMenu.continueRoutine=false;//quit to next game
+                MainMenu.continueRoutine=false;//quit to next game
         else if(Gdx.input.isKeyJustPressed(Keys.N))
             MainMenu.continueRoutine=true;//continue to next game
         //System.out.println("dye");
