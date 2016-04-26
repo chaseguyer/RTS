@@ -43,6 +43,12 @@ public class PathTracingGame extends ApplicationAdapter implements Screen, Input
     private boolean endingSequence;
     private long endingTime;
     
+    /**
+     * 
+     * @param firstName
+     * @param lastName
+     * @param routine 
+     */
     public PathTracingGame(String firstName, String lastName, String routine) {
         pointTexture = new Texture(Gdx.files.internal("Textures/Ball.png"));
         pointNotConnectedTexture = new Texture(Gdx.files.internal("Textures/BallNotConnected.png"));
