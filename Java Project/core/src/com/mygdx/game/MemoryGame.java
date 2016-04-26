@@ -86,7 +86,7 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
      */
         public void loadPlacement()
     {
-        String f=firstN+lastN+"/Data/"+routine+"/MemoryGameInfo.txt";
+        String f="RTS Data/patients/" + firstN + "_" + lastN + "/" + routine + "/MemoryGameInfo.txt";
         File file=new File(f);
         try 
         {
@@ -122,9 +122,9 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
                 displacement=(9.0f*(displacement/100.0f)*(Gdx.graphics.getHeight()/1080.0f));
             else
                 displacement=(12.0f*(displacement/100.0f)*(Gdx.graphics.getWidth()/1920.0f));
-            if(roundsTillStats<0)
+            if(roundsTillStats<=0)
                 roundsTillStats=1;
-            if(waves<0)
+            if(waves<=0)
                 waves=1;
         } 
         catch (FileNotFoundException ex) 
@@ -139,7 +139,7 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
         public void loadAverage()
     {
         //concatinate to create the string of the file
-        String fileName=firstN+lastN+"/Data/"+routine+"/MemoryGameStatistics.txt";
+        String fileName="RTS Data/patients/" + firstN + "_" + lastN + "/" + routine + "/MemoryGameStatistics.txt";
         File file=new File(fileName);
         try 
         {
@@ -191,7 +191,7 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
         public void saveClient()
     {
         //make the string for the file to be saved into
-        String file=firstN+lastN+"/Data/"+routine+"/MemoryGameStatistics.txt";
+        String file="RTS Data/patients/" + firstN + "_" + lastN + "/" + routine + "/MemoryGameStatistics.txt";
         DateFormat dateFormat = new SimpleDateFormat("yyyy MM dd");
         Date date = new Date();
         //System.out.println(dateFormat.format(date)); //2014/08/06 
