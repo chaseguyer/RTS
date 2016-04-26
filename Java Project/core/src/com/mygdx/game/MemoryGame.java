@@ -119,9 +119,9 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
             else if(displacement<0) displacement=0;
             //use the orientation to move the displacement based off of a percent
             if(orientation)
-                displacement=(9.0f*(displacement/100.0f));
+                displacement=(9.0f*(displacement/100.0f)*(Gdx.graphics.getHeight()/1080.0f));
             else
-                displacement=(12.0f*(displacement/100.0f));
+                displacement=(12.0f*(displacement/100.0f)*(Gdx.graphics.getWidth()/1920.0f));
             if(roundsTillStats<0)
                 roundsTillStats=1;
             if(waves<0)
