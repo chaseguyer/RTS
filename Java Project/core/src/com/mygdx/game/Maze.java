@@ -30,9 +30,13 @@ public class Maze {
     private float dotRadius;
     private float redDotX;
     private float redDotY;
+    private float startX;
+    private float startY;
     private int[][] genMaze;
     private int screenWidth;
     private int screenHeight;
+    private static int lastEndX = -1;
+    private static int lastEndY = -1;
     
     /**
      * Make a new maze.
@@ -52,6 +56,27 @@ public class Maze {
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
         dotRadius = dot.getWidth()/2;
+        
+        Random r = new Random(System.currentTimeMillis());
+        List<Point> corners = new ArrayList();
+        corners.add(new Point(1,1));
+        corners.add(new Point(1, 1+2*(height-1)));
+        corners.add(new Point(1+2*(width-1), 1+2*(height-1)));
+        corners.add(new Point(1+2*(width-1), 1));
+        
+        // make sure the last ending point is not the same as the beginning
+        // point of this maze.
+        do {
+            Collections.shuffle(corners, r);
+        } while (corners.get(0).x == lastEndX && corners.get(0).y == lastEndY);
+        
+        startX = (1+corners.get(0).x)*wallWidth-wallWidth/2;
+        redDotX = (1+corners.get(1).x)*wallWidth-wallWidth/2;
+        startY = (1+corners.get(0).y)*wallHeight-wallHeight/2;
+        redDotY = (1+corners.get(1).y)*wallHeight-wallHeight/2;
+        lastEndX = corners.get(1).x;
+        lastEndY = corners.get(1).y;
+        
         kruskal();
     }
     
@@ -159,28 +184,24 @@ public class Maze {
             points.add(new Point(c.x2*2+1,c.y2*2+1));
             points.add(new Point(c.x1+c.x2+1,c.y1+c.y2+1));
         }
-        
-        // 6. Pick random spot for red dot.
-        Collections.shuffle(points);
-        Point p = points.get(0);
-        this.redDotX = p.x*wallWidth+wallWidth/2;
-        this.redDotY = p.y*wallHeight+wallHeight/2;
     }
     
     /**
      *
      * @return
      */
-    public int getStartX() {
-        return ((int)wallWidth)/2*3;
+    public float getStartX() {
+        //return (wallWidth)/2*3;
+        return startX;
     }
     
     /**
      *
      * @return
      */
-    public int getStartY() {
-        return ((int)wallHeight)/2*3;
+    public float getStartY() {
+        //return (wallHeight)/2*3;
+        return startY;
     }
     
     /**
@@ -211,7 +232,7 @@ public class Maze {
      * @param radius
      * @return
      */
-    public boolean gotRedDot(double x, double y, double radius) {
+    public boolean gotTarget(double x, double y, double radius) {
         double xDist = x - redDotX;
         double yDist = y - redDotY;
         double radii = radius + dotRadius;

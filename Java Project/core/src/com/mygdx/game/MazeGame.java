@@ -17,8 +17,11 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -40,19 +43,24 @@ public class MazeGame extends ApplicationAdapter implements Screen, InputProcess
     private long startTime;
     private boolean isGood;
     private boolean isOn;
-    private int numRounds;
+    private int roundNum;
     private BitmapFont font;
     private GlyphLayout layout;
     private List<Long> times;
     private List<Long> onTicks;
     private List<Long> offTicks;
-    private int sessionSize;
+    private int numRounds;
+    private int mazeWidth;
+    private int mazeHeight;
+    private String firstName;
+    private String lastName;
+    private String routine;
+    private int numSessions;
     
     public MazeGame(String firstName, String lastName, String routineName) {
-        initialization();
-    }
-    
-    private void initialization() {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.routine = routineName;
         cursor = new Texture(Gdx.files.internal("Textures/Cursor.png"));
         cursorBad = new Texture(Gdx.files.internal("Textures/CursorBad.png"));
         dot = new Texture(Gdx.files.internal("Textures/Ball.png"));
@@ -60,17 +68,17 @@ public class MazeGame extends ApplicationAdapter implements Screen, InputProcess
         dotRadius = dot.getWidth()/2;
         lastTime = 0;
         font = new BitmapFont(Gdx.files.internal("fonts/century_gothic-regular.fnt"),Gdx.files.internal("fonts/century_gothic-regular.png"),false);
-        numRounds = 0;
+        roundNum = 0;
+        loadVariables();
         startNewGame();
         layout = new GlyphLayout();
         times = new ArrayList();
         onTicks = new ArrayList();
         offTicks = new ArrayList();
-        sessionSize = 5;
     }
     
     private void startNewGame() {
-        maze = new Maze(4,4,Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        maze = new Maze(mazeWidth,mazeHeight,Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         startTime = System.currentTimeMillis();
         isOn = false;
         ticksGood = 0;
@@ -103,17 +111,16 @@ public class MazeGame extends ApplicationAdapter implements Screen, InputProcess
             }
         }
         else {
-            if (numRounds % sessionSize == 0 && numRounds > 0) {
+            if (roundNum == numRounds) {
                 instructionsAndStatisticsRender();
             }
             else {
                 instructionsRender();
+                batch.begin();
+                batch.draw(dot, maze.getStartX()-dotRadius, maze.getStartY() - dotRadius);
+                batch.draw(cursor, Gdx.input.getX()-cursorRadius, Gdx.graphics.getHeight()-Gdx.input.getY()-cursorRadius);
+                batch.end();
             }
-            
-            batch.begin();
-            batch.draw(dot, maze.getStartX()-dotRadius, maze.getStartY() - dotRadius);
-            batch.draw(cursor, Gdx.input.getX()-cursorRadius, Gdx.graphics.getHeight()-Gdx.input.getY()-cursorRadius);
-            batch.end();
         }
         checkGameState();
     }
@@ -138,11 +145,11 @@ public class MazeGame extends ApplicationAdapter implements Screen, InputProcess
 
     @Override
     public boolean keyDown(int i) {
-        if (i == Input.Keys.Q) {
+        if (i == Input.Keys.ESCAPE) {
             ((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenu());
             Gdx.input.setCursorCatched(false);
         }
-        return false;
+        return true;
     }
 
     @Override
@@ -214,19 +221,19 @@ public class MazeGame extends ApplicationAdapter implements Screen, InputProcess
         instructionsRender();
         List<Double> ratios = new ArrayList();
         double avgRatio = 0;
-        for (int i = 0; i < sessionSize; ++i) {
+        for (int i = 0; i < numRounds; ++i) {
             long curOnTicks = onTicks.get(onTicks.size()-1-i);
             long curOffTicks = offTicks.get(offTicks.size()-1-i);
             double curRatio = ((double)curOnTicks)/(double)(curOnTicks+curOffTicks)*100.0;
             ratios.add(curRatio);
             avgRatio += curRatio;
         }
-        avgRatio /= (double)sessionSize;
+        avgRatio /= (double)numRounds;
         
         List<CharSequence> timeStrings = new ArrayList();
         long totalTime = 0;
-        for (int i = 0; i < sessionSize; ++i) {
-            long curTime = times.get(times.size()-sessionSize+i);
+        for (int i = 0; i < numRounds; ++i) {
+            long curTime = times.get(times.size()-numRounds+i);
             timeStrings.add(convertToTimeString(curTime));
             totalTime += curTime;
         }
@@ -254,15 +261,15 @@ public class MazeGame extends ApplicationAdapter implements Screen, InputProcess
 
     private void checkGameState() {
         if (isOn) {
-            if (maze.gotRedDot(Gdx.input.getX(),Gdx.graphics.getHeight()-Gdx.input.getY(),cursorRadius)) {
+            if (maze.gotTarget(Gdx.input.getX(),Gdx.graphics.getHeight()-Gdx.input.getY(),cursorRadius)) {
                 recordStats();
                 startNewGame();
-                numRounds++;
+                roundNum++;
                 isOn = false;
             }
         }
         else {
-            if (startBallTouched()) {
+            if (roundNum != numRounds && startBallTouched()) {
                 isOn = true;
                 startTime = System.currentTimeMillis();
             }
@@ -274,6 +281,41 @@ public class MazeGame extends ApplicationAdapter implements Screen, InputProcess
         float yDist = Gdx.graphics.getHeight() - Gdx.input.getY() - maze.getStartY();
         float radii = cursorRadius + dotRadius;
         return (xDist*xDist + yDist*yDist) < radii*radii;
+    }
+
+    private void loadVariables() {
+        String filePath ="RTS Data/patients/" + firstName + "_" + lastName + "/" + routine + "/PathTracingGame.txt";
+        File file = new File(filePath);
+        try {
+            Scanner scanner = new Scanner(file);
+            // mazeWidth and mazeHeight have slightly deceiving names; they are
+            // actually the number of nodes horizontally and vertically. This
+            // means that the number of squares horizontally and vertically is
+            // 2*mazeWidth+1 and 2*mazeHeight+1, respectively.
+            //
+            // As far as UI design, do what you like. However, note that if the
+            // user puts in 10, that does not mean 10 squares across; it means
+            // 21. You may want to "translate" their numbers for usability.
+            // So, if the user puts in an odd number n, you would give me:
+            // (n-1)/2
+            // Or, if the user puts in an even number n, you would give me:
+            // n/2
+            // The number of squares horizontally and vertically will always be
+            // odd - this is by design. I doubt they'll care much about 1 extra
+            // square in their maze.
+            this.mazeWidth = scanner.nextInt();
+            this.mazeHeight = scanner.nextInt();
+            // number of rounds before stats
+            this.numRounds = scanner.nextInt();
+            // number of sessions before quitting
+            this.numSessions = scanner.nextInt();
+        }
+        catch (FileNotFoundException e) {
+            this.mazeWidth = 4;
+            this.mazeHeight = 4;
+            this.numRounds = 6;
+            this.numSessions = 1;
+        }
     }
     
 }
