@@ -111,7 +111,7 @@ public class MainMenu implements Screen {
     public String routineName;
     
     // if true, continue the routine; if false, quit to menu
-    public static boolean continueRoutine = false, onCreate = true;
+    public static boolean continueRoutine = false, onCreate = true, inRoutine = false;
     
     
     /*
@@ -449,6 +449,9 @@ public class MainMenu implements Screen {
         Gdx.input.setInputProcessor(stage);   
         resize(Gdx.graphics.getDesktopDisplayMode().width, Gdx.graphics.getDesktopDisplayMode().height);
         
+        if(continueRoutine) {
+            file.runRoutine(pFirst, pLast, routineName);                            
+        }        
         
         if(onCreate) {
             createTables();
@@ -456,6 +459,8 @@ public class MainMenu implements Screen {
 
             stage.addActor(loginTitle);
             onCreate = false;
+        } else {
+            stage.addActor(patientMenuTitleTable);            
         }
     }
 
@@ -1533,11 +1538,8 @@ public class MainMenu implements Screen {
             public void changed (ChangeEvent event, Actor actor) {                
                 stage.clear();
                 
-                routineName = loadRoutineTextField.getText();
-                
-                file.runRoutine(pFirst, pLast, routineName);
-                
-                stage.addActor(patientMenuTitleTable);
+                routineName = loadRoutineTextField.getText();                
+                file.runRoutine(pFirst, pLast, routineName);                
             }
         });
         
@@ -1569,7 +1571,7 @@ public class MainMenu implements Screen {
 
     @Override
     public void hide() {
-        //dispose();
+        stage.clear();        
     }
 
     @Override

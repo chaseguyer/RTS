@@ -586,13 +586,13 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
             return false;
         
         if(Gdx.input.isKeyJustPressed(Keys.Q)) {
-            MainMenu.continueRoutine=false;//quit to next game
+            MainMenu.continueRoutine=false;//quit routine
             ((Game) Gdx.app.getApplicationListener()).setScreen(RTS.menu);
-            //Gdx.app.exit();
+            RTS.menu.show();
         } else if(Gdx.input.isKeyJustPressed(Keys.N)) {
             MainMenu.continueRoutine=true;//continue to next game
             ((Game) Gdx.app.getApplicationListener()).setScreen(RTS.menu);
-            //Gdx.app.exit();
+            RTS.menu.show();
         }
         
         return false;
@@ -660,6 +660,7 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
     {
         MainMenu.continueRoutine=true;//continue to next game
         ((Game) Gdx.app.getApplicationListener()).setScreen(RTS.menu);
+        RTS.menu.show();
     }
 }
 
