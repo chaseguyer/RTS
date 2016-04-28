@@ -54,7 +54,7 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
     SpriteBatch batch;
     boolean first=true, stripped=false, reshuffle, one=true, drawStats=false, drawPreRound=true;
     ArrayList<Item> board=new ArrayList<Item>();
-    int score=0, marked, imageCount=27, roundsTillStats, placeCounter=0, placeMax, wrong=0, roundTimer=3, waves, wave;
+    int score=0, marked, imageCount=27, roundsTillStats, placeCounter=0, placeMax, wrong=0, roundTimer=3, waves, wave=0;
     Random rand=new Random();
     BitmapFont font;
     boolean displacement[]=new boolean[9];
@@ -68,7 +68,7 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
         firstN = fName;
         lastN = lName;
         routine = routineName;         
-        wave=0;
+        //wave=0;
     }
     
     /**
@@ -290,6 +290,8 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
                 displayBlockInfo();//draw block info unill a button is hit
                 if(Gdx.input.isKeyJustPressed(Keys.ANY_KEY))
                 {
+                    wave++;
+                    System.out.println(wave+" "+waves);
                     if(wave>=waves)
                         endGame();
 
@@ -542,13 +544,14 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
                     got=true;
                     statsWrong.add(wrong);
                     statsTime.add( ( (float)(System.currentTimeMillis()-roundTime)/1000.0f)-roundTimer );
+                    score++;
                     if(score%roundsTillStats==0 && score>0)
                     {
                         saveClient();
                         loadAverage();
-                        score=-1;
+                        score=0;
                         drawStats=true;
-                        wave++;
+                        //wave++;
                         //System.out.println(wave+" "+waves);
                     }
                     else
@@ -556,7 +559,7 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
                         drawPreRound=true;
                         timer=System.currentTimeMillis();
                     }
-                    score++;
+                    //score++;
                     first=true;
                 }
             if(!got)//patient did not get the targetm increase the wrong
