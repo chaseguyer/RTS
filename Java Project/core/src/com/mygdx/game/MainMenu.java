@@ -1539,6 +1539,8 @@ public class MainMenu implements Screen {
                 stage.clear();
                 
                 routineName = loadRoutineTextField.getText();                
+                
+                file.queueRoutine(pFirst, pLast, routineName);
                 file.runRoutine(pFirst, pLast, routineName);                
             }
         });
