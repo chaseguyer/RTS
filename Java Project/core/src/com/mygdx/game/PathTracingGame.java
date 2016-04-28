@@ -8,6 +8,7 @@ package com.mygdx.game;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
@@ -16,9 +17,14 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector2;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.scene.shape.Shape;
 
 /**
@@ -43,6 +49,19 @@ public class PathTracingGame extends ApplicationAdapter implements Screen, Input
     private boolean endingSequence;
     private long endingTime;
     
+    private String firstName;
+    private String lastName;
+    private String routine;
+    private int numRounds;
+    private TracedPathType pathType;
+    private int numSessions;
+    
+    /**
+     * 
+     * @param firstName
+     * @param lastName
+     * @param routine 
+     */
     public PathTracingGame(String firstName, String lastName, String routine) {
         pointTexture = new Texture(Gdx.files.internal("Textures/Ball.png"));
         pointNotConnectedTexture = new Texture(Gdx.files.internal("Textures/BallNotConnected.png"));
@@ -52,6 +71,10 @@ public class PathTracingGame extends ApplicationAdapter implements Screen, Input
         lineDistances = new ArrayList();
         shapeRenderer = new ShapeRenderer();
         endingSequence = false;
+        
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.routine = routine;
         
         loadVariables();
         startGame();
@@ -87,7 +110,11 @@ public class PathTracingGame extends ApplicationAdapter implements Screen, Input
 
     @Override
     public boolean keyDown(int i) {
-        return false;
+        if (i == Input.Keys.ESCAPE) {
+            ((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenu());
+            Gdx.input.setCursorCatched(false);
+        }
+        return true;
     }
 
     @Override
@@ -126,11 +153,44 @@ public class PathTracingGame extends ApplicationAdapter implements Screen, Input
     }
 
     private void loadVariables() {
-        // TODO:
-        // load variables from the file as specified in the document, in the
-        // correct directory
-        // load numPoints
-        this.numPoints = 6;
+        String filePath ="RTS Data/patients/" + firstName + "_" + lastName + "/" + routine + "/PathTracingGame.txt";
+        File file = new File(filePath);
+        try {
+            Scanner scanner = new Scanner(file);
+            // number of points in the path
+            this.numPoints = scanner.nextInt();
+            // number of rounds before stats
+            this.numRounds = scanner.nextInt();
+            // number of sessions before quitting - a session is a set of n
+            // plays, where n = numRounds
+            this.numSessions = scanner.nextInt();
+            // this option will be active by the time expo is on,
+            // but it may not be available in the menu by expo. In that case,
+            // I have it handled.
+            // 
+            // For reference, it should be a lowercase string that says either
+            // "random" or "circular", without quotes. "random" means random 
+            // path, and "circular" means circular path, as I demonstrated at
+            // the meeting the other day.
+            if (scanner.hasNext()) {
+                String s = scanner.next();
+                if (s.equals("random")) {
+                    pathType = TracedPathType.RANDOM;
+                }
+                else {
+                    pathType = TracedPathType.CIRCULAR;
+                }
+            }
+            else {
+                pathType = TracedPathType.CIRCULAR;
+            }
+        }
+        catch (FileNotFoundException e) {
+            this.numPoints = 6;
+            this.numRounds = 6;
+            this.numSessions = 1;
+            this.pathType = TracedPathType.CIRCULAR;
+        }
     }
 
     private void gameLoop() {
@@ -187,7 +247,7 @@ public class PathTracingGame extends ApplicationAdapter implements Screen, Input
     }
 
     private boolean gameDone() {
-        return roundNum == 6;
+        return roundNum == numRounds;
     }
 
     private void finish() {
@@ -331,5 +391,10 @@ public class PathTracingGame extends ApplicationAdapter implements Screen, Input
         float x;
         float y;
         boolean connected;
+    }
+    
+    enum TracedPathType {
+        RANDOM,
+        CIRCULAR
     }
 }
