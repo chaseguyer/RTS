@@ -11,20 +11,22 @@ import java.io.File;
 
 public class RTS extends Game {
     
-    //MainMenu menu = new MainMenu();
+    public static MainMenu menu;
     
     @Override
     public void create() {
         Gdx.graphics.setDisplayMode(Gdx.graphics.getDesktopDisplayMode().width, Gdx.graphics.getDesktopDisplayMode().height, true);        
-	//setScreen(menu);
         
-        // create the folder that all the information for this game will go in
+        MainMenu menuAtStart = new MainMenu();
+        RTS.menu = menuAtStart;
+        
+        // create the folder that all the information for this application will go in
         File dir = new File("RTS Data/patients");
         dir.mkdirs();
         dir = new File("RTS Data/therapists");
         dir.mkdirs();
         
-        setScreen(new MainMenu());
+        setScreen(menu);
     }
     
 }

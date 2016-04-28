@@ -231,25 +231,23 @@ public class FileIO {
             System.out.println(e);
         }
         
-        //RTS.menu.hide();        
+        MainMenu.stage.clear();
+        RTS.menu.hide();
+        
         for(String name : routines) {
             if(name.equals("ISPY")) {
-                ((Game) Gdx.app.getApplicationListener()).setScreen(new I_Spy(first, last, routineName)); 
+                
+                
+                ((Game) Gdx.app.getApplicationListener()).setScreen(new I_Spy(first, last, routineName));
+                if(!MainMenu.continueRoutine) break;
             }
             else if(name.equals("MEMORY")) {
                 ((Game) Gdx.app.getApplicationListener()).setScreen(new MemoryGame(first, last, routineName));                
-            }
-            
-            // figure out where to put this!!
-            if(MainMenu.continueRoutine) {
-                continue;
-            } else {
-                break;                
-            }
-            
-        }
+                if(!MainMenu.continueRoutine) break;
+            }            
+        }        
         
-        
-        //RTS.menu.show();
+        MainMenu.stage.addActor(MainMenu.patientMenuTitleTable);
+        RTS.menu.show();
     }    
 }
