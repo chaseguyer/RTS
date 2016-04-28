@@ -62,7 +62,7 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
     int difficulty=-1, round=0;
     boolean stripped=false; 
     boolean orientation, displayStats=false;
-    int cardsPerRound, roundsTillStats,waves, wave;
+    int cardsPerRound, roundsTillStats,waves, wave=0;
     float displacement, revealTime;
     int failedAttempts=0;
     ArrayList<Float> statsTime=new ArrayList<Float>();
@@ -78,7 +78,7 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
         firstN = fName;
         lastN = lName;
         routine = routineName; 
-        wave=0;
+        //wave=0;
     }
     
     /**
@@ -121,7 +121,7 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
             if(orientation)
                 displacement=(9.0f*(displacement/100.0f)*(Gdx.graphics.getHeight()/1080.0f));
             else
-                displacement=(12.0f*(displacement/100.0f)*(Gdx.graphics.getWidth()/1920.0f));
+                displacement=(11.0f*(displacement/100.0f)*(Gdx.graphics.getWidth()/1920.0f));
             if(roundsTillStats<=0)
                 roundsTillStats=1;
             if(waves<=0)
@@ -188,7 +188,7 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
     /**
      * save the info of the player(client) into their first and last name folder and into a data file
      */
-        public void saveClient()
+    public void saveClient()
     {
         //make the string for the file to be saved into
         String file="RTS Data/patients/" + firstN + "_" + lastN + "/" + routine + "/MemoryGameStatistics.txt";
@@ -251,6 +251,8 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
                     {
                         //save the block averages
                         saveClient();
+                        wave++;
+                        //System.out.println(wave+" "+waves);
                         round=0;
                         displayStats=true;
                         //load the averages to be displayed in the displayBlockInfo()
@@ -270,6 +272,8 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
                 {
                     if(wave>=waves)
                         endGame();
+                    //wave++;
+                   // System.out.println(wave+" A "+waves);
                     //flip the draw stats status 
                     displayStats=!displayStats;
                     //clear the stats holders
@@ -744,6 +748,7 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
      */
     public void endGame()
     {
+        //System.out.println("PLEASE DIE");
         MainMenu.continueRoutine=true;//continue to next game
         ((Game) Gdx.app.getApplicationListener()).setScreen(RTS.menu);
         RTS.menu.show();
