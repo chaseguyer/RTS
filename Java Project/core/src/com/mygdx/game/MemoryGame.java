@@ -687,11 +687,17 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
     public boolean keyTyped(char c) {
         if(!quitEarly)
             return false;
-        if(Gdx.input.isKeyJustPressed(Keys.Q))
-            MainMenu.continueRoutine=false;//quit to next game
-        else if(Gdx.input.isKeyJustPressed(Keys.N))
+        
+        if(Gdx.input.isKeyJustPressed(Keys.Q)) {
+            MainMenu.continueRoutine=false;//quit routine
+            ((Game) Gdx.app.getApplicationListener()).setScreen(RTS.menu);
+            RTS.menu.show();
+        } else if(Gdx.input.isKeyJustPressed(Keys.N)) {
             MainMenu.continueRoutine=true;//continue to next game
-        ((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenu());
+            ((Game) Gdx.app.getApplicationListener()).setScreen(RTS.menu);
+            RTS.menu.show();
+        }
+        
         return false;
     }
     
@@ -739,6 +745,7 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
     public void endGame()
     {
         MainMenu.continueRoutine=true;//continue to next game
-        ((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenu());
+        ((Game) Gdx.app.getApplicationListener()).setScreen(RTS.menu);
+        RTS.menu.show();
     }
 }

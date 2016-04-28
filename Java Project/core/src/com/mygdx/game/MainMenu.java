@@ -69,18 +69,13 @@ import com.badlogic.gdx.utils.Align;
  * @author chaseguyer
  */
 
-
 /*
-
     Meeting notes:
 
     -do kenny's games parameters
 
     -Add option for quitting routine and for quitting game (just handle return value)        
     -figure out how to link games together
-
-    
-
 
     Misc (less important things)
         -add errors for all routine creation
@@ -103,7 +98,7 @@ public class MainMenu implements Screen {
     public static int CB_SIDE = 80;
     
     // Set up the stage and ready the skins
-    Stage stage = new Stage();
+    public static Stage stage = new Stage();
     static Skin skin = new Skin(Gdx.files.internal("skins/skins.json"), new TextureAtlas(Gdx.files.internal("skins/test.pack")));
 
     // Misc - mostly things for IO
@@ -116,7 +111,7 @@ public class MainMenu implements Screen {
     public String routineName;
     
     // if true, continue the routine; if false, quit to menu
-    public static boolean continueRoutine = false;
+    public static boolean continueRoutine = false, onCreate = true, inRoutine = false;
     
     
     /*
@@ -260,7 +255,7 @@ public class MainMenu implements Screen {
      *
      * PATIENT MENU
      */
-    private Table patientMenuTitleTable = new Table();
+    public static Table patientMenuTitleTable = new Table();
     private Label patientMenuTitle = new Label("What to do with the patient?", skin);
     
     private Table patientMenuTable = new Table();
@@ -454,10 +449,19 @@ public class MainMenu implements Screen {
         Gdx.input.setInputProcessor(stage);   
         resize(Gdx.graphics.getDesktopDisplayMode().width, Gdx.graphics.getDesktopDisplayMode().height);
         
-        createTables();
-        createListeners();
+        if(continueRoutine) {
+            file.runRoutine(pFirst, pLast, routineName);                            
+        }        
         
-        stage.addActor(loginTitle);
+        if(onCreate) {
+            createTables();
+            createListeners();
+
+            stage.addActor(loginTitle);
+            onCreate = false;
+        } else {
+            stage.addActor(patientMenuTitleTable);            
+        }
     }
 
            
@@ -1534,11 +1538,8 @@ public class MainMenu implements Screen {
             public void changed (ChangeEvent event, Actor actor) {                
                 stage.clear();
                 
-                routineName = loadRoutineTextField.getText();
-                
-                file.runRoutine(pFirst, pLast, routineName);
-                
-                stage.addActor(patientMenuTitleTable);
+                routineName = loadRoutineTextField.getText();                
+                file.runRoutine(pFirst, pLast, routineName);                
             }
         });
         
@@ -1570,7 +1571,7 @@ public class MainMenu implements Screen {
 
     @Override
     public void hide() {
-        dispose();
+        stage.clear();        
     }
 
     @Override

@@ -231,25 +231,14 @@ public class FileIO {
             System.out.println(e);
         }
         
-        //RTS.menu.hide();        
+        RTS.menu.hide();
         for(String name : routines) {
             if(name.equals("ISPY")) {
-                ((Game) Gdx.app.getApplicationListener()).setScreen(new I_Spy(first, last, routineName)); 
+                ((Game) Gdx.app.getApplicationListener()).setScreen(new I_Spy(first, last, routineName));
             }
             else if(name.equals("MEMORY")) {
                 ((Game) Gdx.app.getApplicationListener()).setScreen(new MemoryGame(first, last, routineName));                
-            }
-            
-            // figure out where to put this!!
-            if(MainMenu.continueRoutine) {
-                continue;
-            } else {
-                break;                
-            }
-            
-        }
-        
-        
-        //RTS.menu.show();
+            }            
+        }                
     }    
 }
