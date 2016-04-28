@@ -27,8 +27,8 @@ public class FileIO {
     // just to be clear, i have no idea what i'm doing...
     public boolean isValidLogin(String username, String password) {
         try{
-            Scanner scan = new Scanner(new File("rts-login.txt")).useDelimiter("\n");
-            Scanner small = new Scanner("");
+            Scanner scan = new Scanner(new File("RTS Data/therapists/rts-login.txt")).useDelimiter("\n");
+            Scanner small;
             
             // scan in the entries from the file and add them to the list of users
             while(scan.hasNextLine()) {
@@ -51,7 +51,13 @@ public class FileIO {
     // Creates a new therapist
     public void newTherapist(String username, String password) {
         try{
-            writer = new PrintWriter(new FileOutputStream("rts-login.txt", true));
+            
+            // make this therapists directory
+            File f = new File("RTS Data/therapists/" + username);
+            f.mkdir();
+            
+            // add therapist to rts-login file
+            writer = new PrintWriter(new FileOutputStream("RTS Data/therapists/rts-login.txt", true));
             writer.append(username + "," + password + "\n");
             writer.close();
         } catch (FileNotFoundException e) {}
@@ -66,24 +72,28 @@ public class FileIO {
         
         if(isNewPatient) {
             try{
+                // create the patient's directory
+                File f = new File("RTS Data/patients/" + fName + "_" + lName);
+                f.mkdirs();
+                
                 // add patient's info to their own file
                 if(!MainMenu.isLoadedPatient) {
-                    writer = new PrintWriter(new FileOutputStream(lName + "_" + fName + ".txt", true));
+                    writer = new PrintWriter(new FileOutputStream("RTS Data/patients/" + fName + "_" + lName + "/" + fName + "_" + lName + "_info" + ".txt", true));
                     writer.append(lName + "," + fName + "," + lArm + "," + rArm + "," + bArm + "," + fm + "," + gs + "," + ps + "," + hp + "\n");
                 } else {    
-                    writer = new PrintWriter(new FileOutputStream(lName + "_" + fName + ".txt", false));
+                    writer = new PrintWriter(new FileOutputStream("RTS Data/patients/" + fName + "_" + lName + "/" + fName + "_" + lName + "_info" + ".txt", false));
                     writer.write(lName + "," + fName + "," + lArm + "," + rArm + "," + bArm + "," + fm + "," + gs + "," + ps + "," + hp + "\n");
                 }
                 writer.close();
                 
                 // add patient to patient list
-                writer = new PrintWriter(new FileOutputStream(thName + "-patient-list.txt", true));
-                writer.append(lName + "," + fName + "\n");
+                writer = new PrintWriter(new FileOutputStream("RTS Data/therapists/" + thName + "/" + thName + "-patient-list.txt", true));
+                writer.append(fName + "," + lName + "\n");
                 writer.close();
             } catch (FileNotFoundException e) {} 
         } else if(!isNewPatient) { // load patient
             try {
-                Scanner scan = new Scanner(new File(lName + "_" + fName + ".txt")).useDelimiter("\n");
+                Scanner scan = new Scanner(new File("RTS Data/patients/" + fName + "_" + lName + "/" + fName + "_" + lName + "_info" + ".txt")).useDelimiter("\n");
                 Scanner small;
                 
                 while(scan.hasNextLine()) {
@@ -102,19 +112,20 @@ public class FileIO {
         }        
     }
     
+    // this function checks  whether or not a patient exists
     public boolean isPatient(String therapistName, String pFirst, String pLast) {
         ArrayList<String> pList = new ArrayList<String>();
         ArrayList<String> patientFirst = new ArrayList<String>();
         ArrayList<String> patientLast = new ArrayList<String>();   
         
         try{
-            Scanner scan = new Scanner(new File(therapistName + "-patient-list.txt")).useDelimiter("\n");
+            Scanner scan = new Scanner(new File("RTS Data/therapists/" + therapistName + "/" + therapistName + "-patient-list.txt")).useDelimiter("\n");
             Scanner small;
             
             while(scan.hasNextLine()) {
                 small = new Scanner(scan.nextLine()).useDelimiter(","); 
-                patientLast.add(small.next());
                 patientFirst.add(small.next());
+                patientLast.add(small.next());
             }
             scan.close();
         } catch(FileNotFoundException e) {}
@@ -132,21 +143,26 @@ public class FileIO {
         return false;
     }
     
+    // this function creates the routine folder 
+    public void addRoutineFolder(String first, String last, String routineName) { 
+        // create the routine folder
+        File dir = new File("RTS Data/patients/" + first + "_" + last + "/" + routineName);
+        dir.mkdirs();        
+    }
+    
+    // this function creates the routine subfolder information
     public void addRoutine(String first, String last, String routineName, String routine) {
         try {
-            // add patient to patient list
-            writer = new PrintWriter(new FileOutputStream(first + "_" + last + "_" + routineName + ".txt", true));
-            
-            File dir = new File(first + last + "/Data/" + routineName);
-            dir.mkdirs();
+            // add routine
+            writer = new PrintWriter(new FileOutputStream("RTS Data/patients/" + first + "_" + last + "/" + routineName + "/" + first + "_" + last + "_" + routineName + ".txt", true));
             
             if(routine.equals("ISPY")) {
                 writer.append("ISPY\n");
                 writer.close();
 
-                String file = first + last + "/Data/" + routineName + "/ISpyGameInfo.txt";
+                String file = "RTS Data/patients/" + first + "_" + last + "/" + routineName + "/ISpyGameInfo.txt";
                 File f = new File(file);
-                writer = new PrintWriter(new FileOutputStream(f, true));
+                writer = new PrintWriter(new FileOutputStream(f, false)); // false, therefore DO NOT APPEND, overwrite
                 writer.append(MainMenu.area1.isChecked() + " " + 
                                 MainMenu.area2.isChecked() + " " + 
                                 MainMenu.area3.isChecked() + " " + 
@@ -176,9 +192,9 @@ public class FileIO {
                 boolean orientation = false;
                 if(MainMenu.leftOrien.isChecked()) orientation = true;
                 
-                String file = first + last + "/Data/" + routineName + "/MemoryGameInfo.txt";
+                String file = "RTS Data/patients/" + first + "_" + last + "/" + routineName + "/MemoryGameInfo.txt";
                 File f = new File(file);
-                writer = new PrintWriter(new FileOutputStream(f, true));
+                writer = new PrintWriter(new FileOutputStream(f, false));
                 writer.append(orientation + " " +
                                 MainMenu.dispPercent.getText() + " " +
                                 MainMenu.cardPairs.getText() + " " +
@@ -202,7 +218,7 @@ public class FileIO {
     public void runRoutine(String first, String last, String routineName) {
         ArrayList<String> routines = new ArrayList<String>(); 
         
-        File f = new File(first + "_" + last + "_" + routineName + ".txt");
+        File f = new File("RTS Data/patients/" + first + "_" + last + "/" + routineName + "/" + first + "_" + last + "_" + routineName + ".txt");
         
         try {
             Scanner scan = new Scanner(f);
@@ -211,22 +227,18 @@ public class FileIO {
                 routines.add(s);
             }
             scan.close();
-        } catch (FileNotFoundException e) {}
+        } catch (FileNotFoundException e) {
+            System.out.println(e);
+        }
         
-        //RTS.menu.hide();        
+        RTS.menu.hide();
         for(String name : routines) {
             if(name.equals("ISPY")) {
-                ((Game) Gdx.app.getApplicationListener()).setScreen(new I_Spy(first, last, routineName));    
+                ((Game) Gdx.app.getApplicationListener()).setScreen(new I_Spy(first, last, routineName));
             }
             else if(name.equals("MEMORY")) {
                 ((Game) Gdx.app.getApplicationListener()).setScreen(new MemoryGame(first, last, routineName));                
-            }
-            
-            if(MainMenu.continueRoutine) {}
-            
-        }
-        
-        
-        //RTS.menu.show();
+            }            
+        }                
     }    
 }

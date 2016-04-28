@@ -77,7 +77,7 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
     public void loadPlacement()
     {
         //create a string fro the patient folder/data folder/ispygameinfo.txt
-        String f=firstN+lastN+"/Data/"+routine+"/ISpyGameInfo.txt";
+        String f="RTS Data/patients/" + firstN + "_" + lastN + "/" + routine + "/ISpyGameInfo.txt";
         File file=new File(f);
         try 
         {
@@ -101,9 +101,9 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
                 waves=3;
             scan.close();
             //check for invalid input
-            if(roundsTillStats<0)
+            if(roundsTillStats<=0)
                 roundsTillStats=1;
-            if(waves<0)
+            if(waves<=0)
                 waves=1;
         } 
         catch (FileNotFoundException ex) 
@@ -119,7 +119,7 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
     {
         //System.out.println("open");
         //emter the patient file
-        String fileName=firstN+lastN+"/Data/"+routine+"/ISpyStatistics.txt";
+        String fileName="RTS Data/patients/" + firstN + "_" + lastN + "/" + routine + "/ISpyStatistics.txt";
         File file=new File(fileName);
         try 
         {
@@ -160,7 +160,7 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
     public void saveClient()
     {
         //enter the patient data file
-        String file=firstN+lastN+"/Data/"+routine+"/ISpyStatistics.txt";
+        String file="RTS Data/patients/" + firstN + "_" + lastN + "/" + routine + "/ISpyStatistics.txt";
         DateFormat dateFormat = new SimpleDateFormat("yyyy MM dd");
         Date date = new Date();
         //System.out.println(dateFormat.format(date)); //2014/08/06 
@@ -584,12 +584,17 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
     public boolean keyTyped(char c) {
         if(!quitEarly)
             return false;
-        if(Gdx.input.isKeyJustPressed(Keys.Q))
-            MainMenu.continueRoutine=false;//quit to next game
-        else if(Gdx.input.isKeyJustPressed(Keys.N))
+        
+        if(Gdx.input.isKeyJustPressed(Keys.Q)) {
+            MainMenu.continueRoutine=false;//quit routine
+            ((Game) Gdx.app.getApplicationListener()).setScreen(RTS.menu);
+            RTS.menu.show();
+        } else if(Gdx.input.isKeyJustPressed(Keys.N)) {
             MainMenu.continueRoutine=true;//continue to next game
-        //System.out.println("dye");
-        ((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenu());
+            ((Game) Gdx.app.getApplicationListener()).setScreen(RTS.menu);
+            RTS.menu.show();
+        }
+        
         return false;
     }
 
@@ -645,6 +650,7 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
     {
         saveClient();
         loadAverage();
+        
     }
     
     /**
@@ -653,7 +659,8 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
     public void endGame()
     {
         MainMenu.continueRoutine=true;//continue to next game
-        ((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenu());
+        ((Game) Gdx.app.getApplicationListener()).setScreen(RTS.menu);
+        RTS.menu.show();
     }
 }
 
