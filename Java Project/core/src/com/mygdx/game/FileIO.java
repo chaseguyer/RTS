@@ -22,10 +22,10 @@ public class FileIO {
     ArrayList<String> unList = new ArrayList<String>();
     ArrayList<String> pwList = new ArrayList<String>();
     
-    
+    LinkedList<String> gameList = new LinkedList<String>();
     
     // just to be clear, i have no idea what i'm doing...
-    public boolean isValidLogin(String username, String password) {
+    public boolean isValidLogin(String username, String password) {    
         try{
             Scanner scan = new Scanner(new File("RTS Data/therapists/rts-login.txt")).useDelimiter("\n");
             Scanner small;
@@ -215,38 +215,35 @@ public class FileIO {
         
     }
     
-    public void runRoutine(String first, String last, String routineName) {
-        ArrayList<String> routines = new ArrayList<String>(); 
-        
+    public void queueRoutine(String first, String last, String routineName) {
+    
         File f = new File("RTS Data/patients/" + first + "_" + last + "/" + routineName + "/" + first + "_" + last + "_" + routineName + ".txt");
         
         try {
             Scanner scan = new Scanner(f);
             while(scan.hasNextLine()) {
                 String s = scan.nextLine();
-                routines.add(s);
+                gameList.add(s);
             }
             scan.close();
         } catch (FileNotFoundException e) {
             System.out.println(e);
         }
         
-        String name;
-        
-        RTS.menu.hide();
-        for(int i = 0; i < routines.size(); i++) {
-            name = routines.get(i);
-            
-            if(i == routines.size()-1) {
-                MainMenu.onLastGame = true;
-            }
-            
-            if(name.equals("ISPY")) {
-                ((Game) Gdx.app.getApplicationListener()).setScreen(new I_Spy(first, last, routineName));
-            }
-            else if(name.equals("MEMORY")) {
-                ((Game) Gdx.app.getApplicationListener()).setScreen(new MemoryGame(first, last, routineName));                
-            }            
-        }                
     }    
+    
+    public void runRoutine(String first, String last, String routineName) {   
+        RTS.menu.hide();
+        
+        String name = "";
+        if(!gameList.isEmpty()) {
+            name = gameList.remove();
+        }
+        
+        if(name.equals("ISPY")) {
+            ((Game) Gdx.app.getApplicationListener()).setScreen(new I_Spy(first, last, routineName)); 
+        } else if(name.equals("MEMORY")) {
+            ((Game) Gdx.app.getApplicationListener()).setScreen(new MemoryGame(first, last, routineName));                
+        }                        
+    }
 }

@@ -585,7 +585,7 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
         if(!quitEarly)
             return false;
         
-        if(Gdx.input.isKeyJustPressed(Keys.Q)) {
+        if(Gdx.input.isKeyJustPressed(Keys.Q)) {      
             MainMenu.continueRoutine=false;//quit routine
             ((Game) Gdx.app.getApplicationListener()).setScreen(RTS.menu);
             RTS.menu.show();
