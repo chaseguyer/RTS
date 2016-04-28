@@ -111,7 +111,7 @@ public class MainMenu implements Screen {
     public String routineName;
     
     // if true, continue the routine; if false, quit to menu
-    public static boolean continueRoutine = false, onCreate = true, inRoutine = false;
+    public static boolean continueRoutine = false, onCreate = true, inRoutine = false, onLastGame = false;
     
     
     /*
@@ -449,7 +449,7 @@ public class MainMenu implements Screen {
         Gdx.input.setInputProcessor(stage);   
         resize(Gdx.graphics.getDesktopDisplayMode().width, Gdx.graphics.getDesktopDisplayMode().height);
         
-        if(continueRoutine) {
+        if(continueRoutine && !onLastGame) {
             file.runRoutine(pFirst, pLast, routineName);                            
         }        
         

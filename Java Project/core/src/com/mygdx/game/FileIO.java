@@ -231,8 +231,16 @@ public class FileIO {
             System.out.println(e);
         }
         
+        String name;
+        
         RTS.menu.hide();
-        for(String name : routines) {
+        for(int i = 0; i < routines.size(); i++) {
+            name = routines.get(i);
+            
+            if(i == routines.size()-1) {
+                MainMenu.onLastGame = true;
+            }
+            
             if(name.equals("ISPY")) {
                 ((Game) Gdx.app.getApplicationListener()).setScreen(new I_Spy(first, last, routineName));
             }
