@@ -64,7 +64,9 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
     long roundTime, timer=System.currentTimeMillis();
     String firstN, lastN, routine;
     boolean quitEarly=false;
+    
     I_Spy(String fName, String lName, String routineName) {
+        //System.out.println("I Spy constructor");
         firstN = fName;
         lastN = lName;
         routine = routineName;         
@@ -588,11 +590,11 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
         if(Gdx.input.isKeyJustPressed(Keys.Q)) {      
             MainMenu.continueRoutine=false;//quit routine
             ((Game) Gdx.app.getApplicationListener()).setScreen(RTS.menu);
-            RTS.menu.show();
+            //RTS.menu.show();
         } else if(Gdx.input.isKeyJustPressed(Keys.N)) {
             MainMenu.continueRoutine=true;//continue to next game
             ((Game) Gdx.app.getApplicationListener()).setScreen(RTS.menu);
-            RTS.menu.show();
+            //RTS.menu.show();
         }
         
         return false;
@@ -660,7 +662,7 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
     {
         MainMenu.continueRoutine=true;//continue to next game
         ((Game) Gdx.app.getApplicationListener()).setScreen(RTS.menu);
-        RTS.menu.show();
+        //RTS.menu.show();
     }
 }
 
