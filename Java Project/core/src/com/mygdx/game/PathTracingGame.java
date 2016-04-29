@@ -61,6 +61,7 @@ public class PathTracingGame extends ApplicationAdapter implements Screen, Input
     private int numRounds;
     private TracedPathType pathType;
     private int numSessions;
+    private int sessionNum;
     private final BitmapFont font;
     private final GlyphLayout layout;
     private final List<Long> roundTimes;
@@ -86,6 +87,8 @@ public class PathTracingGame extends ApplicationAdapter implements Screen, Input
         averageDistances = new ArrayList();
         roundTimes = new ArrayList();
         recordingTime = false;
+        sessionNum = 0;
+        roundNum = 0;
         
         this.firstName = firstName;
         this.lastName = lastName;
@@ -110,11 +113,8 @@ public class PathTracingGame extends ApplicationAdapter implements Screen, Input
             gameLoop();
             renderGame();
         }
-        else if (!timeToEnd()) {
-            renderStats();
-        }
         else {
-            goBackToScreen();
+            renderStats();
         }
     }
 
@@ -125,11 +125,17 @@ public class PathTracingGame extends ApplicationAdapter implements Screen, Input
 
     @Override
     public boolean keyDown(int i) {
-        if (i == Input.Keys.ESCAPE) {
-            MainMenu.continueRoutine = true;
+        if (i == Input.Keys.Q) {
             ((Game) Gdx.app.getApplicationListener()).setScreen(RTS.menu);
-            RTS.menu.show();
-            Gdx.input.setCursorCatched(false);
+        }
+        else if (i == Input.Keys.N && !this.gameLooping && this.sessionNum < this.numSessions-1) {
+            nextSession();
+        }
+        else if (i == Input.Keys.ESCAPE) {
+            while (roundNum != numRounds) {
+                roundNum++;
+            }
+            this.gameLooping = false;
         }
         return true;
     }
@@ -212,7 +218,6 @@ public class PathTracingGame extends ApplicationAdapter implements Screen, Input
             }
         }
         catch (FileNotFoundException e) {
-            System.out.println(e);
             this.numPoints = 6;
             this.numRounds = 6;
             this.numSessions = 1;
@@ -278,12 +283,19 @@ public class PathTracingGame extends ApplicationAdapter implements Screen, Input
     }
 
     private boolean sessionDone() {
-        return roundNum == numRounds;
+        return roundNum == numRounds+1;
+    }
+    
+    private void nextSession() {
+        roundNum = 0;
+        sessionNum++;
+        gameLooping = true;
+        averageDistances.clear();
+        roundTimes.clear();
+        nextRound();
     }
 
     private void finish() {
-        this.endingSequence = true;
-        this.endingTime = System.currentTimeMillis();
         this.gameLooping = false;
     }
 
@@ -292,7 +304,6 @@ public class PathTracingGame extends ApplicationAdapter implements Screen, Input
         // write the stats for the last round to a file
         float avg = 0;
         for (int i = 0; i < lineDistances.size(); ++i) {
-            System.out.println(lineDistances.get(i));
             avg += lineDistances.get(i);
         }
         avg /= lineDistances.size();
@@ -404,11 +415,41 @@ public class PathTracingGame extends ApplicationAdapter implements Screen, Input
     }
 
     private void renderStats() {
-        CharSequence str = "";
-        for (int i = 0; i < averageDistances.size(); ++i) {
-            str += averageDistances.get(i).toString() + "\n";
-            str += convertToTimeString(this.roundTimes.get(i)).toString() + "\n";
+        String instructions = "";
+        if (this.sessionNum < this.numSessions-1) {
+            instructions = "Press Q to quit or N to go to the next round.\n\n";
         }
+        else {
+            instructions = "Press Q to quit.\n\n";
+        }
+        
+        String distanceStr = "Round Distances: \n";
+        float avgDistance = 0;
+        for (int i = 0; i < averageDistances.size(); ++i) {
+            distanceStr += Integer.toString(i+1) + ": " + String.format("%.2f",averageDistances.get(i)) + "\n";
+            avgDistance += averageDistances.get(i);
+        }
+        if (averageDistances.isEmpty()) {
+            avgDistance = 0;
+        }
+        else {
+            avgDistance /= averageDistances.size();
+        }
+        
+        String timeStr = "Round Times: \n";
+        long totalTime = 0;
+        for (int i = 0; i < roundTimes.size(); ++i) {
+            timeStr += Integer.toString(i+1) + ": " + convertToTimeString(roundTimes.get(i)) + "\n";
+            totalTime += roundTimes.get(i);
+        }
+        
+        CharSequence str = 
+                instructions +
+                "Average Distance: " + 
+                String.format("%.2f", avgDistance) + 
+                "\nTotal Time: " + convertToTimeString(totalTime) + 
+                "\n\n" + distanceStr + "\n" + timeStr;
+        
         font.getData().setScale(0.5f);
         layout.setText(font, str);
         float width = layout.width;
