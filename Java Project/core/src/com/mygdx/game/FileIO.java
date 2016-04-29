@@ -263,7 +263,6 @@ public class FileIO {
     }
     
     public void queueRoutine(String first, String last, String routineName) {
-        System.out.println("queueRoutine");
         
         File f = new File("RTS Data/patients/" + first + "_" + last + "/" + routineName + "/" + first + "_" + last + "_" + routineName + ".txt");
         

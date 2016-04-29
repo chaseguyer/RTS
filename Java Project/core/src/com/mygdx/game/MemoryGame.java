@@ -75,7 +75,7 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
     boolean quitEarly=false;
     
     MemoryGame(String fName, String lName, String routineName) {
-        System.out.println("Memory constructor");
+        //System.out.println("Memory constructor");
         firstN = fName;
         lastN = lName;
         routine = routineName; 
@@ -696,11 +696,11 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
         if(Gdx.input.isKeyJustPressed(Keys.Q)) {
             MainMenu.continueRoutine=false;//quit routine
             ((Game) Gdx.app.getApplicationListener()).setScreen(RTS.menu);
-            RTS.menu.show();
+            //RTS.menu.show();
         } else if(Gdx.input.isKeyJustPressed(Keys.N)) {
             MainMenu.continueRoutine=true;//continue to next game
             ((Game) Gdx.app.getApplicationListener()).setScreen(RTS.menu);
-            RTS.menu.show();
+            //RTS.menu.show();
         }
         
         return false;
@@ -752,6 +752,6 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
         //System.out.println("PLEASE DIE");
         MainMenu.continueRoutine=true;//continue to next game
         ((Game) Gdx.app.getApplicationListener()).setScreen(RTS.menu);
-        RTS.menu.show();
+        //RTS.menu.show();
     }
 }
