@@ -99,7 +99,7 @@ public class MainMenu implements Screen {
     
     // Set up the stage and ready the skins
     public static Stage stage = new Stage();
-    static Skin skin = new Skin(Gdx.files.internal("skins/skins.json"), new TextureAtlas(Gdx.files.internal("skins/test.pack")));
+    public static final Skin skin = new Skin(Gdx.files.internal("skins/skins.json"), new TextureAtlas(Gdx.files.internal("skins/test.pack")));
 
     // Misc - mostly things for IO
     FileIO file = new FileIO(); // file I/O for db stuff
@@ -341,7 +341,7 @@ public class MainMenu implements Screen {
     private Label iSpyParam4Label = new Label("Activate the striped background?", skin);
     public static CheckBox iSpyStripedBox = new CheckBox("", skin);
     //param 5
-    private Label iSpyParam5Label = new Label("How many repetitions?(sets of rounds till statistics are shown)", skin);
+    private Label iSpyParam5Label = new Label("How many repetitions?(sets of rounds until statistics are shown)", skin);
     public static TextField iSpyRepetitions = new TextField("", skin);
     
     
@@ -388,7 +388,7 @@ public class MainMenu implements Screen {
     private Label memParam7Label = new Label("Activate striped background?", skin);
     public static CheckBox memStripedBox = new CheckBox("", skin);
     //param 8
-    private Label memParam8Label = new Label("How many repetitions?(sets of rounds till statistics are shown)", skin);
+    private Label memParam8Label = new Label("How many repetitions?(sets of rounds until statistics are shown)", skin);
     public static TextField memRepetitions = new TextField("", skin);
     
     private TextButton memoryDone = new TextButton("Done", skin);
@@ -400,13 +400,27 @@ public class MainMenu implements Screen {
      *
      * MAZE ROUTINE CREATION
      */
+    private Table mazeParentTable = new Table();
     private Table mazeParamsTable = new Table();
     private Table mazeParamsTitleTable = new Table();
     private Table mazeParamsObjects = new Table();
     private Table mazeParamsButtons = new Table();
+    private ScrollPane mazeScroller = new ScrollPane(mazeParamsTable, skin);
     
+    // title
     private Label mazeTitleLabel = new Label("MAZE PARAMETERS", skin);
     
+    // objects
+    private Label mazeParam1Label = new Label("How many blocks wide would you like the maze to be?", skin);
+    public static TextField mazeWidth = new TextField("", skin);    
+    private Label mazeParam2Label = new Label("How many blocks high would you like the maze to be?", skin);
+    public static TextField mazeHeight = new TextField("", skin);    
+    private Label mazeParam3Label = new Label("How many rounds until statistics are shown?", skin);
+    public static TextField mazeRoundsTillStats = new TextField("", skin);
+    private Label mazeParam4Label = new Label("How many repetitions?(sets of rounds until statistics are shown)", skin);
+    public static TextField mazeRepetitions = new TextField("", skin);
+    
+    // buttons
     private TextButton mazeDone = new TextButton("Done", skin);
     private TextButton mazeBack = new TextButton("Back", skin);
     
@@ -416,15 +430,30 @@ public class MainMenu implements Screen {
      *
      * PATH TRACING ROUTINE CREATION
      */
-    private Table pathTraceParamsTable = new Table();
-    private Table pathTraceParamsTitleTable = new Table();
-    private Table pathTraceParamsObjects = new Table();
-    private Table pathTraceParamsButtons = new Table();
+    private Table pathParentTable = new Table();
+    private Table pathParamsTable = new Table();
+    private Table pathParamsTitleTable = new Table();
+    private Table pathParamsObjects = new Table();
+    private Table pathParamsButtons = new Table();
+    private ScrollPane pathScroller = new ScrollPane(pathParamsTable, skin);
     
-    private Label pathTraceTitleLabel = new Label("PATH TRACING PARAMETERS", skin);
+    // title table
+    private Label pathTitleLabel = new Label("PATH TRACING PARAMETERS", skin);
     
-    private TextButton pathTraceDone = new TextButton("Done", skin);
-    private TextButton pathTraceBack = new TextButton("Back", skin);
+    // objects
+    private Label pathParam1Label = new Label("How many points would you like there to be along the path?", skin);
+    public static TextField numPointsTF = new TextField("", skin);
+    private Label pathParam2Label = new Label("How many rounds until statistics are shown?", skin);
+    public static TextField pathRoundsTillStats = new TextField("", skin);
+    private Label pathParam3Label = new Label("How many repetitions?(sets of rounds until statistics are shown)", skin);
+    public static TextField pathRepetitions = new TextField("", skin);
+    private Label pathParam4Label = new Label("What would you like that path's shape to be?", skin);
+    public static CheckBox circularPath = new CheckBox("Circular", skin);
+    public static CheckBox randomPath = new CheckBox("Random", skin);
+    
+    // buttons
+    private TextButton pathDone = new TextButton("Done", skin);
+    private TextButton pathBack = new TextButton("Back", skin);
     
     
     /*
@@ -900,40 +929,82 @@ public class MainMenu implements Screen {
          *
          * MAZE PARAMETERS
          */
-        mazeParamsTable.setFillParent(true);
+        mazeParentTable.setFillParent(true);
+        mazeParentTable.add(mazeScroller);
         mazeParamsTable.add(mazeParamsTitleTable).center().row();
         mazeParamsTable.add(mazeParamsObjects).left().row();
         mazeParamsTable.add(mazeParamsButtons).center().row();
         
         // title
-        mazeParamsTitleTable.add(mazeTitleLabel);
+        mazeParamsTitleTable.add(mazeTitleLabel).center().padTop(50).padBottom(30).row();
         mazeTitleLabel.setFontScale(0.9f);
         
         // parameters
+        mazeParamsObjects.add(mazeParam1Label).left().row();
+        mazeParamsObjects.add(mazeWidth).size(TB_WIDTH, TB_HEIGHT).padBottom(30).left().row();
+        
+        mazeParamsObjects.add(mazeParam2Label).left().row();
+        mazeParamsObjects.add(mazeHeight).size(TB_WIDTH, TB_HEIGHT).padBottom(30).left().row();
+        
+        mazeParamsObjects.add(mazeParam3Label).left().row();
+        mazeParamsObjects.add(mazeRoundsTillStats).size(TB_WIDTH, TB_HEIGHT).padBottom(30).left().row();
+        
+        mazeParamsObjects.add(mazeParam4Label).left().row();
+        mazeParamsObjects.add(mazeRepetitions).size(TB_WIDTH, TB_HEIGHT).padBottom(30).left().row();
+        
+        mazeParam1Label.setFontScale(LABEL_FS);
+        mazeParam2Label.setFontScale(LABEL_FS);
+        mazeParam3Label.setFontScale(LABEL_FS);
+        mazeParam4Label.setFontScale(LABEL_FS);
         
         // buttons 
         mazeParamsButtons.add(mazeDone).size(TB_WIDTH, TB_HEIGHT).row();
         mazeParamsButtons.add(mazeBack).size(TB_WIDTH, TB_HEIGHT).row();
+        mazeDone.getLabel().setFontScale(LABEL_FS);
+        mazeBack.getLabel().setFontScale(LABEL_FS);
         
         
         /*
          *
          * PATH TRACING PARAMETERS
          */
-        pathTraceParamsTable.setFillParent(true);
-        pathTraceParamsTable.add(pathTraceParamsTitleTable).center().row();
-        pathTraceParamsTable.add(pathTraceParamsObjects).left().row();
-        pathTraceParamsTable.add(pathTraceParamsButtons).center().row();
+        pathParentTable.setFillParent(true);
+        pathParentTable.add(pathScroller);
+        pathParamsTable.add(pathParamsTitleTable).center().row();
+        pathParamsTable.add(pathParamsObjects).left().row();
+        pathParamsTable.add(pathParamsButtons).center().row();
         
         // title
-        pathTraceParamsTitleTable.add(pathTraceTitleLabel);
-        pathTraceTitleLabel.setFontScale(0.9f);
+        pathParamsTitleTable.add(pathTitleLabel).center().padTop(50).padBottom(30).row();
+        pathTitleLabel.setFontScale(0.9f);
         
         // parameters
+        pathParamsObjects.add(pathParam1Label).left().row();
+        pathParamsObjects.add(numPointsTF).size(TB_WIDTH, TB_HEIGHT).padBottom(30).left().row();
+        
+        pathParamsObjects.add(pathParam2Label).left().row();
+        pathParamsObjects.add(pathRoundsTillStats).size(TB_WIDTH, TB_HEIGHT).padBottom(30).left().row();
+        
+        pathParamsObjects.add(pathParam3Label).left().row();
+        pathParamsObjects.add(pathRepetitions).size(TB_WIDTH, TB_HEIGHT).padBottom(30).left().row();
+        
+        pathParamsObjects.add(pathParam4Label).left().row();
+        
+        Table pathShape = new Table();        
+        pathShape.add(circularPath).size(400, 150).left();
+        pathShape.add(randomPath).size(400, 150).left().row();
+        pathParamsObjects.add(pathShape).padBottom(30).left();
+        
+        pathParam1Label.setFontScale(LABEL_FS);
+        pathParam2Label.setFontScale(LABEL_FS);
+        pathParam3Label.setFontScale(LABEL_FS);
+        pathParam4Label.setFontScale(LABEL_FS);
         
         // buttons 
-        pathTraceParamsButtons.add(pathTraceDone).size(TB_WIDTH, TB_HEIGHT).row();
-        pathTraceParamsButtons.add(pathTraceBack).size(TB_WIDTH, TB_HEIGHT).row();
+        pathParamsButtons.add(pathDone).size(TB_WIDTH, TB_HEIGHT).row();
+        pathParamsButtons.add(pathBack).size(TB_WIDTH, TB_HEIGHT).row();
+        pathDone.getLabel().setFontScale(LABEL_FS);
+        pathBack.getLabel().setFontScale(LABEL_FS);
         
         
         
@@ -1384,16 +1455,12 @@ public class MainMenu implements Screen {
         });
         
         
-        
-        
-        
         // I Spy
         ispyBt.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {
                 stage.clear();
                 stage.addActor(iSpyParentTable);
-                //((Game) Gdx.app.getApplicationListener()).setScreen(new I_Spy("a", "a", "a"));
             }
         });    
         
@@ -1403,8 +1470,6 @@ public class MainMenu implements Screen {
             public void changed (ChangeEvent event, Actor actor) {
                 stage.clear();
                 stage.addActor(memoryParamsParentTable);
-                                
-                //((Game) Gdx.app.getApplicationListener()).setScreen(new MemoryGame("a", "a", "a"));
             }
         });    
         
@@ -1413,8 +1478,7 @@ public class MainMenu implements Screen {
             @Override
             public void changed (ChangeEvent event, Actor actor) {
                 stage.clear();
-                stage.addActor(mazeParamsTable);
-                //((Game) Gdx.app.getApplicationListener()).setScreen(new MazeGame());
+                stage.addActor(mazeParentTable);
             }
         }); 
         
@@ -1423,17 +1487,23 @@ public class MainMenu implements Screen {
             @Override
             public void changed (ChangeEvent event, Actor actor) {
                 stage.clear();
-                stage.addActor(pathTraceParamsTable);
-                //((Game) Gdx.app.getApplicationListener()).setScreen(new MazeGame());
+                stage.addActor(pathParentTable);                
             }
         });
         
+        // Done
+        routineDone.addListener(new ChangeListener() {
+            @Override
+            public void changed (ChangeEvent event, Actor actor) {                    
+                stage.clear();
+                stage.addActor(patientMenuTitleTable);
+            }
+        });
         
         // Back
         routineBack.addListener(new ChangeListener() {
             @Override
-            public void changed (ChangeEvent event, Actor actor) {    
-                
+            public void changed (ChangeEvent event, Actor actor) {                    
                 stage.clear();
                 stage.addActor(patientMenuTitleTable);
             }
@@ -1493,6 +1563,7 @@ public class MainMenu implements Screen {
         mazeDone.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {                
+                file.addRoutine(pFirst, pLast, routineName, "MAZE");                
                 stage.clear();
                 stage.addActor(createRoutineTable);
             }
@@ -1512,15 +1583,16 @@ public class MainMenu implements Screen {
          *
          * PATH TRACING PARAMETERS
          */
-        pathTraceDone.addListener(new ChangeListener() {
+        pathDone.addListener(new ChangeListener() {
             @Override
-            public void changed (ChangeEvent event, Actor actor) {                
+            public void changed (ChangeEvent event, Actor actor) {    
+                file.addRoutine(pFirst, pLast, routineName, "PATH TRACE");                
                 stage.clear();
                 stage.addActor(createRoutineTable);
             }
         });
         
-        pathTraceBack.addListener(new ChangeListener() {
+        pathBack.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {                
                 stage.clear();
@@ -1536,7 +1608,8 @@ public class MainMenu implements Screen {
         loadRoutineRun.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {                
-                stage.clear();
+                // need check for if the routine doesnt exist
+                // loadRouitineError.setVisibility(true);
                 
                 routineName = loadRoutineTextField.getText();                
                 

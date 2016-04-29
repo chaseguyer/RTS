@@ -153,7 +153,7 @@ public class PathTracingGame extends ApplicationAdapter implements Screen, Input
     }
 
     private void loadVariables() {
-        String filePath ="RTS Data/patients/" + firstName + "_" + lastName + "/" + routine + "/PathTracingGame.txt";
+        String filePath ="RTS Data/patients/" + firstName + "_" + lastName + "/" + routine + "/PathTracingGameInfo.txt";
         File file = new File(filePath);
         try {
             Scanner scanner = new Scanner(file);
@@ -186,6 +186,7 @@ public class PathTracingGame extends ApplicationAdapter implements Screen, Input
             }
         }
         catch (FileNotFoundException e) {
+            System.out.println(e);
             this.numPoints = 6;
             this.numRounds = 6;
             this.numSessions = 1;
