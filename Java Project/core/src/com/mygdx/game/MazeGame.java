@@ -145,11 +145,12 @@ public class MazeGame extends ApplicationAdapter implements Screen, InputProcess
             Gdx.input.setCursorCatched(false);
         }
         else if (i == Input.Keys.ESCAPE) {
-            roundNum++;
+            if (roundNum == 0) {
+                roundNum++;
+            }
             while (roundNum % numRounds != 0) {
                 roundNum++;
             }
-            System.out.println(roundNum);
             playing = false;
         }
         return true;
