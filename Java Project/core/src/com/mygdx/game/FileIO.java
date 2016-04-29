@@ -285,6 +285,7 @@ public class FileIO {
         String name = "";
         if(!gameList.isEmpty()) {
             name = gameList.remove();
+            System.out.println("name: " + name);
         }
         
         if(name.equals("ISPY")) {

@@ -75,6 +75,7 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
     boolean quitEarly=false;
     
     MemoryGame(String fName, String lName, String routineName) {
+        System.out.println("Memory constructor");
         firstN = fName;
         lastN = lName;
         routine = routineName; 

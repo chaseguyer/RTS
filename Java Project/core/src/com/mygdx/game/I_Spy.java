@@ -64,7 +64,9 @@ public class I_Spy extends ApplicationAdapter implements Screen, InputProcessor
     long roundTime, timer=System.currentTimeMillis();
     String firstN, lastN, routine;
     boolean quitEarly=false;
+    
     I_Spy(String fName, String lName, String routineName) {
+        System.out.println("I Spy constructor");
         firstN = fName;
         lastN = lName;
         routine = routineName;         

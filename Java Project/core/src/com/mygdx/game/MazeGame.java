@@ -58,6 +58,7 @@ public class MazeGame extends ApplicationAdapter implements Screen, InputProcess
     private int numSessions;
     
     public MazeGame(String firstName, String lastName, String routineName) {
+        System.out.println("Maze constructor");
         this.firstName = firstName;
         this.lastName = lastName;
         this.routine = routineName;
