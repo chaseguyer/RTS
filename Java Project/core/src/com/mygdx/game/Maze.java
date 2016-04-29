@@ -10,6 +10,9 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.math.Vector2;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -37,6 +40,9 @@ public class Maze {
     private int screenHeight;
     private static int lastEndX = -1;
     private static int lastEndY = -1;
+    private int endX;
+    private int endY;
+    private ShapeRenderer shapeRenderer;
     
     /**
      * Make a new maze.
@@ -56,6 +62,7 @@ public class Maze {
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
         dotRadius = dot.getWidth()/2;
+        this.shapeRenderer = new ShapeRenderer();
         
         Random r = new Random(System.currentTimeMillis());
         List<Point> corners = new ArrayList();
@@ -74,8 +81,8 @@ public class Maze {
         redDotX = (1+corners.get(1).x)*wallWidth-wallWidth/2;
         startY = (1+corners.get(0).y)*wallHeight-wallHeight/2;
         redDotY = (1+corners.get(1).y)*wallHeight-wallHeight/2;
-        lastEndX = corners.get(1).x;
-        lastEndY = corners.get(1).y;
+        lastEndX = endX = corners.get(1).x;
+        lastEndY = endY = corners.get(1).y;
         
         kruskal();
     }
@@ -97,6 +104,7 @@ public class Maze {
                 }
             }
         }
+        //drawHelpPath();
         batch.draw(dot, redDotX-dotRadius, redDotY-dotRadius);
         batch.end();
     }
@@ -238,6 +246,125 @@ public class Maze {
         double radii = radius + dotRadius;
         return xDist*xDist+yDist*yDist < radii*radii;
     }
+
+    private void drawHelpPath() {
+        // get the start point, where the mouse is
+        Point startPoint = findMouseSquare();
+        
+        // Anything that's a wall obviously can't be used on the path to the
+        // ending space - set that to false. Otherwise, true.
+        boolean mazeSearch[][] = new boolean[genMaze.length][genMaze[0].length];
+        for (int i = 0; i < mazeSearch.length; ++i) {
+            for (int j = 0; j < mazeSearch[i].length; ++j) {
+                if (genMaze[i][j] == 0) {
+                    mazeSearch[i][j] = false;
+                }
+                else {
+                    mazeSearch[i][j] = true;
+                }
+            }
+        }
+        
+        // get path
+        List<Point> stack = new ArrayList();
+        stack.add(startPoint);
+        while (stack.size() > 0) {
+            Point cur = stack.get(stack.size()-1);
+            List<Point> adjacents = getAdjacentPaths(mazeSearch, cur);
+            mazeSearch[cur.x][cur.y] = false;
+            if (adjacents.isEmpty()) {
+                stack.remove(stack.size()-1);
+            }
+            else {
+                stack.add(adjacents.get(0));
+            }
+            if (stack.get(stack.size()-1).x != endX &&
+                stack.get(stack.size()-1).y != endY) {
+                break;
+            }
+        }
+        System.out.println(stack);
+        
+        // render the path
+        if (stack.size() > 0) {
+            shapeRenderer.begin(ShapeType.Filled);
+            shapeRenderer.setColor(1,1,0,1);
+            float mouseX = Gdx.input.getX();
+            float mouseY = Gdx.graphics.getHeight()-Gdx.input.getY();
+            if (stack.get(stack.size()-1).x == endX && stack.get(stack.size()-1).y == endY) {
+                shapeRenderer.rectLine(
+                        mouseX,
+                        mouseY, 
+                        redDotX,
+                        redDotY,
+                        2.0f);
+            }
+            else if (stack.size() > 1) {
+                shapeRenderer.rectLine(
+                        mouseX, 
+                        mouseY, 
+                        (stack.get(1).x+1)*wallWidth-wallWidth/2, 
+                        (stack.get(1).y+1)*wallHeight-wallHeight/2, 
+                        2.0f);
+                for (int i = 1; i < stack.size()-1; ++i) {
+                    shapeRenderer.rectLine(
+                        (stack.get(i).x+1)*wallWidth-wallWidth/2, 
+                        (stack.get(i).y+1)*wallHeight-wallHeight/2, 
+                        (stack.get(i+1).x+1)*wallWidth-wallWidth/2, 
+                        (stack.get(i+1).y+1)*wallHeight-wallHeight/2, 
+                        2.0f);
+                }
+            }
+            shapeRenderer.end();
+        }
+    }
+
+    private Point findMouseSquare() {
+        Point p = new Point(-1,-1);
+        float mouseX = Gdx.input.getX();
+        float mouseY = Gdx.graphics.getHeight()-Gdx.input.getY();
+        for (int i = 0; i < genMaze.length; ++i) {
+            for (int j = 0; j < genMaze[i].length; ++j) {
+                Rectangle rect = getRectangleAt(i,j);
+                if (mouseX >= rect.x && 
+                    mouseX < rect.x+rect.w &&
+                    mouseY >= rect.y &&
+                    mouseY < rect.y+rect.h) {
+                    p.x = i;
+                    p.y = j;
+                }
+            }
+        }
+        return p;
+    }
+    
+    private Rectangle getRectangleAt(int x, int y) {
+        Rectangle r = new Rectangle(x*wallWidth,y*wallHeight,wallWidth,wallHeight);
+        return r;
+    }
+
+    private List<Point> getAdjacentPaths(boolean[][] mazeSearch, Point cur) {
+        List<Point> adjacents = new ArrayList();
+        adjacents.add(new Point(cur.x-1,cur.y-1));
+        adjacents.add(new Point(cur.x-1,cur.y));
+        adjacents.add(new Point(cur.x-1,cur.y+1));
+        adjacents.add(new Point(cur.x,cur.y-1));
+        adjacents.add(new Point(cur.x+1,cur.y-1));
+        adjacents.add(new Point(cur.x,cur.y+1));
+        adjacents.add(new Point(cur.x+1,cur.y+1));
+        adjacents.add(new Point(cur.x+1,cur.y));
+        
+        List<Point> adjacentPaths = new ArrayList();
+        for (int i = 0; i < adjacents.size(); ++i) {
+            Point p = adjacents.get(i);
+            if (!(p.x < 0 || p.x > mazeSearch.length) &&
+                !(p.y < 0 || p.y > mazeSearch[0].length) &&
+                mazeSearch[p.x][p.y]) {
+                adjacentPaths.add(p);
+            }
+        }
+        return adjacentPaths;
+    }
     
     class Edge {
         int x1;
@@ -252,6 +379,11 @@ public class Maze {
         Point (int x, int y) {
             this.x = x;
             this.y = y;
+        }
+        
+        @Override
+        public String toString() {
+            return "(" + this.x + ", " + this.y + ")";
         }
     }
     

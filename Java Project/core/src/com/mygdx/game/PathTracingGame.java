@@ -13,6 +13,8 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
@@ -23,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.scene.shape.Shape;
@@ -45,8 +48,11 @@ public class PathTracingGame extends ApplicationAdapter implements Screen, Input
     private final Texture pointTargetTexture;
     private long lastRecordTime;
     private List<Float> lineDistances;
+    private List<Float> averageDistances;
     private ShapeRenderer shapeRenderer;
     private boolean endingSequence;
+    private boolean recordingTime;
+    private long roundStartTime;
     private long endingTime;
     
     private String firstName;
@@ -55,6 +61,9 @@ public class PathTracingGame extends ApplicationAdapter implements Screen, Input
     private int numRounds;
     private TracedPathType pathType;
     private int numSessions;
+    private final BitmapFont font;
+    private final GlyphLayout layout;
+    private final List<Long> roundTimes;
     
     /**
      * 
@@ -71,6 +80,11 @@ public class PathTracingGame extends ApplicationAdapter implements Screen, Input
         lineDistances = new ArrayList();
         shapeRenderer = new ShapeRenderer();
         endingSequence = false;
+        font = new BitmapFont(Gdx.files.internal("fonts/century_gothic-regular.fnt"),Gdx.files.internal("fonts/century_gothic-regular.png"),false);
+        layout = new GlyphLayout();
+        averageDistances = new ArrayList();
+        roundTimes = new ArrayList();
+        recordingTime = false;
         
         this.firstName = firstName;
         this.lastName = lastName;
@@ -151,7 +165,16 @@ public class PathTracingGame extends ApplicationAdapter implements Screen, Input
     public boolean scrolled(int i) {
         return false;
     }
-
+    
+    private CharSequence convertToTimeString(long timeMillis) {
+        CharSequence timeString = String.format("%d:%02d", 
+            TimeUnit.MILLISECONDS.toMinutes(timeMillis),
+            TimeUnit.MILLISECONDS.toSeconds(timeMillis) - 
+            TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(timeMillis))
+        );
+        return timeString;
+    }
+    
     private void loadVariables() {
         String filePath ="RTS Data/patients/" + firstName + "_" + lastName + "/" + routine + "/PathTracingGameInfo.txt";
         File file = new File(filePath);
@@ -190,7 +213,7 @@ public class PathTracingGame extends ApplicationAdapter implements Screen, Input
             this.numPoints = 6;
             this.numRounds = 6;
             this.numSessions = 1;
-            this.pathType = TracedPathType.CIRCULAR;
+            this.pathType = TracedPathType.RANDOM;
         }
     }
 
@@ -199,14 +222,17 @@ public class PathTracingGame extends ApplicationAdapter implements Screen, Input
             recordLineDistance();
         }
         
-        if (gameDone()) {
+        if (shape.get(0).connected && !recordingTime) {
+            recordingTime = true;
+            roundStartTime = System.currentTimeMillis();
+        }
+        
+        if (sessionDone()) {
             finish();
         }
         else if (roundFinished()) {
             writeStats();
-            if (!gameDone()) {
-                nextRound();
-            }
+            nextRound();
         }
         else if (touchingNextPoint()) {
             goToNextPoint();
@@ -214,7 +240,6 @@ public class PathTracingGame extends ApplicationAdapter implements Screen, Input
     }
 
     private boolean touchingNextPoint() {
-        // TODO: check this
         ShapeFloatPoint nextPoint = getNextPoint();
         float xDist = nextPoint.x - Gdx.input.getX();
         float yDist = nextPoint.y - (Gdx.graphics.getHeight() - Gdx.input.getY());
@@ -244,10 +269,12 @@ public class PathTracingGame extends ApplicationAdapter implements Screen, Input
         Random r = new Random();
         this.roundNum++;
         this.angleOffset += (float) (r.nextFloat() * Math.PI / 8);
-        createShape();
+        if (!sessionDone()) {
+            createShape();
+        }
     }
 
-    private boolean gameDone() {
+    private boolean sessionDone() {
         return roundNum == numRounds;
     }
 
@@ -260,7 +287,16 @@ public class PathTracingGame extends ApplicationAdapter implements Screen, Input
     private void writeStats() {
         // TODO:
         // write the stats for the last round to a file
+        float avg = 0;
+        for (int i = 0; i < lineDistances.size(); ++i) {
+            System.out.println(lineDistances.get(i));
+            avg += lineDistances.get(i);
+        }
+        avg /= lineDistances.size();
+        this.averageDistances.add(avg);
         
+        roundTimes.add(System.currentTimeMillis() - roundStartTime);
+        recordingTime = false;
     }
 
     private void startGame() {
@@ -271,14 +307,30 @@ public class PathTracingGame extends ApplicationAdapter implements Screen, Input
     }
     
     private void createShape() {
-        this.shape = new ArrayList();
-        for (int i = 0; i < numPoints; ++i) {
-            ShapeFloatPoint p = new ShapeFloatPoint();
-            float angle = (float) (i*(Math.PI*2)/numPoints + angleOffset);
-            p.x = (float) Math.cos(angle) * (float)(0.2*Gdx.graphics.getHeight()) + Gdx.graphics.getWidth()/2;
-            p.y = (float) Math.sin(angle) * (float)(0.2*Gdx.graphics.getHeight()) + Gdx.graphics.getHeight()/2;
-            p.connected = false;
-            shape.add(p);
+        switch(this.pathType) {
+            case CIRCULAR:
+                this.shape = new ArrayList();
+                for (int i = 0; i < numPoints; ++i) {
+                    ShapeFloatPoint p = new ShapeFloatPoint();
+                    float angle = (float) (i*(Math.PI*2)/numPoints + angleOffset);
+                    p.x = (float) Math.cos(angle) * (float)(0.2*Gdx.graphics.getHeight()) + Gdx.graphics.getWidth()/2;
+                    p.y = (float) Math.sin(angle) * (float)(0.2*Gdx.graphics.getHeight()) + Gdx.graphics.getHeight()/2;
+                    p.connected = false;
+                    shape.add(p);
+                }
+                break;
+            
+            case RANDOM:
+                this.shape = new ArrayList();
+                Random r = new Random();
+                for (int i = 0; i < numPoints; ++i) {
+                    ShapeFloatPoint p = new ShapeFloatPoint();
+                    p.x = r.nextFloat() * 6 * Gdx.graphics.getWidth()/8.0f + Gdx.graphics.getWidth()/8.0f;
+                    p.y = r.nextFloat() * 6 * Gdx.graphics.getHeight()/8.0f + Gdx.graphics.getWidth()/8.0f;
+                    p.connected = false;
+                    shape.add(p);
+                }
+                break;
         }
     }
 
@@ -297,18 +349,19 @@ public class PathTracingGame extends ApplicationAdapter implements Screen, Input
 
     private void renderGame() {
         shapeRenderer.begin(ShapeType.Filled);
+        
         for (int i = 0; i < shape.size()-1; ++i) {
+            float x1 = shape.get(i).x;
+            float y1 = shape.get(i).y;
+            float x2 = shape.get(i+1).x;
+            float y2 = shape.get(i+1).y;
             if (shape.get(i).connected && shape.get(i+1).connected) {
-                float x1 = shape.get(i).x;
-                float y1 = shape.get(i).y;
-                float x2 = shape.get(i+1).x;
-                float y2 = shape.get(i+1).y;
                 shapeRenderer.setColor(1,1,0,1);
-                shapeRenderer.rectLine(x1, y1, x2, y2,2.0f);
             }
             else {
-                break;
+                shapeRenderer.setColor(1,1,1,1);
             }
+            shapeRenderer.rectLine(x1, y1, x2, y2,2.0f);
         }
         shapeRenderer.end();
         
@@ -331,11 +384,34 @@ public class PathTracingGame extends ApplicationAdapter implements Screen, Input
             }
         }
         batch.end();
+        
+        if (!shape.get(0).connected) {
+            renderInstructions();
+        }
+    }
+    
+    private void renderInstructions() {
+        CharSequence str = "Follow the path.\nMove the mouse to the red ball to start.";
+        font.getData().setScale(0.5f);
+        layout.setText(font, str);
+        float width = layout.width;
+        batch.begin();
+        font.draw(batch, str, Gdx.graphics.getWidth()/2-width/2, Gdx.graphics.getHeight());
+        batch.end();
     }
 
     private void renderStats() {
-        // TODO:
-        // render end game statistics
+        CharSequence str = "";
+        for (int i = 0; i < averageDistances.size(); ++i) {
+            str += averageDistances.get(i).toString() + "\n";
+            str += convertToTimeString(this.roundTimes.get(i)).toString() + "\n";
+        }
+        font.getData().setScale(0.5f);
+        layout.setText(font, str);
+        float width = layout.width;
+        batch.begin();
+        font.draw(batch, str, Gdx.graphics.getWidth()/2-width/2, Gdx.graphics.getHeight()/2+layout.height/2);
+        batch.end();
     }
     
     private ShapeFloatPoint getLastConnectedPoint() {
@@ -361,7 +437,7 @@ public class PathTracingGame extends ApplicationAdapter implements Screen, Input
                                       float px, float py) {
         float ydist = y2-y1;
         float xdist = x2-x1;
-        return (float)(Math.abs(ydist*px - xdist*py + x2*y1 + y2*x1)/Math.sqrt(ydist*ydist + xdist*xdist));
+        return (float)(Math.abs(ydist*px - xdist*py + x2*y1 - y2*x1)/Math.sqrt(ydist*ydist + xdist*xdist));
     }
 
     private boolean shouldRecordDistance() {
