@@ -284,7 +284,7 @@ public class MazeGame extends ApplicationAdapter implements Screen, InputProcess
     }
 
     private void loadVariables() {
-        String filePath ="RTS Data/patients/" + firstName + "_" + lastName + "/" + routine + "/PathTracingGame.txt";
+        String filePath ="RTS Data/patients/" + firstName + "_" + lastName + "/" + routine + "/MazeGameInfo.txt";
         File file = new File(filePath);
         try {
             Scanner scanner = new Scanner(file);
@@ -311,6 +311,7 @@ public class MazeGame extends ApplicationAdapter implements Screen, InputProcess
             this.numSessions = scanner.nextInt();
         }
         catch (FileNotFoundException e) {
+            System.out.println(e);
             this.mazeWidth = 4;
             this.mazeHeight = 4;
             this.numRounds = 6;

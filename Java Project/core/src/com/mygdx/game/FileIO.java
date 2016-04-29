@@ -148,6 +148,13 @@ public class FileIO {
         // create the routine folder
         File dir = new File("RTS Data/patients/" + first + "_" + last + "/" + routineName);
         dir.mkdirs();        
+        
+        try {
+            // add routine
+            writer = new PrintWriter(new FileOutputStream("RTS Data/patients/" + first + "_" + last + "/" + routineName + "/" + first + "_" + last + "_" + routineName + ".txt", true));
+        } catch(FileNotFoundException e) {
+            System.out.println(e);
+        }
     }
     
     // this function creates the routine subfolder information
@@ -156,6 +163,7 @@ public class FileIO {
             // add routine
             writer = new PrintWriter(new FileOutputStream("RTS Data/patients/" + first + "_" + last + "/" + routineName + "/" + first + "_" + last + "_" + routineName + ".txt", true));
             
+            // ispy
             if(routine.equals("ISPY")) {
                 writer.append("ISPY\n");
                 writer.close();
@@ -180,6 +188,7 @@ public class FileIO {
                 writer.close();
             }
             
+            // memory
             if (routine.equals("MEMORY")) {
                 writer.append("MEMORY\n");
                 writer.close();
@@ -207,6 +216,44 @@ public class FileIO {
                 writer.close();
             }
             
+            // maze
+            if(routine.equals("MAZE")) {
+                writer.append("MAZE\n");
+                writer.close();
+
+                int trueWidth, trueHeight;
+                trueWidth = Integer.parseInt(MainMenu.mazeWidth.getText())/2;
+                trueHeight = Integer.parseInt(MainMenu.mazeHeight.getText())/2;
+                
+                String file = "RTS Data/patients/" + first + "_" + last + "/" + routineName + "/MazeGameInfo.txt";
+                File f = new File(file);
+                writer = new PrintWriter(new FileOutputStream(f, false)); // false, therefore DO NOT APPEND, overwrite
+                writer.append(trueWidth + " " +      
+                                trueHeight + " " +   
+                                MainMenu.mazeRoundsTillStats.getText() + " " +
+                                MainMenu.mazeRepetitions.getText() + " "
+                );
+                writer.close();
+            }
+            
+            // path trace
+            if(routine.equals("PATH TRACE")) {
+                writer.append("PATH TRACE\n");
+                writer.close();
+
+                String pathType = "circular"; // as the default
+                if(MainMenu.randomPath.isChecked()) pathType = "random";
+                
+                String file = "RTS Data/patients/" + first + "_" + last + "/" + routineName + "/PathTracingGameInfo.txt";
+                File f = new File(file);
+                writer = new PrintWriter(new FileOutputStream(f, false)); // false, therefore DO NOT APPEND, overwrite
+                writer.append(MainMenu.numPointsTF.getText() + " " +
+                                MainMenu.pathRoundsTillStats.getText() + " " + 
+                                MainMenu.pathRepetitions.getText() + " " +
+                                pathType
+                );
+                writer.close();
+            }
             
             
         } catch (FileNotFoundException e) {
@@ -244,6 +291,10 @@ public class FileIO {
             ((Game) Gdx.app.getApplicationListener()).setScreen(new I_Spy(first, last, routineName)); 
         } else if(name.equals("MEMORY")) {
             ((Game) Gdx.app.getApplicationListener()).setScreen(new MemoryGame(first, last, routineName));                
-        }                        
+        } else if(name.equals("MAZE")) {
+            ((Game) Gdx.app.getApplicationListener()).setScreen(new MazeGame(first, last, routineName));
+        } else if(name.equals("PATH TRACE")) {
+            ((Game) Gdx.app.getApplicationListener()).setScreen(new PathTracingGame(first, last, routineName));  
+        }
     }
 }
