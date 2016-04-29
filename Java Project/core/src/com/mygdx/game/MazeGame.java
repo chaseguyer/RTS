@@ -9,6 +9,7 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
@@ -29,8 +30,6 @@ import java.util.concurrent.TimeUnit;
  * @author Kenny
  */
 public class MazeGame extends ApplicationAdapter implements Screen, InputProcessor {
-    
-    private Maze maze;
     private SpriteBatch batch;
     private Texture cursor;
     private Texture cursorBad;
@@ -39,10 +38,7 @@ public class MazeGame extends ApplicationAdapter implements Screen, InputProcess
     private float dotRadius;
     private long ticksGood;
     private long ticksBad;
-    private long lastTime;
     private long startTime;
-    private boolean isGood;
-    private boolean isOn;
     private int roundNum;
     private BitmapFont font;
     private GlyphLayout layout;
@@ -57,6 +53,9 @@ public class MazeGame extends ApplicationAdapter implements Screen, InputProcess
     private String routine;
     private int numSessions;
     
+    private List<Maze> mazes;
+    private boolean playing;
+    
     public MazeGame(String firstName, String lastName, String routineName) {
         this.firstName = firstName;
         this.lastName = lastName;
@@ -66,26 +65,27 @@ public class MazeGame extends ApplicationAdapter implements Screen, InputProcess
         dot = new Texture(Gdx.files.internal("Textures/Ball.png"));
         cursorRadius = cursor.getWidth()/2;
         dotRadius = dot.getWidth()/2;
-        lastTime = 0;
         font = new BitmapFont(Gdx.files.internal("fonts/century_gothic-regular.fnt"),Gdx.files.internal("fonts/century_gothic-regular.png"),false);
         roundNum = 0;
         loadVariables();
-        startNewGame();
         layout = new GlyphLayout();
         times = new ArrayList();
         onTicks = new ArrayList();
         offTicks = new ArrayList();
-    }
-    
-    private void startNewGame() {
-        maze = new Maze(mazeWidth,mazeHeight,Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        startTime = System.currentTimeMillis();
-        isOn = false;
-        ticksGood = 0;
-        ticksBad = 0;
+        playing = false;
+        
+        mazes = new ArrayList();
+        for (int i = 0; i < numRounds*numSessions; ++i) {
+            mazes.add(new Maze(mazeWidth, mazeHeight, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
+        }
     }
     
     private void recordStats() {
+        if (roundNum % numRounds == 0) {
+            times.clear();
+            onTicks.clear();
+            offTicks.clear();
+        }
         times.add(System.currentTimeMillis() - startTime);
         onTicks.add(ticksGood);
         offTicks.add(ticksBad);
@@ -103,39 +103,34 @@ public class MazeGame extends ApplicationAdapter implements Screen, InputProcess
     public void render(float f) {
         Gdx.gl.glClearColor(0,0,0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-        if (isOn) {
-            // gameRender() must come before gameTick()
-            gameRender();
-            if (timeForTick()) {
-                gameTick();
+        
+        if (playing) {
+            gameTick();
+            mazes.get(roundNum).draw(batch);
+            if (mazes.get(roundNum).gotTarget(Gdx.input.getX(), Gdx.graphics.getHeight()-Gdx.input.getY(), cursorRadius)) {
+                System.out.println(roundNum);
+                recordStats();
+                roundNum++;
+                playing = false;
             }
         }
         else {
-            if (roundNum == numRounds) {
+            if (roundNum % numRounds == 0 && roundNum != 0 || roundNum >= numRounds * numSessions) {
                 instructionsAndStatisticsRender();
             }
             else {
                 instructionsRender();
-                batch.begin();
-                batch.draw(dot, maze.getStartX()-dotRadius, maze.getStartY() - dotRadius);
-                batch.draw(cursor, Gdx.input.getX()-cursorRadius, Gdx.graphics.getHeight()-Gdx.input.getY()-cursorRadius);
-                batch.end();
+            }
+            if (roundNum < numRounds*numSessions) {
+                renderStartBall();
+                if (this.startBallTouched()) {
+                    startTime = System.currentTimeMillis();
+                    playing = true;
+                }
             }
         }
-        checkGameState();
-    }
-    
-    private void gameRender() {
-        maze.draw(batch);
-        isGood = maze.positionGood(Gdx.input.getX(), Gdx.graphics.getHeight()-Gdx.input.getY(), cursorRadius);
-        batch.begin();
-        if (isGood) {
-            batch.draw(cursor, Gdx.input.getX()-cursorRadius, Gdx.graphics.getHeight()-Gdx.input.getY()-cursorRadius);
-        }
-        else {
-            batch.draw(cursorBad, Gdx.input.getX()-cursorRadius, Gdx.graphics.getHeight()-Gdx.input.getY()-cursorRadius);
-        }
-        batch.end();
+        
+        renderCursor();
     }
 
     @Override
@@ -145,9 +140,17 @@ public class MazeGame extends ApplicationAdapter implements Screen, InputProcess
 
     @Override
     public boolean keyDown(int i) {
-        if (i == Input.Keys.ESCAPE) {
-            ((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenu());
+        if (i == Input.Keys.Q) {
+            ((Game) Gdx.app.getApplicationListener()).setScreen(RTS.menu);
             Gdx.input.setCursorCatched(false);
+        }
+        else if (i == Input.Keys.ESCAPE) {
+            roundNum++;
+            while (roundNum % numRounds != 0) {
+                roundNum++;
+            }
+            System.out.println(roundNum);
+            playing = false;
         }
         return true;
     }
@@ -188,14 +191,12 @@ public class MazeGame extends ApplicationAdapter implements Screen, InputProcess
     }
 
     private void gameTick() {
-        if (isGood) {
+        if (mazes.get(roundNum).positionGood(Gdx.input.getX(), Gdx.input.getY(), cursorRadius)) {
             ticksGood++;
         }
         else {
             ticksBad++;
         }
-        
-        lastTime = System.currentTimeMillis();
     }
 
     private void instructionsRender() {
@@ -218,22 +219,33 @@ public class MazeGame extends ApplicationAdapter implements Screen, InputProcess
     }
     
     private void instructionsAndStatisticsRender() {
-        instructionsRender();
+        if (roundNum < numRounds * numSessions) {
+            instructionsRender();
+        }
+        else {
+            endInstructionsRender();
+        }
+        
         List<Double> ratios = new ArrayList();
         double avgRatio = 0;
-        for (int i = 0; i < numRounds; ++i) {
+        for (int i = 0; i < onTicks.size(); ++i) {
             long curOnTicks = onTicks.get(onTicks.size()-1-i);
             long curOffTicks = offTicks.get(offTicks.size()-1-i);
             double curRatio = ((double)curOnTicks)/(double)(curOnTicks+curOffTicks)*100.0;
             ratios.add(curRatio);
             avgRatio += curRatio;
         }
-        avgRatio /= (double)numRounds;
+        if (!onTicks.isEmpty()) {
+            avgRatio /= (double)onTicks.size();
+        }
+        else {
+            avgRatio = 0;
+        }
         
         List<CharSequence> timeStrings = new ArrayList();
         long totalTime = 0;
-        for (int i = 0; i < numRounds; ++i) {
-            long curTime = times.get(times.size()-numRounds+i);
+        for (int i = 0; i < times.size(); ++i) {
+            long curTime = times.get(i);
             timeStrings.add(convertToTimeString(curTime));
             totalTime += curTime;
         }
@@ -241,12 +253,12 @@ public class MazeGame extends ApplicationAdapter implements Screen, InputProcess
         
         CharSequence statsStr = "Total Time Elapsed: " + totalTimeString + "\n" + "Overall Session Accuracy: " + String.format("%.2f%%\n\n", avgRatio) + "Round Accuracies:\n";
         for (int i = 0; i < ratios.size(); ++i) {
-            statsStr += "    Round " + Integer.toString(i+1) + ": " + String.format("%.2f%%",ratios.get(ratios.size()-i-1)) + "\n";
+            statsStr += "    " + Integer.toString(i+1) + ": " + String.format("%.2f%%",ratios.get(ratios.size()-i-1)) + "\n";
         }
         
         statsStr += "Round Times: \n";
         for (int i = 0; i < timeStrings.size(); ++i) {
-            statsStr += "    Round " + Integer.toString(i) + ": " + timeStrings.get(i) + "\n";
+            statsStr += "    " + Integer.toString(i+1) + ": " + timeStrings.get(i) + "\n";
         }
         
         layout.setText(font, statsStr);
@@ -255,30 +267,9 @@ public class MazeGame extends ApplicationAdapter implements Screen, InputProcess
         batch.end();
     }
 
-    private boolean timeForTick() {
-        return lastTime + 20 < System.currentTimeMillis();
-    }
-
-    private void checkGameState() {
-        if (isOn) {
-            if (maze.gotTarget(Gdx.input.getX(),Gdx.graphics.getHeight()-Gdx.input.getY(),cursorRadius)) {
-                recordStats();
-                startNewGame();
-                roundNum++;
-                isOn = false;
-            }
-        }
-        else {
-            if (roundNum != numRounds && startBallTouched()) {
-                isOn = true;
-                startTime = System.currentTimeMillis();
-            }
-        }
-    }
-
     private boolean startBallTouched() {
-        float xDist = Gdx.input.getX() - maze.getStartX();
-        float yDist = Gdx.graphics.getHeight() - Gdx.input.getY() - maze.getStartY();
+        float xDist = Gdx.input.getX() - mazes.get(roundNum).getStartX();
+        float yDist = Gdx.graphics.getHeight() - Gdx.input.getY() - mazes.get(roundNum).getStartY();
         float radii = cursorRadius + dotRadius;
         return (xDist*xDist + yDist*yDist) < radii*radii;
     }
@@ -317,6 +308,35 @@ public class MazeGame extends ApplicationAdapter implements Screen, InputProcess
             this.numRounds = 6;
             this.numSessions = 1;
         }
+    }
+
+    private void endInstructionsRender() {
+        CharSequence str = "Press Q to quit.";
+        font.getData().setScale(0.5f);
+        layout.setText(font, str);
+        float width = layout.width;
+        batch.begin();
+        font.draw(batch, str, Gdx.graphics.getWidth()/2-width/2, Gdx.graphics.getHeight());
+        batch.end();
+    }
+
+    private void renderStartBall() {
+        batch.begin();
+        batch.draw(dot, mazes.get(roundNum).getStartX()-dotRadius/2, mazes.get(roundNum).getStartY()-dotRadius/2);
+        batch.end();
+    }
+
+    private void renderCursor() {
+        float mouseX = Gdx.input.getX();
+        float mouseY = Gdx.graphics.getHeight()-Gdx.input.getY();
+        batch.begin();
+        if (!playing || mazes.get(roundNum).positionGood((int)mouseX, (int)mouseY, cursorRadius)) {
+            batch.draw(cursor, mouseX-cursorRadius/2, mouseY-cursorRadius/2);
+        }
+        else {
+            batch.draw(cursorBad, mouseX-cursorRadius/2, mouseY-cursorRadius/2);
+        }
+        batch.end();
     }
     
 }
