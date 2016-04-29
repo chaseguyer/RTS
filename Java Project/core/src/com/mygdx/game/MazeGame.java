@@ -210,7 +210,7 @@ public class MazeGame extends ApplicationAdapter implements Screen, InputProcess
     }
     
     private CharSequence convertToTimeString(long timeMillis) {
-        CharSequence timeString = String.format("%d:%d", 
+        CharSequence timeString = String.format("%d:%02d", 
             TimeUnit.MILLISECONDS.toMinutes(timeMillis),
             TimeUnit.MILLISECONDS.toSeconds(timeMillis) - 
             TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(timeMillis))
