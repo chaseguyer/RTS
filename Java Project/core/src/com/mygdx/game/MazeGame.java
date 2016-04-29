@@ -147,7 +147,9 @@ public class MazeGame extends ApplicationAdapter implements Screen, InputProcess
     @Override
     public boolean keyDown(int i) {
         if (i == Input.Keys.ESCAPE) {
-            ((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenu());
+            MainMenu.continueRoutine = true;
+            ((Game) Gdx.app.getApplicationListener()).setScreen(RTS.menu);
+            RTS.menu.show();
             Gdx.input.setCursorCatched(false);
         }
         return true;

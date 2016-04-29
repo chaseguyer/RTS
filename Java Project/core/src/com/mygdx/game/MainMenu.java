@@ -477,11 +477,7 @@ public class MainMenu implements Screen {
     public void show() {
         Gdx.input.setInputProcessor(stage);   
         resize(Gdx.graphics.getDesktopDisplayMode().width, Gdx.graphics.getDesktopDisplayMode().height);
-        
-        if(continueRoutine) {
-            file.runRoutine(pFirst, pLast, routineName);                            
-        }        
-        
+      
         if(onCreate) {
             createTables();
             createListeners();
@@ -491,8 +487,11 @@ public class MainMenu implements Screen {
         } else {
             stage.addActor(patientMenuTitleTable);            
         }
+        
+        if(continueRoutine) {
+            file.runRoutine(pFirst, pLast, routineName);              
+        }        
     }
-
            
     public void createTables() {
         
@@ -1638,14 +1637,17 @@ public class MainMenu implements Screen {
 
     @Override
     public void pause() {
+        //System.out.println("pause");
     }
 
     @Override
     public void resume() {
+        //System.out.println("resume");
     }
 
     @Override
     public void hide() {
+        //System.out.println("hide");
         stage.clear();        
     }
 
