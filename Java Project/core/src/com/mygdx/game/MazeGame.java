@@ -58,6 +58,7 @@ public class MazeGame extends ApplicationAdapter implements Screen, InputProcess
     private long lastTickTime;
     
     public MazeGame(String firstName, String lastName, String routineName) {
+        //System.out.println("Maze constructor");
         this.firstName = firstName;
         this.lastName = lastName;
         this.routine = routineName;
@@ -116,11 +117,12 @@ public class MazeGame extends ApplicationAdapter implements Screen, InputProcess
             }
             mazes.get(roundNum).draw(batch);
             if (mazes.get(roundNum).gotTarget(Gdx.input.getX(), Gdx.graphics.getHeight()-Gdx.input.getY(), cursorRadius)) {
-                System.out.println("Round: ");
-                System.out.println(roundNum);
-                System.out.println("Ticks bad, good");
-                System.out.println(ticksBad);
-                System.out.println(ticksGood);
+
+                //System.out.println("Round: ");
+                //System.out.println(roundNum);
+                //System.out.println("Ticks bad, good");
+                //System.out.println(ticksBad);
+                //System.out.println(ticksGood);
                 recordStats();
                 roundNum++;
                 playing = false;
@@ -164,9 +166,14 @@ public class MazeGame extends ApplicationAdapter implements Screen, InputProcess
             while (roundNum % numRounds != 0) {
                 roundNum++;
             }
+<<<<<<< HEAD
             playing = false;
             ticksBad = 0;
             ticksGood = 0;
+=======
+            //System.out.println(roundNum);
+            playing = false;           
+>>>>>>> master
         }
         return true;
     }

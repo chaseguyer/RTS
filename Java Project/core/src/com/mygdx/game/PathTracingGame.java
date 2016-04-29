@@ -73,6 +73,7 @@ public class PathTracingGame extends ApplicationAdapter implements Screen, Input
      * @param routine 
      */
     public PathTracingGame(String firstName, String lastName, String routine) {
+        //System.out.println("Path trace constructor");
         pointTexture = new Texture(Gdx.files.internal("Textures/Ball.png"));
         pointNotConnectedTexture = new Texture(Gdx.files.internal("Textures/BallNotConnected.png"));
         pointTargetTexture = new Texture(Gdx.files.internal("Textures/BallTarget.png"));

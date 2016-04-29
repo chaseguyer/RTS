@@ -263,7 +263,7 @@ public class FileIO {
     }
     
     public void queueRoutine(String first, String last, String routineName) {
-    
+        
         File f = new File("RTS Data/patients/" + first + "_" + last + "/" + routineName + "/" + first + "_" + last + "_" + routineName + ".txt");
         
         try {
@@ -279,22 +279,30 @@ public class FileIO {
         
     }    
     
-    public void runRoutine(String first, String last, String routineName) {   
-        RTS.menu.hide();
+    public void runRoutine(String first, String last, String routineName) { 
+        //System.out.println("Now in runRoutine");
         
         String name = "";
         if(!gameList.isEmpty()) {
             name = gameList.remove();
-        }
-        
-        if(name.equals("ISPY")) {
-            ((Game) Gdx.app.getApplicationListener()).setScreen(new I_Spy(first, last, routineName)); 
-        } else if(name.equals("MEMORY")) {
-            ((Game) Gdx.app.getApplicationListener()).setScreen(new MemoryGame(first, last, routineName));                
-        } else if(name.equals("MAZE")) {
-            ((Game) Gdx.app.getApplicationListener()).setScreen(new MazeGame(first, last, routineName));
-        } else if(name.equals("PATH TRACE")) {
-            ((Game) Gdx.app.getApplicationListener()).setScreen(new PathTracingGame(first, last, routineName));  
-        }
+            //System.out.println("name: " + name);
+            
+            if (name.equals("ISPY")) {
+                ((Game) Gdx.app.getApplicationListener()).setScreen(new I_Spy(first, last, routineName));
+                //System.out.println("Done ispy");
+            } else if (name.equals("MEMORY")) {
+                ((Game) Gdx.app.getApplicationListener()).setScreen(new MemoryGame(first, last, routineName));
+                //System.out.println("Done mem");
+            } else if (name.equals("MAZE")) {
+                ((Game) Gdx.app.getApplicationListener()).setScreen(new MazeGame(first, last, routineName));
+                //System.out.println("Done maze");
+            } else if (name.equals("PATH TRACE")) {
+                ((Game) Gdx.app.getApplicationListener()).setScreen(new PathTracingGame(first, last, routineName));
+                //System.out.println("Done path trace");
+            }
+        } else {
+            MainMenu.continueRoutine = false;
+            //System.out.println("gameList is empty");
+        }        
     }
 }
