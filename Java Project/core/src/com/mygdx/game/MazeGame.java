@@ -166,14 +166,10 @@ public class MazeGame extends ApplicationAdapter implements Screen, InputProcess
             while (roundNum % numRounds != 0) {
                 roundNum++;
             }
-<<<<<<< HEAD
+
             playing = false;
             ticksBad = 0;
             ticksGood = 0;
-=======
-            //System.out.println(roundNum);
-            playing = false;           
->>>>>>> master
         }
         return true;
     }
