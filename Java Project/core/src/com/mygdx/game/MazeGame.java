@@ -55,6 +55,7 @@ public class MazeGame extends ApplicationAdapter implements Screen, InputProcess
     
     private List<Maze> mazes;
     private boolean playing;
+    private long lastTickTime;
     
     public MazeGame(String firstName, String lastName, String routineName) {
         //System.out.println("Maze constructor");
@@ -74,6 +75,8 @@ public class MazeGame extends ApplicationAdapter implements Screen, InputProcess
         onTicks = new ArrayList();
         offTicks = new ArrayList();
         playing = false;
+        ticksGood = 0;
+        ticksBad = 0;
         
         mazes = new ArrayList();
         for (int i = 0; i < numRounds*numSessions; ++i) {
@@ -90,6 +93,8 @@ public class MazeGame extends ApplicationAdapter implements Screen, InputProcess
         times.add(System.currentTimeMillis() - startTime);
         onTicks.add(ticksGood);
         offTicks.add(ticksBad);
+        ticksGood = 0;
+        ticksBad = 0;
     }
     
     @Override
@@ -106,10 +111,18 @@ public class MazeGame extends ApplicationAdapter implements Screen, InputProcess
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         
         if (playing) {
-            gameTick();
+            if (this.lastTickTime + 20 < System.currentTimeMillis()) {
+                this.lastTickTime = System.currentTimeMillis();
+                gameTick();
+            }
             mazes.get(roundNum).draw(batch);
             if (mazes.get(roundNum).gotTarget(Gdx.input.getX(), Gdx.graphics.getHeight()-Gdx.input.getY(), cursorRadius)) {
+
+                //System.out.println("Round: ");
                 //System.out.println(roundNum);
+                //System.out.println("Ticks bad, good");
+                //System.out.println(ticksBad);
+                //System.out.println(ticksGood);
                 recordStats();
                 roundNum++;
                 playing = false;
@@ -127,6 +140,7 @@ public class MazeGame extends ApplicationAdapter implements Screen, InputProcess
                 if (this.startBallTouched()) {
                     startTime = System.currentTimeMillis();
                     playing = true;
+                    this.lastTickTime = System.currentTimeMillis();
                 }
             }
         }
@@ -146,12 +160,16 @@ public class MazeGame extends ApplicationAdapter implements Screen, InputProcess
             Gdx.input.setCursorCatched(false);
         }
         else if (i == Input.Keys.ESCAPE) {
-            roundNum++;
+            if (roundNum == 0) {
+                roundNum++;
+            }
             while (roundNum % numRounds != 0) {
                 roundNum++;
             }
-            //System.out.println(roundNum);
-            playing = false;           
+
+            playing = false;
+            ticksBad = 0;
+            ticksGood = 0;
         }
         return true;
     }
@@ -192,10 +210,12 @@ public class MazeGame extends ApplicationAdapter implements Screen, InputProcess
     }
 
     private void gameTick() {
-        if (mazes.get(roundNum).positionGood(Gdx.input.getX(), Gdx.input.getY(), cursorRadius)) {
+        if (mazes.get(roundNum).positionGood(Gdx.input.getX(), Gdx.graphics.getHeight()-Gdx.input.getY(), cursorRadius)) {
             ticksGood++;
         }
         else {
+            System.out.println("BAD");
+            System.out.println(roundNum);
             ticksBad++;
         }
     }
