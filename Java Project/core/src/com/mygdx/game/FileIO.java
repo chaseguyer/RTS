@@ -8,6 +8,7 @@ package com.mygdx.game;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import java.io.*;
+import java.nio.file.Path;
 import java.util.*;
 
 
@@ -143,8 +144,19 @@ public class FileIO {
         return false;
     }
     
+    // additional notes function
+    public void addToNotes(String first, String last, String text) {
+        try {        
+            writer = new PrintWriter(new FileOutputStream("RTS Data/patients/" + first + "_" + last + "/" + first + "_" + last + "_notes" + ".txt", true));
+            writer.append(text + "\n\n");
+            writer.close();
+        } catch (FileNotFoundException e) {
+            System.out.println(e);
+        }        
+    }    
+    
     // this function creates the routine folder 
-    public void addRoutineFolder(String first, String last, String routineName) { 
+    public boolean addRoutineFolder(String first, String last, String routineName) { 
         // create the routine folder
         File dir = new File("RTS Data/patients/" + first + "_" + last + "/" + routineName);
         dir.mkdirs();        
@@ -152,9 +164,17 @@ public class FileIO {
         try {
             // add routine
             writer = new PrintWriter(new FileOutputStream("RTS Data/patients/" + first + "_" + last + "/" + routineName + "/" + first + "_" + last + "_" + routineName + ".txt", true));
+            return true;
         } catch(FileNotFoundException e) {
-            System.out.println(e);
+            return false;
         }
+    }
+    
+    // is new says it is from the name routine section. if it is false, we are loading
+    public boolean isRoutine(String first, String last, String routine) {
+        File f = new File("RTS Data/patients/" + first + "_" + last + "/" + routine);            
+        if(f.exists() && f.isDirectory()) return true;
+        else return false;
     }
     
     // this function creates the routine subfolder information
