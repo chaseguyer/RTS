@@ -69,26 +69,6 @@ import com.badlogic.gdx.utils.Align;
  * @author chaseguyer
  */
 
-/*
-    Meeting notes:
-
-    -do kenny's games parameters
-
-    -Add option for quitting routine and for quitting game (just handle return value)        
-    -figure out how to link games together
-
-    Misc (less important things)
-        -add errors for all routine creation
-        -add checks for routine creation
-        -add checks for load routine
-
-        -additional notes file 
-        -patient info scrolling back to top **
-        -allowing for a null patient to be created **
-        -cursor in text fields **
-        -duplicate patient/therapist names **
-*/
-
 public class MainMenu implements Screen {
     
     // Static variables
@@ -215,9 +195,6 @@ public class MainMenu implements Screen {
     private Label addNotesLabel = new Label("Additional notes: ", skin);
     private TextArea addNotes = new TextArea("", skin);
     
-    // Drop down menu
-    //private SelectBox dropDown = new SelectBox(skin);
-    
     // patient info error
     private Label piError = new Label("One or more of the selections have invalid information", skin, "error");
     
@@ -274,6 +251,9 @@ public class MainMenu implements Screen {
     private Table nameRoutineTitleTable = new Table();
     private Label nameRoutineLabel = new Label("Please name your routine:", skin);
     private TextField nameRoutineTextField = new TextField("", skin);
+    
+    public static Label nameError = new Label("The specified routine either exists or contains invalid characters", skin, "error");
+    
     private TextButton nameRoutineDone = new TextButton("Done", skin);
     private TextButton nameRoutineBack = new TextButton("Back", skin);
     
@@ -292,9 +272,6 @@ public class MainMenu implements Screen {
     private TextButton memoryBt = new TextButton("Memory", skin);
     private TextButton mazeBt = new TextButton("Maze", skin);
     private TextButton pathTraceBt = new TextButton("Path Tracing", skin);
-    
-    // The routine name table and the routine overview table will reside here
-    private Table rightSide = new Table();
    
     // buttons
     private Table routineButtonsTable = new Table();
@@ -344,6 +321,7 @@ public class MainMenu implements Screen {
     private Label iSpyParam5Label = new Label("How many repetitions?(sets of rounds until statistics are shown)", skin);
     public static TextField iSpyRepetitions = new TextField("", skin);
     
+    public static Label iSpyError = new Label("One or more of the fields contains an invalid entry", skin, "error");
     
     private TextButton iSpyDone = new TextButton("Done", skin);
     private TextButton iSpyBack = new TextButton("Back", skin);
@@ -391,6 +369,8 @@ public class MainMenu implements Screen {
     private Label memParam8Label = new Label("How many repetitions?(sets of rounds until statistics are shown)", skin);
     public static TextField memRepetitions = new TextField("", skin);
     
+    public static Label memError = new Label("One or more of the fields contains an invalid entry", skin, "error");
+    
     private TextButton memoryDone = new TextButton("Done", skin);
     private TextButton memoryBack = new TextButton("Back", skin);
     
@@ -419,6 +399,8 @@ public class MainMenu implements Screen {
     public static TextField mazeRoundsTillStats = new TextField("", skin);
     private Label mazeParam4Label = new Label("How many repetitions?(sets of rounds until statistics are shown)", skin);
     public static TextField mazeRepetitions = new TextField("", skin);
+    
+    public static Label mazeError = new Label("One or more of the fields contains an invalid entry", skin, "error");
     
     // buttons
     private TextButton mazeDone = new TextButton("Done", skin);
@@ -451,6 +433,8 @@ public class MainMenu implements Screen {
     public static CheckBox circularPath = new CheckBox("Circular", skin);
     public static CheckBox randomPath = new CheckBox("Random", skin);
     
+    public static Label pathError = new Label("One or more of the fields contains an invalid entry", skin, "error");
+    
     // buttons
     private TextButton pathDone = new TextButton("Done", skin);
     private TextButton pathBack = new TextButton("Back", skin);
@@ -469,6 +453,8 @@ public class MainMenu implements Screen {
     
     private Label loadRoutineLabel = new Label("Please enter the routine name:", skin);
     private TextField loadRoutineTextField = new TextField("", skin);
+    
+    public static Label loadError = new Label("The specified routine does not exist", skin, "error");
     
     private TextButton loadRoutineRun = new TextButton("Run", skin);
     private TextButton loadRoutineBack = new TextButton("Back", skin);
@@ -753,13 +739,16 @@ public class MainMenu implements Screen {
         // name routine (owns its own window)
         nameRoutineTable.setFillParent(true);
         nameRoutineTable.add(nameRoutineTitleTable).padBottom(50).center().row();
-        nameRoutineTable.add(nameRoutineLabel).left().row();
-        nameRoutineTable.add(nameRoutineTextField).size(TB_WIDTH+250, TB_HEIGHT).padBottom(20).row();
+        nameRoutineTable.add(nameRoutineLabel).center().padRight(125).row();
+        nameRoutineTable.add(nameRoutineTextField).size(TB_WIDTH+250, TB_HEIGHT).padBottom(10).row();
         nameRoutineLabel.setFontScale(LABEL_FS);
         
         nameRoutineTitleTable.add(nameRoutineTitle);
         nameRoutineTitle.setFontScale(0.9f);
         
+        nameRoutineTable.add(nameError).padBottom(10).row();
+        nameError.setFontScale(LABEL_FS);
+        nameError.setVisible(false);
         
         nameRoutineTable.add(nameRoutineDone).size(TB_WIDTH, TB_HEIGHT).center().row();
         nameRoutineTable.add(nameRoutineBack).size(TB_WIDTH, TB_HEIGHT).center().row();
@@ -811,8 +800,13 @@ public class MainMenu implements Screen {
         iSpyParentTable.setFillParent(true);
         iSpyParentTable.add(iSpyScroller);
         iSpyParamsTable.add(iSpyParamsTitleTable).center().padTop(50).padBottom(30).row();
-        iSpyParamsTable.add(iSpyParamsObjects).padLeft(20).padRight(250).row();
-        iSpyParamsTable.add(iSpyParamsButtons).center().padTop(30).padBottom(20).row();
+        iSpyParamsTable.add(iSpyParamsObjects).padLeft(20).padRight(250).padBottom(10).row();
+        
+        iSpyParamsTable.add(iSpyError).padBottom(10).row();
+        iSpyError.setFontScale(LABEL_FS);
+        iSpyError.setVisible(false);
+        
+        iSpyParamsTable.add(iSpyParamsButtons).center().padBottom(20).row();
         
         // title
         iSpyParamsTitleTable.add(iSpyTitleLabel);
@@ -845,7 +839,7 @@ public class MainMenu implements Screen {
         iSpyStripedYesOrNo.add(iSpyStripedBox).size(100, 100);
         iSpyParamsObjects.add(iSpyStripedYesOrNo).padBottom(30).left().row();
         iSpyParamsObjects.add(iSpyParam5Label).left().row();
-        iSpyParamsObjects.add(iSpyRepetitions).size(TB_WIDTH, TB_HEIGHT).padBottom(30).left().row();
+        iSpyParamsObjects.add(iSpyRepetitions).size(TB_WIDTH, TB_HEIGHT).left().row();
         
         iSpyParam1Label.setFontScale(LABEL_FS);
         iSpyParam2Label.setFontScale(LABEL_FS);
@@ -867,7 +861,12 @@ public class MainMenu implements Screen {
         memoryParamsParentTable.setFillParent(true);
         memoryParamsParentTable.add(memScroller);
         memoryParamsTable.add(memoryParamsTitleTable).center().row();
-        memoryParamsTable.add(memoryParamsObjects).left().padLeft(20).padRight(250).row();
+        memoryParamsTable.add(memoryParamsObjects).left().padLeft(20).padRight(250).padBottom(10).row();
+        
+        memoryParamsTable.add(memError).padBottom(10).row();
+        memError.setFontScale(LABEL_FS);
+        memError.setVisible(false);
+        
         memoryParamsTable.add(memoryParamsButtons).center().padBottom(20).row();
         
         // title
@@ -905,7 +904,7 @@ public class MainMenu implements Screen {
         memStripedYesOrNo.add(memStripedBox).size(100, 100);
         memoryParamsObjects.add(memStripedYesOrNo).left().padBottom(30).row();
         memoryParamsObjects.add(memParam8Label).left().row();
-        memoryParamsObjects.add(memRepetitions).size(TB_WIDTH, TB_HEIGHT).padBottom(30).left().row();
+        memoryParamsObjects.add(memRepetitions).size(TB_WIDTH, TB_HEIGHT).left().row();
 
         memParam1Label.setFontScale(LABEL_FS);
         memParam2Label.setFontScale(LABEL_FS);
@@ -931,7 +930,12 @@ public class MainMenu implements Screen {
         mazeParentTable.setFillParent(true);
         mazeParentTable.add(mazeScroller);
         mazeParamsTable.add(mazeParamsTitleTable).center().row();
-        mazeParamsTable.add(mazeParamsObjects).left().row();
+        mazeParamsTable.add(mazeParamsObjects).left().padBottom(10).row();
+        
+        mazeParamsTable.add(mazeError).padBottom(10).row();
+        mazeError.setFontScale(LABEL_FS);
+        mazeError.setVisible(false);
+        
         mazeParamsTable.add(mazeParamsButtons).center().row();
         
         // title
@@ -949,7 +953,7 @@ public class MainMenu implements Screen {
         mazeParamsObjects.add(mazeRoundsTillStats).size(TB_WIDTH, TB_HEIGHT).padBottom(30).left().row();
         
         mazeParamsObjects.add(mazeParam4Label).left().row();
-        mazeParamsObjects.add(mazeRepetitions).size(TB_WIDTH, TB_HEIGHT).padBottom(30).left().row();
+        mazeParamsObjects.add(mazeRepetitions).size(TB_WIDTH, TB_HEIGHT).left().row();
         
         mazeParam1Label.setFontScale(LABEL_FS);
         mazeParam2Label.setFontScale(LABEL_FS);
@@ -970,7 +974,12 @@ public class MainMenu implements Screen {
         pathParentTable.setFillParent(true);
         pathParentTable.add(pathScroller);
         pathParamsTable.add(pathParamsTitleTable).center().row();
-        pathParamsTable.add(pathParamsObjects).left().row();
+        pathParamsTable.add(pathParamsObjects).left().padBottom(10).row();
+        
+        pathParamsTable.add(pathError).padBottom(10).row();
+        pathError.setFontScale(LABEL_FS);
+        pathError.setVisible(false);
+        
         pathParamsTable.add(pathParamsButtons).center().row();
         
         // title
@@ -985,14 +994,14 @@ public class MainMenu implements Screen {
         pathParamsObjects.add(pathRoundsTillStats).size(TB_WIDTH, TB_HEIGHT).padBottom(30).left().row();
         
         pathParamsObjects.add(pathParam3Label).left().row();
-        pathParamsObjects.add(pathRepetitions).size(TB_WIDTH, TB_HEIGHT).padBottom(30).left().row();
+        pathParamsObjects.add(pathRepetitions).size(TB_WIDTH, TB_HEIGHT).left().row();
         
         pathParamsObjects.add(pathParam4Label).left().row();
         
         Table pathShape = new Table();        
         pathShape.add(circularPath).size(400, 150).left();
         pathShape.add(randomPath).size(400, 150).left().row();
-        pathParamsObjects.add(pathShape).padBottom(30).left();
+        pathParamsObjects.add(pathShape).left();
         
         pathParam1Label.setFontScale(LABEL_FS);
         pathParam2Label.setFontScale(LABEL_FS);
@@ -1013,8 +1022,13 @@ public class MainMenu implements Screen {
          */
         loadRoutineTable.setFillParent(true);
         loadRoutineTable.add(loadRoutineTitleTable).center().row();
-        loadRoutineTable.add(loadRoutineValuesTable).padTop(50).center().row();
-        loadRoutineTable.add(loadRoutineButtonsTable).padTop(30).padBottom(30).center().row();
+        loadRoutineTable.add(loadRoutineValuesTable).padTop(50).padBottom(10).center().row();
+        
+        loadRoutineTable.add(loadError).padBottom(10).row();
+        loadError.setFontScale(LABEL_FS);
+        loadError.setVisible(false);
+        
+        loadRoutineTable.add(loadRoutineButtonsTable).padBottom(30).center().row();
         
         loadRoutineTitleTable.add(loadRoutineTitle);
         loadRoutineTitle.setFontScale(0.9f);
@@ -1204,9 +1218,6 @@ public class MainMenu implements Screen {
                     pFirst = firstNameTextField.getText();
                     pLast = lastNameTextField.getText();
                     
-                    //additionalNotes = /* date  + */addNotes.getText();
-                    // notesArrayList.add(additionalNotes);
-                    
                     // file io stuff for the check boxes
                     lArmBool = lArmBox.isChecked();
                     rArmBool = rArmBox.isChecked();
@@ -1234,6 +1245,9 @@ public class MainMenu implements Screen {
                     // bool isNewPatient(); // first item is therapists name                    
                     file.patientInfo(theName, pFirst, pLast, lArmBool, rArmBool, bArmBool, fm, gs, ps, hp, true); 
                 
+                    // do something with additional notes
+                    file.addToNotes(pFirst, pLast, addNotes.getText());
+                    
                     // zero out the actors and the global variables
                     // first and last name
                     //pFirst = pLast = "";
@@ -1434,12 +1448,14 @@ public class MainMenu implements Screen {
                 // make file with this as its name
                 routineName = nameRoutineTextField.getText();
                 
-                file.addRoutineFolder(pFirst, pLast, routineName);
-                
-                nameRoutineTextField.setText("");
-                
-                stage.clear();
-                stage.addActor(createRoutineTable);
+                // true indicates that it is a new routine; if file.addroutinefolder returns true, it is a valid name
+                if(!file.isRoutine(pFirst, pLast, routineName) && file.addRoutineFolder(pFirst, pLast, routineName)) {
+                    nameRoutineTextField.setText("");
+                    stage.clear();
+                    nameError.setVisible(false);
+                    stage.addActor(createRoutineTable);
+                }
+                else nameError.setVisible(true);                
             }
         });
         
@@ -1449,6 +1465,7 @@ public class MainMenu implements Screen {
                 nameRoutineTextField.setText("");
                 
                 stage.clear();
+                nameError.setVisible(false);
                 stage.addActor(patientMenuTitleTable);
             }
         });
@@ -1517,9 +1534,14 @@ public class MainMenu implements Screen {
         iSpyDone.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {
-                file.addRoutine(pFirst, pLast, routineName, "ISPY");
-                stage.clear();
-                stage.addActor(createRoutineTable);
+                if(iSpyRoundsTillStats.getText().equals("") || iSpyRepetitions.getText().equals("")) {
+                    iSpyError.setVisible(true);
+                } else {
+                    file.addRoutine(pFirst, pLast, routineName, "ISPY");
+                    stage.clear();
+                    iSpyError.setVisible(false);
+                    stage.addActor(createRoutineTable);
+                }
             }
         });
         
@@ -1527,6 +1549,7 @@ public class MainMenu implements Screen {
             @Override
             public void changed (ChangeEvent event, Actor actor) {                
                 stage.clear();
+                iSpyError.setVisible(false);
                 stage.addActor(createRoutineTable);
             }
         });    
@@ -1539,9 +1562,14 @@ public class MainMenu implements Screen {
         memoryDone.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {                
-                file.addRoutine(pFirst, pLast, routineName, "MEMORY");                
-                stage.clear();
-                stage.addActor(createRoutineTable);
+                if(memRoundsTillStats.getText().equals("") || memRepetitions.getText().equals("") || cardReveal.getText().equals("") || cardPairs.getText().equals("") || dispPercent.getText().equals("")) {
+                    memError.setVisible(true);                    
+                } else {
+                    file.addRoutine(pFirst, pLast, routineName, "MEMORY");                
+                    memError.setVisible(false);
+                    stage.clear();
+                    stage.addActor(createRoutineTable);
+                }
             }
         });
         
@@ -1549,6 +1577,7 @@ public class MainMenu implements Screen {
             @Override
             public void changed (ChangeEvent event, Actor actor) {                
                 stage.clear();
+                memError.setVisible(false);
                 stage.addActor(createRoutineTable);
             }
         });
@@ -1561,10 +1590,15 @@ public class MainMenu implements Screen {
          */
         mazeDone.addListener(new ChangeListener() {
             @Override
-            public void changed (ChangeEvent event, Actor actor) {                
-                file.addRoutine(pFirst, pLast, routineName, "MAZE");                
-                stage.clear();
-                stage.addActor(createRoutineTable);
+            public void changed (ChangeEvent event, Actor actor) {       
+                if(mazeRoundsTillStats.getText().equals("") || mazeRepetitions.getText().equals("") || mazeWidth.getText().equals("") || mazeHeight.getText().equals("")) {
+                    mazeError.setVisible(true);
+                } else {
+                    file.addRoutine(pFirst, pLast, routineName, "MAZE");                
+                    stage.clear();
+                    mazeError.setVisible(false);
+                    stage.addActor(createRoutineTable);
+                }
             }
         });
         
@@ -1572,6 +1606,7 @@ public class MainMenu implements Screen {
             @Override
             public void changed (ChangeEvent event, Actor actor) {                
                 stage.clear();
+                mazeError.setVisible(false);
                 stage.addActor(createRoutineTable);
             }
         });
@@ -1585,9 +1620,14 @@ public class MainMenu implements Screen {
         pathDone.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {    
-                file.addRoutine(pFirst, pLast, routineName, "PATH TRACE");                
-                stage.clear();
-                stage.addActor(createRoutineTable);
+                if(pathRoundsTillStats.getText().equals("") || pathRepetitions.getText().equals("") || numPointsTF.getText().equals("")) {
+                    pathError.setVisible(true);                    
+                } else {
+                    file.addRoutine(pFirst, pLast, routineName, "PATH TRACE");                
+                    stage.clear();
+                    pathError.setVisible(false);
+                    stage.addActor(createRoutineTable);
+                }
             }
         });
         
@@ -1595,6 +1635,7 @@ public class MainMenu implements Screen {
             @Override
             public void changed (ChangeEvent event, Actor actor) {                
                 stage.clear();
+                pathError.setVisible(false);
                 stage.addActor(createRoutineTable);
             }
         });
@@ -1606,14 +1647,16 @@ public class MainMenu implements Screen {
          */
         loadRoutineRun.addListener(new ChangeListener() {
             @Override
-            public void changed (ChangeEvent event, Actor actor) {                
-                // need check for if the routine doesnt exist
-                // loadRouitineError.setVisibility(true);
-                
+            public void changed (ChangeEvent event, Actor actor) {                                
                 routineName = loadRoutineTextField.getText();                
                 
-                file.queueRoutine(pFirst, pLast, routineName);
-                file.runRoutine(pFirst, pLast, routineName);                
+                if(file.isRoutine(pFirst, pLast, routineName)) {                
+                    loadError.setVisible(false);
+                    loadRoutineTextField.setText("");
+                    
+                    file.queueRoutine(pFirst, pLast, routineName);
+                    file.runRoutine(pFirst, pLast, routineName);      
+                } else loadError.setVisible(true);
             }
         });
         
@@ -1621,6 +1664,8 @@ public class MainMenu implements Screen {
             @Override
             public void changed (ChangeEvent event, Actor actor) {                
                 stage.clear();
+                loadError.setVisible(false);
+                loadRoutineTextField.setText("");
                 stage.addActor(patientMenuTitleTable);
             }
         });
