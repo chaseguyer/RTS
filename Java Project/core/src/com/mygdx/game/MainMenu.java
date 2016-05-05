@@ -309,7 +309,7 @@ public class MainMenu implements Screen {
     public static CheckBox area8 = new CheckBox("", skin);
     public static CheckBox area9 = new CheckBox("", skin);
     // param 2
-    private Label iSpyParam2Label = new Label("How many rounds until statistics are shown?", skin);
+    private Label iSpyParam2Label = new Label("How many rounds before performance summary is shown?", skin);
     public static TextField iSpyRoundsTillStats = new TextField("", skin);
     //param 3
     private Label iSpyParam3Label = new Label("Reshuffle the cards after each round?", skin);
@@ -318,7 +318,7 @@ public class MainMenu implements Screen {
     private Label iSpyParam4Label = new Label("Activate the striped background?", skin);
     public static CheckBox iSpyStripedBox = new CheckBox("", skin);
     //param 5
-    private Label iSpyParam5Label = new Label("How many repetitions?(sets of rounds until statistics are shown)", skin);
+    private Label iSpyParam5Label = new Label("How many repetitions?(sets of rounds before summary is shown)", skin);
     public static TextField iSpyRepetitions = new TextField("", skin);
     
     public static Label iSpyError = new Label("One or more of the fields contains an invalid entry", skin, "error");
@@ -352,7 +352,7 @@ public class MainMenu implements Screen {
     private Label memParam3Label = new Label("How many pairs of cards? (2-12)", skin);
     public static TextField cardPairs = new TextField("", skin);
     //param4
-    private Label memParam4Label = new Label("How many rounds until statistics are shown?", skin);
+    private Label memParam4Label = new Label("How many rounds before performance summary is shown?", skin);
     public static TextField memRoundsTillStats = new TextField("", skin);
     //param5
     private Label memParam5Label = new Label("How many seconds would you like the card \nto be revealed for?", skin);
@@ -366,7 +366,7 @@ public class MainMenu implements Screen {
     private Label memParam7Label = new Label("Activate striped background?", skin);
     public static CheckBox memStripedBox = new CheckBox("", skin);
     //param 8
-    private Label memParam8Label = new Label("How many repetitions?(sets of rounds until statistics are shown)", skin);
+    private Label memParam8Label = new Label("How many repetitions?(sets of rounds before summary is shown)", skin);
     public static TextField memRepetitions = new TextField("", skin);
     
     public static Label memError = new Label("One or more of the fields contains an invalid entry", skin, "error");
@@ -395,9 +395,9 @@ public class MainMenu implements Screen {
     public static TextField mazeWidth = new TextField("", skin);    
     private Label mazeParam2Label = new Label("How many blocks high would you like the maze to be?", skin);
     public static TextField mazeHeight = new TextField("", skin);    
-    private Label mazeParam3Label = new Label("How many rounds until statistics are shown?", skin);
+    private Label mazeParam3Label = new Label("How many rounds before performance summary is shown?", skin);
     public static TextField mazeRoundsTillStats = new TextField("", skin);
-    private Label mazeParam4Label = new Label("How many repetitions?(sets of rounds until statistics are shown)", skin);
+    private Label mazeParam4Label = new Label("How many repetitions?(sets of rounds before summary is shown)", skin);
     public static TextField mazeRepetitions = new TextField("", skin);
     
     public static Label mazeError = new Label("One or more of the fields contains an invalid entry", skin, "error");
@@ -425,9 +425,9 @@ public class MainMenu implements Screen {
     // objects
     private Label pathParam1Label = new Label("How many points would you like there to be along the path?", skin);
     public static TextField numPointsTF = new TextField("", skin);
-    private Label pathParam2Label = new Label("How many rounds until statistics are shown?", skin);
+    private Label pathParam2Label = new Label("How many rounds before performance summary is shown?", skin);
     public static TextField pathRoundsTillStats = new TextField("", skin);
-    private Label pathParam3Label = new Label("How many repetitions?(sets of rounds until statistics are shown)", skin);
+    private Label pathParam3Label = new Label("How many repetitions?(sets of rounds before summary is shown)", skin);
     public static TextField pathRepetitions = new TextField("", skin);
     private Label pathParam4Label = new Label("What would you like that path's shape to be?", skin);
     public static CheckBox circularPath = new CheckBox("Circular", skin);
@@ -1218,71 +1218,74 @@ public class MainMenu implements Screen {
         piDone.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {   
-                try {
-                    // file io stuff for the first and last name
-                    pFirst = firstNameTextField.getText();
-                    pLast = lastNameTextField.getText();
-                    
-                    // file io stuff for the check boxes
-                    lArmBool = lArmBox.isChecked();
-                    rArmBool = rArmBox.isChecked();
-                    bArmBool = bArmBox.isChecked();
-                    
-                    // the following ifs handle the case where the therapist put nothing in the fields
-                    // instead it just sets the fields to 0.0
-                    if(!fmTextField.getText().equals("")) {
-                        fm = Float.parseFloat(fmTextField.getText());
-                    }
-                    
-                    if(!gsTextField.getText().equals("")) {
-                        gs = Float.parseFloat(gsTextField.getText());
-                    }
-                    
-                    if(!psTextField.getText().equals("")) {
-                        ps = Float.parseFloat(psTextField.getText());
-                    }
-                    
-                    if(!hpTextField.getText().equals("")) {
-                        hp = Float.parseFloat(hpTextField.getText());
-                    }
-                    
-                    // add the new patient info in their own file and to the patient list
-                    // bool isNewPatient(); // first item is therapists name                    
-                    file.patientInfo(theName, pFirst, pLast, lArmBool, rArmBool, bArmBool, fm, gs, ps, hp, true); 
-                
-                    // do something with additional notes
-                    file.addToNotes(pFirst, pLast, addNotes.getText());
-                    
-                    // zero out the actors and the global variables
-                    // first and last name
-                    //pFirst = pLast = "";
-                    firstNameTextField.setText("");
-                    lastNameTextField.setText("");
-                    addNotes.setText((""));
-                    
-                    
-                    // arm check boxes
-                    lArmBool = rArmBool = bArmBool = false;
-                    lArmBox.setChecked(false);
-                    rArmBox.setChecked(false);
-                    bArmBox.setChecked(false);
-                    
-                    // test scores
-                    fm = gs = ps = hp = 0f;
-                    fmTextField.setText("");
-                    gsTextField.setText("");
-                    psTextField.setText("");
-                    hpTextField.setText("");       
-                    
-                    scroller.scrollTo(100, 100, 100, 100);                 
-                    piError.setVisible(false);
-                    
-                    stage.clear();
-                    if(!isLoadedPatient) stage.addActor(therapistMenuTitleTable);
-                    else stage.addActor(patientMenuTitleTable);
-                    isLoadedPatient = false;
-                } catch(NumberFormatException e) {
+                if(firstNameTextField.getText().equals("") || lastNameTextField.getText().equals("")) {
                     piError.setVisible(true);
+                } else {
+                    try {
+                        // file io stuff for the first and last name
+                        pFirst = firstNameTextField.getText();
+                        pLast = lastNameTextField.getText();
+
+                        // file io stuff for the check boxes
+                        lArmBool = lArmBox.isChecked();
+                        rArmBool = rArmBox.isChecked();
+                        bArmBool = bArmBox.isChecked();
+
+                        // the following ifs handle the case where the therapist put nothing in the fields
+                        // instead it just sets the fields to 0.0
+                        if(!fmTextField.getText().equals("")) {
+                            fm = Float.parseFloat(fmTextField.getText());
+                        }
+
+                        if(!gsTextField.getText().equals("")) {
+                            gs = Float.parseFloat(gsTextField.getText());
+                        }
+
+                        if(!psTextField.getText().equals("")) {
+                            ps = Float.parseFloat(psTextField.getText());
+                        }
+
+                        if(!hpTextField.getText().equals("")) {
+                            hp = Float.parseFloat(hpTextField.getText());
+                        }
+
+                        // add the new patient info in their own file and to the patient list
+                        // bool isNewPatient(); // first item is therapists name                    
+                        file.patientInfo(theName, pFirst, pLast, lArmBool, rArmBool, bArmBool, fm, gs, ps, hp, true); 
+
+                        // do something with additional notes
+                        file.addToNotes(pFirst, pLast, addNotes.getText());
+
+                        // zero out the actors and the global variables
+                        // first and last name
+                        //pFirst = pLast = "";
+                        firstNameTextField.setText("");
+                        lastNameTextField.setText("");
+                        addNotes.setText((""));
+
+
+                        // arm check boxes
+                        lArmBool = rArmBool = bArmBool = false;
+                        lArmBox.setChecked(false);
+                        rArmBox.setChecked(false);
+                        bArmBox.setChecked(false);
+
+                        // test scores
+                        fm = gs = ps = hp = 0f;
+                        fmTextField.setText("");
+                        gsTextField.setText("");
+                        psTextField.setText("");
+                        hpTextField.setText("");       
+
+                        piError.setVisible(false);
+
+                        stage.clear();
+                        if(!isLoadedPatient) stage.addActor(therapistMenuTitleTable);
+                        else stage.addActor(patientMenuTitleTable);
+                        isLoadedPatient = false;
+                    } catch(NumberFormatException e) {
+                        piError.setVisible(true);
+                    }
                 }
             }
         });  
