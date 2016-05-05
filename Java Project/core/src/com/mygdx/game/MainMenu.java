@@ -478,7 +478,12 @@ public class MainMenu implements Screen {
             stage.addActor(patientMenuTitleTable);            
         }       
     }
-           
+    
+    /**
+     *  Description of the method
+     *  Parameters
+     *  Return values
+     */    
     public void createTables() {
         
         /*
