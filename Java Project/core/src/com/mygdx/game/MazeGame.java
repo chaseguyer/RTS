@@ -273,12 +273,12 @@ public class MazeGame extends ApplicationAdapter implements Screen, InputProcess
         
         CharSequence statsStr = "Total Time Elapsed: " + totalTimeString + "\n" + "Overall Session Accuracy: " + String.format("%.2f%%\n\n", avgRatio) + "Round Accuracies:\n";
         for (int i = 0; i < ratios.size(); ++i) {
-            statsStr += "    " + Integer.toString(i+1) + ": " + String.format("%.2f%%",ratios.get(ratios.size()-i-1)) + "\n";
+            statsStr += "    " + Integer.toString(i+1) + ".) " + String.format("%.2f%%",ratios.get(ratios.size()-i-1)) + "\n";
         }
         
         statsStr += "Round Times: \n";
         for (int i = 0; i < timeStrings.size(); ++i) {
-            statsStr += "    " + Integer.toString(i+1) + ": " + timeStrings.get(i) + "\n";
+            statsStr += "    " + Integer.toString(i+1) + ".) " + timeStrings.get(i) + "\n";
         }
         
         layout.setText(font, statsStr);

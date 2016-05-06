@@ -73,7 +73,6 @@ public class PathTracingGame extends ApplicationAdapter implements Screen, Input
      * @param routine 
      */
     public PathTracingGame(String firstName, String lastName, String routine) {
-        //System.out.println("Path trace constructor");
         pointTexture = new Texture(Gdx.files.internal("Textures/Ball.png"));
         pointNotConnectedTexture = new Texture(Gdx.files.internal("Textures/BallNotConnected.png"));
         pointTargetTexture = new Texture(Gdx.files.internal("Textures/BallTarget.png"));
@@ -405,7 +404,7 @@ public class PathTracingGame extends ApplicationAdapter implements Screen, Input
     }
     
     private void renderInstructions() {
-        CharSequence str = "Follow the path.\nMove the mouse to the red ball to start.";
+        CharSequence str = "Follow the path.\nMove the mouse to the red ball to start, then trace the path.";
         font.getData().setScale(0.5f);
         layout.setText(font, str);
         float width = layout.width;
@@ -423,10 +422,10 @@ public class PathTracingGame extends ApplicationAdapter implements Screen, Input
             instructions = "Press Q to quit.\n\n";
         }
         
-        String distanceStr = "Round Distances: \n";
+        String distanceStr = "Round's Average Distance off Path: \n";
         float avgDistance = 0;
         for (int i = 0; i < averageDistances.size(); ++i) {
-            distanceStr += Integer.toString(i+1) + ": " + String.format("%.2f",averageDistances.get(i)) + "\n";
+            distanceStr += Integer.toString(i+1) + ".) " + String.format("%.2f",averageDistances.get(i)) + "\n";
             avgDistance += averageDistances.get(i);
         }
         if (averageDistances.isEmpty()) {
@@ -439,7 +438,7 @@ public class PathTracingGame extends ApplicationAdapter implements Screen, Input
         String timeStr = "Round Times: \n";
         long totalTime = 0;
         for (int i = 0; i < roundTimes.size(); ++i) {
-            timeStr += Integer.toString(i+1) + ": " + convertToTimeString(roundTimes.get(i)) + "\n";
+            timeStr += Integer.toString(i+1) + ".) " + convertToTimeString(roundTimes.get(i)) + "\n";
             totalTime += roundTimes.get(i);
         }
         
