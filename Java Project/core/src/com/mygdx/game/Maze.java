@@ -20,7 +20,7 @@ import java.util.Random;
 import javafx.util.Pair;
 
 /**
- *
+ * This is the maze used by the maze game.
  * @author Kenny
  */
 public class Maze {
@@ -48,8 +48,8 @@ public class Maze {
      * Make a new maze.
      * @param width Number of nodes width-wise.
      * @param height Number of nodes height-wise.
-     * @param screenWidth
-     * @param screenHeight
+     * @param screenWidth Width of the screen of the maze
+     * @param screenHeight Height of the screen of the maze
      */
     public Maze(int width, int height, int screenWidth, int screenHeight) {
         this.width = width;
@@ -127,6 +127,13 @@ public class Maze {
     }
 
     private void kruskal() {
+        // This algorithm is well known for creating a minimal spanning tree of
+        // a graph. Instead of using weights to sort the edges, the list of
+        // edges is shuffled randomly and edges are picked until a minimal
+        // spanning tree of the entire graph is created. This creates a maze in
+        // which it is possible to go from any one point to any other in exactly
+        // one way, supposing there is no backtracking.
+        
         // 1. Make maze
         int maze[][] = new int[width][height];
         for (int i = 0; i < width; ++i) {

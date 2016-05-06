@@ -26,7 +26,26 @@ import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 /**
- *
+ * In this game, the user navigates a maze, attempting to move the 
+ * mouse cursor to the blue ball without hitting the walls.
+ * 
+ * TODO:
+ * Change the reporting of the so called "accuracy" statistic to be based on the
+ * correctness of the path taken - whenever a wall is crossed, the player should
+ * be penalized for the size of the wall they crossed, if they cross it. So, for
+ * example:
+ * XXXXXXXXXXX
+ * X X     G X
+ * X X       X
+ * X X X     X
+ * X   X     X
+ * XXXXXXXXXXX
+ * 
+ * If the user starts in the top right corner, they should be penalized for
+ * skipping across the first wall more than the second wall.
+ * 
+ * Another thing which remains to do is to make the cursor scale with the size
+ * of the maze, to ensure that it is always possible to win.
  * @author Kenny
  */
 public class MazeGame extends ApplicationAdapter implements Screen, InputProcessor {
@@ -57,8 +76,13 @@ public class MazeGame extends ApplicationAdapter implements Screen, InputProcess
     private boolean playing;
     private long lastTickTime;
     
+    /**
+     * Create a maze game.
+     * @param firstName The first name of the patient
+     * @param lastName The last name of the patient
+     * @param routineName The name of the routine
+     */
     public MazeGame(String firstName, String lastName, String routineName) {
-        //System.out.println("Maze constructor");
         this.firstName = firstName;
         this.lastName = lastName;
         this.routine = routineName;
@@ -117,12 +141,6 @@ public class MazeGame extends ApplicationAdapter implements Screen, InputProcess
             }
             mazes.get(roundNum).draw(batch);
             if (mazes.get(roundNum).gotTarget(Gdx.input.getX(), Gdx.graphics.getHeight()-Gdx.input.getY(), cursorRadius)) {
-
-                //System.out.println("Round: ");
-                //System.out.println(roundNum);
-                //System.out.println("Ticks bad, good");
-                //System.out.println(ticksBad);
-                //System.out.println(ticksGood);
                 recordStats();
                 roundNum++;
                 playing = false;
@@ -166,7 +184,6 @@ public class MazeGame extends ApplicationAdapter implements Screen, InputProcess
             while (roundNum % numRounds != 0) {
                 roundNum++;
             }
-
             playing = false;
             ticksBad = 0;
             ticksGood = 0;
@@ -274,12 +291,12 @@ public class MazeGame extends ApplicationAdapter implements Screen, InputProcess
         
         CharSequence statsStr = "Total Time Elapsed: " + totalTimeString + "\n" + "Overall Session Accuracy: " + String.format("%.2f%%\n\n", avgRatio) + "Round Accuracies:\n";
         for (int i = 0; i < ratios.size(); ++i) {
-            statsStr += "    " + Integer.toString(i+1) + ": " + String.format("%.2f%%",ratios.get(ratios.size()-i-1)) + "\n";
+            statsStr += "    " + Integer.toString(i+1) + ".) " + String.format("%.2f%%",ratios.get(ratios.size()-i-1)) + "\n";
         }
         
         statsStr += "Round Times: \n";
         for (int i = 0; i < timeStrings.size(); ++i) {
-            statsStr += "    " + Integer.toString(i+1) + ": " + timeStrings.get(i) + "\n";
+            statsStr += "    " + Integer.toString(i+1) + ".) " + timeStrings.get(i) + "\n";
         }
         
         layout.setText(font, statsStr);
