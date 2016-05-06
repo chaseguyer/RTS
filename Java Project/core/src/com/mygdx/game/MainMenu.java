@@ -68,7 +68,6 @@ import com.badlogic.gdx.utils.Align;
  *
  * @author chaseguyer
  */
-
 public class MainMenu implements Screen {
     
     // Static variables
@@ -480,9 +479,7 @@ public class MainMenu implements Screen {
     }
     
     /**
-     *  Description of the method
-     *  Parameters
-     *  Return values
+     *  This function initializes all of the tables by adding the elements to them with the proper formatting
      */    
     public void createTables() {
         
@@ -1048,6 +1045,9 @@ public class MainMenu implements Screen {
         loadRoutineBack.getLabel().setFontScale(LABEL_FS);
     }
     
+    /**
+     *  This function creates all of the listeners for the menu system. It adds the listeners to each of the object members
+     */
     public void createListeners() {
         
         /*
@@ -1690,17 +1690,14 @@ public class MainMenu implements Screen {
 
     @Override
     public void pause() {
-        //System.out.println("pause");
     }
 
     @Override
     public void resume() {
-        //System.out.println("resume");
     }
 
     @Override
     public void hide() {
-        //System.out.println("hide");
         stage.clear();        
     }
 
@@ -1725,7 +1722,6 @@ public class MainMenu implements Screen {
         therapistMenuTitleTable.remove();
         piButtons.remove();
         
-        // listeners.remove();
     }
 
     @Override
