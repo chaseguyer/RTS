@@ -31,7 +31,8 @@ import java.util.logging.Logger;
 import javafx.scene.shape.Shape;
 
 /**
- *
+ * In this game, the user traces a path as closely as they can, and
+ * as quickly as possible.
  * @author Kenny
  */
 public class PathTracingGame extends ApplicationAdapter implements Screen, InputProcessor {
@@ -67,10 +68,10 @@ public class PathTracingGame extends ApplicationAdapter implements Screen, Input
     private final List<Long> roundTimes;
     
     /**
-     * 
-     * @param firstName
-     * @param lastName
-     * @param routine 
+     * Create a path tracing game.
+     * @param firstName The first name of the patient
+     * @param lastName The last name of the patient
+     * @param routine The name of the routine
      */
     public PathTracingGame(String firstName, String lastName, String routine) {
         pointTexture = new Texture(Gdx.files.internal("Textures/Ball.png"));
@@ -299,8 +300,6 @@ public class PathTracingGame extends ApplicationAdapter implements Screen, Input
     }
 
     private void writeStats() {
-        // TODO:
-        // write the stats for the last round to a file
         float avg = 0;
         for (int i = 0; i < lineDistances.size(); ++i) {
             avg += lineDistances.get(i);
