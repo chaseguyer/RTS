@@ -303,14 +303,21 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
         //display averages by orientation
         font.draw(batch, "PRESS N TO CONTINUE TO NEXT GAME OR Q TO QUIT", (int)(Gdx.graphics.getWidth()*.4f), (int)(Gdx.graphics.getHeight()*.1f));
         font.draw(batch, "Vertical Averages", Gdx.graphics.getWidth()*.25f, Gdx.graphics.getHeight()*.95f);//was horizontal
-        font.draw(batch, "Missed: "+averageMissesSide+"     "+"Time: "+averageTimeSide, Gdx.graphics.getWidth()*.25f, Gdx.graphics.getHeight()*.85f);
+        if(Float.isNaN(averageMissesSide))
+            font.draw(batch, "Missed: N/A    "+"Time: N/A", Gdx.graphics.getWidth()*.25f, Gdx.graphics.getHeight()*.85f);
+        else
+            font.draw(batch, "Missed: "+averageMissesSide+"     "+"Time: "+averageTimeSide, Gdx.graphics.getWidth()*.25f, Gdx.graphics.getHeight()*.85f);
+        
         font.draw(batch, "Horizontal Average", Gdx.graphics.getWidth()*.75f, Gdx.graphics.getHeight()*.95f);//was vertical
-        font.draw(batch, "Missed: "+averageMissesUp+"     "+"Time: "+averageTimeUp, Gdx.graphics.getWidth()*.75f, Gdx.graphics.getHeight()*.85f);
+        if(Float.isNaN(averageMissesUp))
+            font.draw(batch, "Missed: N/A     "+"Time: N/A", Gdx.graphics.getWidth()*.75f, Gdx.graphics.getHeight()*.85f);
+        else
+            font.draw(batch, "Missed: "+averageMissesUp+"     "+"Time: "+averageTimeUp, Gdx.graphics.getWidth()*.75f, Gdx.graphics.getHeight()*.85f);
         //display the stats of the last block of rounds
+        font.draw(batch, "Invalid Pairs Attempted      Time", Gdx.graphics.getWidth()*.45f, Gdx.graphics.getHeight()*.75f+25);
         for(int i=0; i<statsWrong.size(); ++i)
-        {
-            font.draw(batch, statsWrong.get(i)+" "+( statsTime.get(i)  ), Gdx.graphics.getWidth()*.45f, Gdx.graphics.getHeight()*.75f-i*25);
-        }
+            font.draw(batch, statsWrong.get(i)+"                                         "+( statsTime.get(i)  ), Gdx.graphics.getWidth()*.45f, Gdx.graphics.getHeight()*.75f-i*25);
+        
         batch.end();
         if(Gdx.input.isKeyJustPressed(Keys.Q))
         {
@@ -334,12 +341,21 @@ public class MemoryGame extends ApplicationAdapter implements Screen, InputProce
         //display averages by orientation
         font.draw(batch, "PRESS ANY KEY TO CONTINUE", (int)(Gdx.graphics.getWidth()*.4f), (int)(Gdx.graphics.getHeight()*.1f));
         font.draw(batch, "Vertical Averages", Gdx.graphics.getWidth()*.25f, Gdx.graphics.getHeight()*.95f);//was horizontal
-        font.draw(batch, "Missed: "+averageMissesSide+"     "+"Time: "+averageTimeSide, Gdx.graphics.getWidth()*.25f, Gdx.graphics.getHeight()*.85f);
+        if(Float.isNaN(averageMissesSide)) 
+            font.draw(batch, "Missed: N/A     "+"Time: N/A", Gdx.graphics.getWidth()*.25f, Gdx.graphics.getHeight()*.85f);
+        else
+            font.draw(batch, "Missed: "+averageMissesSide+"     "+"Time: "+averageTimeSide, Gdx.graphics.getWidth()*.25f, Gdx.graphics.getHeight()*.85f);
         font.draw(batch, "Horizontal Average", Gdx.graphics.getWidth()*.75f, Gdx.graphics.getHeight()*.95f);//was vertical
-        font.draw(batch, "Missed: "+averageMissesUp+"     "+"Time: "+averageTimeUp, Gdx.graphics.getWidth()*.75f, Gdx.graphics.getHeight()*.85f);
+        
+        if(Float.isNaN(averageMissesUp))
+            font.draw(batch, "Missed: N/A     "+"Time: N/A", Gdx.graphics.getWidth()*.75f, Gdx.graphics.getHeight()*.85f);
+        else
+            font.draw(batch, "Missed: "+averageMissesUp+"     "+"Time: "+averageTimeUp, Gdx.graphics.getWidth()*.75f, Gdx.graphics.getHeight()*.85f);
+        
         //display the stats of the last block of rounds
+        font.draw(batch, "Invalid Pairs Attempted      Time", Gdx.graphics.getWidth()*.45f, Gdx.graphics.getHeight()*.75f+25);
         for(int i=0; i<statsWrong.size(); ++i)
-            font.draw(batch, statsWrong.get(i)+" "+( statsTime.get(i)  ), Gdx.graphics.getWidth()*.45f, Gdx.graphics.getHeight()*.75f-i*25);
+            font.draw(batch, statsWrong.get(i)+"                                         "+( statsTime.get(i)  ), Gdx.graphics.getWidth()*.45f, Gdx.graphics.getHeight()*.75f-i*25);
         batch.end();
     }
 
