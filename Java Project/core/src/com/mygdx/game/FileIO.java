@@ -8,9 +8,7 @@ package com.mygdx.game;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import java.io.*;
-import java.nio.file.Path;
 import java.util.*;
-
 
 /**
  *
@@ -25,7 +23,12 @@ public class FileIO {
     
     LinkedList<String> gameList = new LinkedList<String>();
     
-    // just to be clear, i have no idea what i'm doing...
+    /**
+     * This function checks whether or not the username and password it has been handed is valid
+     * @param username
+     * @param password
+     * @return isValidLogin
+     */
     public boolean isValidLogin(String username, String password) {    
         try{
             Scanner scan = new Scanner(new File("RTS Data/therapists/rts-login.txt")).useDelimiter("\n");
@@ -33,7 +36,7 @@ public class FileIO {
             
             // scan in the entries from the file and add them to the list of users
             while(scan.hasNextLine()) {
-                small = new Scanner(scan.nextLine()).useDelimiter(","); // ...AND IT SHOWS :D 
+                small = new Scanner(scan.nextLine()).useDelimiter(",");
                 unList.add(small.next());
                 pwList.add(small.next());
             }
@@ -49,7 +52,11 @@ public class FileIO {
         return false;
     }
     
-    // Creates a new therapist
+    /**
+     * This function adds the therapist username and password to the list of therapists
+     * @param username
+     * @param password 
+     */
     public void newTherapist(String username, String password) {
         try{
             
@@ -64,7 +71,20 @@ public class FileIO {
         } catch (FileNotFoundException e) {}
     }
     
-    // This function creates/edits the patient information section
+    /**
+     * This function creates/edits the patient information section
+     * @param thName
+     * @param fName
+     * @param lName
+     * @param lArm
+     * @param rArm
+     * @param bArm
+     * @param fm
+     * @param gs
+     * @param ps
+     * @param hp
+     * @param isNewPatient 
+     */
     public void patientInfo(
             String thName, String fName, String lName, // therapist name, patient first name, patient last name
             boolean lArm, boolean rArm, boolean bArm,  // boolean values for most involved arm
@@ -113,7 +133,13 @@ public class FileIO {
         }        
     }
     
-    // this function checks  whether or not a patient exists
+    /**
+     * this function checks whether or not a patient exists
+     * @param therapistName
+     * @param pFirst
+     * @param pLast
+     * @return isPatient
+     */
     public boolean isPatient(String therapistName, String pFirst, String pLast) {
         ArrayList<String> pList = new ArrayList<String>();
         ArrayList<String> patientFirst = new ArrayList<String>();
@@ -144,7 +170,12 @@ public class FileIO {
         return false;
     }
     
-    // additional notes function
+    /**
+     * This function adds notes to the patient's notes file
+     * @param first
+     * @param last
+     * @param text 
+     */
     public void addToNotes(String first, String last, String text) {
         try {        
             writer = new PrintWriter(new FileOutputStream("RTS Data/patients/" + first + "_" + last + "/" + first + "_" + last + "_notes" + ".txt", true));
@@ -155,7 +186,13 @@ public class FileIO {
         }        
     }    
     
-    // this function creates the routine folder 
+    /**
+     * This function creates the routine folder 
+     * @param first
+     * @param last
+     * @param routineName
+     * @return isValidRoutineName
+     */
     public boolean addRoutineFolder(String first, String last, String routineName) { 
         // create the routine folder
         File dir = new File("RTS Data/patients/" + first + "_" + last + "/" + routineName);
@@ -170,14 +207,26 @@ public class FileIO {
         }
     }
     
-    // is new says it is from the name routine section. if it is false, we are loading
+    /**
+     * This function checks if the routine it has been handed is a valid name
+     * @param first
+     * @param last
+     * @param routine
+     * @return isValidRoutineName
+     */
     public boolean isRoutine(String first, String last, String routine) {
         File f = new File("RTS Data/patients/" + first + "_" + last + "/" + routine);            
         if(f.exists() && f.isDirectory()) return true;
         else return false;
     }
     
-    // this function creates the routine subfolder information
+    /**
+     * This function creates the routine subfolder information
+     * @param first
+     * @param last
+     * @param routineName
+     * @param routine 
+     */
     public void addRoutine(String first, String last, String routineName, String routine) {
         try {
             // add routine
@@ -282,6 +331,12 @@ public class FileIO {
         
     }
     
+    /**
+     * This function gets the routine list loaded
+     * @param first
+     * @param last
+     * @param routineName 
+     */
     public void queueRoutine(String first, String last, String routineName) {
         
         File f = new File("RTS Data/patients/" + first + "_" + last + "/" + routineName + "/" + first + "_" + last + "_" + routineName + ".txt");
@@ -299,6 +354,12 @@ public class FileIO {
         
     }    
     
+    /**
+     * As the name implies, this function runs the routine
+     * @param first
+     * @param last
+     * @param routineName 
+     */
     public void runRoutine(String first, String last, String routineName) { 
         //System.out.println("Now in runRoutine");
         
